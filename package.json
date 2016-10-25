@@ -1,0 +1,44 @@
+{
+  "name": "aero-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin/aero",
+  "bin": {
+    "aero": "bin/aero.js"
+  },
+  "preferGlobal": true,
+  "scripts": {
+    "test": "mocha test"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "any-promise": "^1.3.0",
+    "aws-sdk": "^2.6.12",
+    "bluebird": "^3.4.6",
+    "commander": "^2.9.0",
+    "fs-promise": "^0.5.0",
+    "inquirer": "^1.2.2",
+    "js-yaml": "^3.6.1",
+    "lodash": "^4.16.4",
+    "osenv": "^0.1.3",
+    "request": "^2.75.0",
+    "request-promise": "^4.1.1",
+    "rimraf": "^2.5.4",
+    "s3-upload-stream": "^1.0.7",
+    "shortid": "^2.2.6",
+    "simple-errors": "^1.0.1",
+    "tar": "^2.2.1",
+    "update-notifier": "^1.0.2",
+    "url-join": "^1.1.0",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "dash-assert": "^1.2.0",
+    "eslint": "^3.8.1",
+    "eslint-config-airbnb-base": "^9.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "mocha": "^3.1.2"
+  }
+}
