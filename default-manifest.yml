@@ -1,0 +1,16 @@
+# The aerobatic.yml manifest file is where you specify metadata about
+# your web application including plugins that provided enhanced
+# functionality at runtime on the Aerobatic platform.
+
+appId: __appId__
+
+deploy:
+  ignore:
+    - .git
+    - node_modules
+  directory: .
+
+router:
+  # The webpage plugin provides the core functionality for serving
+  # .html files
+  - module: webpage

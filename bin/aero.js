@@ -97,19 +97,19 @@ program
 //     subCommand: 'delete'
 //   }));
 
-// Deploy app
-// program
-//   .option('--version-name [versionName]', 'Version name')
-//   .option('-m, --message [message]', 'Version message')
-//   .option('-f, --force', 'Force all production traffic to the new version')
-//   .option('--open', 'Open the newly deployed version in a browser tab', true)
-//   .command('deploy')
-//   .description('Deploy a new version of the app')
-//   .action(commandAction('deploy', {
-//     requireAuth: true,
-//     loadVirtualApp: true,
-//     loadManifest: true
-//   }));
+// Deploy app version
+program
+  .option('-m, --message [versionMessage]', 'Version message')
+  .option('-s, --stage', 'Stage to deploy to')
+  .option('-d, --directory [deployDir]', 'The directory containing the files to deploy')
+  .option('-i, --ignore [ignore]', 'Glob patterns for files to exclude from the deployment.')
+  .option('--open', 'Open the newly deployed version in a browser tab', false)
+  .command('deploy')
+  .description('Deploy a new version of the application')
+  .action(commandAction(require('../commands/deploy'), {
+    loadVirtualApp: true,
+    loadManifest: true
+  }));
 
 program
   .option('-u --email [email]', 'Email username')

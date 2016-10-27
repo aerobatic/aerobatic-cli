@@ -1,0 +1,10 @@
+appId: 5385e5f8-7953-450e-a8a0-3965bbe359fd
+
+deploy:
+  ignore:
+    - ignore-me
+
+router:
+  # The webpage plugin provides the core functionality for serving
+  # .html files
+  - module: webpage
