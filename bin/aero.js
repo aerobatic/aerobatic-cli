@@ -6,6 +6,7 @@ const program = require('commander');
 const _ = require('lodash');
 const updateNotifier = require('update-notifier');
 const shortid = require('shortid');
+const path = require('path');
 const pkg = require('../package.json');
 const winston = require('winston');
 const cliInit = require('../lib/cli-init');
@@ -33,6 +34,8 @@ updateNotifier({
 program.version(pkg.version)
   .option('--debug', 'Emit debug messages')
   .option('--customer [customerId]', 'The id of the Aerobatic customer account to perform the command on behalf of.')
+  // Use command line switch to control NODE_ENV since this is running on local desktop
+  .option('--env', '', 'production')
   // .option('--token [token]', 'JSON web token')
   .option('--app-id [appId]', 'Set appId (in place of the one defined in package.json)');
 
@@ -130,7 +133,13 @@ if (!process.argv.slice(2).length) {
   program.outputHelp();
 }
 
-if (program.debug) {
+process.env.NODE_ENV = program.env;
+process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
+
+// Don't require config until after NODE_ENV has been set
+require('config');
+
+if (program.env === 'development' || program.debug) {
   winston.level = 'debug';
 }
 

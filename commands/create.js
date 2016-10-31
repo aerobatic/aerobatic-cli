@@ -1,4 +1,5 @@
 const log = require('winston');
+const urlJoin = require('url-join');
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
 
@@ -8,8 +9,8 @@ module.exports = program => {
   return manifest.ensureNotExists(program)
     .then(() => {
       return api.post({
-        url: '/apps',
-        authToken: program.userConfig.auth,
+        url: urlJoin(program.apiUrl, '/apps'),
+        authToken: program.authToken,
         body: {
           name: program.appName,
           customerId: program.customerId

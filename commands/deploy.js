@@ -2,6 +2,7 @@ const log = require('winston');
 const fs = require('fs-promise');
 const path = require('path');
 const _ = require('lodash');
+const urlJoin = require('url-join');
 const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
 const uuid = require('node-uuid');
@@ -29,7 +30,7 @@ module.exports = program => {
       return uploadTarballToS3(program, tarballFile);
     })
     .then(() => {
-      const url = `/apps/${program.virtualApp.appId}/versions`;
+      const url = urlJoin(program.apiUrl, `/apps/${program.virtualApp.appId}/versions`);
       const postBody = {
         versionId: program.versionId,
         message: program.versionMessage,
@@ -37,7 +38,7 @@ module.exports = program => {
       };
 
       log.debug('Invoke API to create version %s', program.versionId);
-      return api.post({url, authToken: program.userConfig.auth, body: postBody});
+      return api.post({url, authToken: program.authToken, body: postBody});
     })
     .then(version => {
       // Now the version is created in the database with a status of 'staged'.
@@ -64,7 +65,7 @@ function createTarball(program) {
   };
 
   const tarballFile = path.join(program.cwd, 'aero-deploy.tar.gz');
-  fs.unlinkSync(tarballFile);
+  fs.removeSync(tarballFile);
 
   const outStream = fs.createWriteStream(tarballFile);
 
@@ -81,16 +82,16 @@ function createTarball(program) {
 function uploadTarballToS3(program, tarballFile) {
   log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
   return api.get({
-    url: `/customers/${program.virtualApp.customerId}/deploy-creds`,
-    authToken: program.userConfig.auth
+    url: urlJoin(program.apiUrl, `/customers/${program.virtualApp.customerId}/deploy-creds`),
+    authToken: program.authToken
   })
   .then(creds => {
     // Use the temporary IAM creds to create the S3 connection
     return program.uploader({
       creds: _.mapKeys(creds, (value, key) => camelCase(key)),
       tarballFile,
-      key: program.virtualApp.customerId + '/' + program.versionId + '.tar.gz',
-      bucket: 'aerobatic-deploy-staging-dev',
+      key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
+      bucket: program.deployBucket,
       metadata: {deployToStage: program.deployStage}
     });
   });

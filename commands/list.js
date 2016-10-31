@@ -1,12 +1,13 @@
 const log = require('winston');
 const _ = require('lodash');
+const urlJoin = require('url-join');
 const api = require('../lib/api');
 
 // Command to create a new application
 module.exports = program => {
   var customerId = program.customerId;
-  if (!customerId && _.isObject(program.userConfig.customerRoles)) {
-    const customerIds = Object.keys(program.userConfig.customerRoles);
+  if (!customerId && _.isObject(program.customerRoles)) {
+    const customerIds = Object.keys(program.customerRoles);
     if (customerIds.length > 0) {
       customerId = customerIds[0];
     }
@@ -18,8 +19,8 @@ module.exports = program => {
 
   log.debug('List applications for customer %s', customerId);
   return api.get({
-    url: '/customers/' + customerId + '/apps',
-    authToken: program.userConfig.auth
+    url: urlJoin(program.apiUrl, `/customers/${customerId}/apps`),
+    authToken: program.authToken
   })
   .then(apps => {
     apps.forEach(app => {

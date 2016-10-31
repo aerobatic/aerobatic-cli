@@ -8,7 +8,7 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test --recursive"
   },
   "license": "ISC",
   "dependencies": {
@@ -17,6 +17,7 @@
     "bluebird": "^3.4.6",
     "camel-case": "^3.0.0",
     "commander": "^2.9.0",
+    "config": "^1.21.0",
     "fs-promise": "^0.5.0",
     "inquirer": "^1.2.2",
     "js-yaml": "^3.6.1",

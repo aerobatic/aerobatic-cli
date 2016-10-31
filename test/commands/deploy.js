@@ -2,6 +2,7 @@ const assert = require('assert');
 const path = require('path');
 const log = require('winston');
 const _ = require('lodash');
+const config = require('config');
 const uuid = require('node-uuid');
 const sinon = require('sinon');
 const manifest = require('../../lib/manifest');
@@ -10,7 +11,6 @@ const fs = require('fs-promise');
 const bodyParser = require('body-parser');
 
 const API_PORT = 1797;
-process.env.AERO_API_URL = `http://localhost:${API_PORT}`;
 
 log.level = 'debug';
 
@@ -49,9 +49,9 @@ describe('deploy command', () => {
     mockUploader = sinon.spy(() => Promise.resolve());
 
     program = {
-      userConfig: {
-        authToken: '23434'
-      },
+      apiUrl: `http://localhost:${API_PORT}`,
+      authToken: '23434',
+      deployBucket: config.deployBucket,
       uploader: mockUploader
     };
 
@@ -91,8 +91,8 @@ describe('deploy command', () => {
         assert.isTrue(mockUploader.calledWith({
           creds: deployCreds,
           tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
-          key: customerId + '/' + program.versionId + '.tar.gz',
-          bucket: 'aerobatic-deploy-staging-dev',
+          key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
+          bucket: config.deployBucket,
           metadata: {deployToStage: 'production'}
         }));
 

@@ -1,40 +1,46 @@
 const assert = require('assert');
+const os = require('os');
+const path = require('path');
+const fs = require('fs-promise');
 const sinon = require('sinon');
 const express = require('express');
 const bodyParser = require('body-parser');
+const manifest = require('../../lib/manifest');
 
 const API_PORT = 1797;
-process.env.AERO_API_URL = `http://localhost:${API_PORT}`;
 
 const createCommand = require('../../commands/create');
 
 require('dash-assert');
 
 describe('create command', () => {
-  var api;
+  var apiServer;
   var program;
   var apiPostHandler;
 
   before(done => {
-    api = express();
+    const api = express();
 
     api.post('/apps', [bodyParser.json()], (req, res, next) => {
       apiPostHandler(req, res, next);
     });
 
-    api.listen(API_PORT, done);
+    apiServer = api.listen(API_PORT, done);
+  });
+
+  after(done => {
+    apiServer.close(done);
   });
 
   beforeEach(() => {
     program = {
-      userConfig: {
-        authToken: '23434'
-      }
+      cwd: os.tmpdir(),
+      apiUrl: `http://localhost:${API_PORT}`,
+      authToken: '23434'
     };
-  });
 
-  // afterEach(function() {
-  // });
+    return fs.removeSync(path.join(os.tmpdir(), manifest.fileName));
+  });
 
   it('invokes api post endpoint', () => {
     const appName = 'test-app';

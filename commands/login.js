@@ -11,7 +11,7 @@ module.exports = program => {
     {
       type: 'input',
       name: 'email',
-      default: program.userConfig.email,
+      default: program.email,
       message: 'Email:'
     }, {
       type: 'password',
@@ -27,14 +27,14 @@ module.exports = program => {
     })
     .then(result => {
       return userConfig.set({
-        auth: result.idToken,
+        authToken: result.idToken,
         email: answers.email,
         customerRoles: result.customerRoles
       });
     });
   })
   .then(config => {
-    program.userConfig = config;
+    Object.assign(program, config);
     log.info('Successfully logged in');
     return null;
   });
