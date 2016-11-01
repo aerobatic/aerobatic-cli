@@ -1,5 +1,6 @@
 const log = require('winston');
 const inquirer = require('inquirer');
+const urlJoin = require('url-join');
 const userConfig = require('../lib/user-config');
 const api = require('../lib/api');
 
@@ -7,7 +8,7 @@ module.exports = program => {
   log.debug('Running the login command');
 
   // Prompt for login
-  inquirer.prompt([
+  return inquirer.prompt([
     {
       type: 'input',
       name: 'email',
@@ -21,7 +22,7 @@ module.exports = program => {
   ])
   .then(answers => {
     return api.post({
-      url: '/auth/login',
+      url: urlJoin(program.apiUrl, '/auth/login'),
       body: {email: answers.email, password: answers.password},
       requireAuth: false
     })

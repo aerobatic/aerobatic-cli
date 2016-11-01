@@ -93,7 +93,7 @@ describe('deploy command', () => {
           tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
           key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
           bucket: config.deployBucket,
-          metadata: {deployToStage: 'production'}
+          metadata: {stage: 'production'}
         }));
 
         assert.isTrue(apiHandlers.postVersionHandler.calledWith(sinon.match({

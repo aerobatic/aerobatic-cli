@@ -92,7 +92,7 @@ function uploadTarballToS3(program, tarballFile) {
       tarballFile,
       key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
       bucket: program.deployBucket,
-      metadata: {deployToStage: program.deployStage}
+      metadata: {stage: program.deployStage}
     });
   });
 }

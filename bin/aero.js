@@ -2,14 +2,13 @@
 
 require('any-promise/register/bluebird');
 
+const path = require('path');
 const program = require('commander');
 const _ = require('lodash');
 const updateNotifier = require('update-notifier');
 const shortid = require('shortid');
-const path = require('path');
 const pkg = require('../package.json');
 const winston = require('winston');
-const cliInit = require('../lib/cli-init');
 
 require('simple-errors');
 
@@ -35,7 +34,7 @@ program.version(pkg.version)
   .option('--debug', 'Emit debug messages')
   .option('--customer [customerId]', 'The id of the Aerobatic customer account to perform the command on behalf of.')
   // Use command line switch to control NODE_ENV since this is running on local desktop
-  .option('--env', '', 'production')
+  .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
   // .option('--token [token]', 'JSON web token')
   .option('--app-id [appId]', 'Set appId (in place of the one defined in package.json)');
 
@@ -133,24 +132,26 @@ if (!process.argv.slice(2).length) {
   program.outputHelp();
 }
 
-process.env.NODE_ENV = program.env;
-process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
-
-// Don't require config until after NODE_ENV has been set
-require('config');
-
-if (program.env === 'development' || program.debug) {
-  winston.level = 'debug';
-}
-
 process.on('exit', () => {
   log.debug('Exiting');
 });
 
 function commandAction(command, commandOptions) {
-  // debugger;
   // Extend any options from program to options.
   return () => {
+    if (program.env === 'development' || program.debug) {
+      winston.level = 'debug';
+    }
+
+    // Override env variables for config module.
+    process.env.NODE_ENV = program.env;
+    process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
+
+    // Don't require config until after NODE_ENV has been set
+    const config = require('config');
+
+    log.debug('Config environment is %s', config.util.getEnv('NODE_ENV'));
+
     _.defaults(program, {
       cwd: process.cwd(),
       customerId: process.env.AERO_CUSTOMER,
@@ -158,10 +159,10 @@ function commandAction(command, commandOptions) {
     });
 
     // Run the command
-    log.debug('Initialize the CLI');
-    cliInit(program, commandOptions)
+    require('../lib/cli-init')(program, commandOptions)
       .then(() => command(program))
       .catch(err => {
+        log.debug('Error from command promise');
         if (err.status === 401) {
           log.error('Invalid authToken. Try logging in first with `aero login`.');
         } else {
