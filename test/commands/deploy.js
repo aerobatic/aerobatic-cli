@@ -14,6 +14,9 @@ const API_PORT = 1797;
 
 log.level = 'debug';
 
+// Force a short polling interval for testing
+config.pollVersionStatusInterval = 20;
+
 require('dash-assert');
 
 describe('deploy command', () => {
@@ -22,6 +25,7 @@ describe('deploy command', () => {
   var program;
   var customerId;
   var deployCommand;
+  var deployCreds;
   var mockUploader;
   var apiHandlers = {};
 
@@ -35,6 +39,10 @@ describe('deploy command', () => {
 
     api.post('/apps/:appId/versions', (req, res, next) => {
       apiHandlers.postVersionHandler(req, res, next);
+    });
+
+    api.get('/apps/:appId/versions/:versionId', (req, res, next) => {
+      apiHandlers.getVersionHandler(req, res, next);
     });
 
     apiServer = api.listen(API_PORT, done);
@@ -52,14 +60,11 @@ describe('deploy command', () => {
       apiUrl: `http://localhost:${API_PORT}`,
       authToken: '23434',
       deployBucket: config.deployBucket,
-      uploader: mockUploader
+      uploader: mockUploader,
+      deployStage: 'staging'
     };
 
-    deployCommand = require('../../commands/deploy');
-  });
-
-  it('deploys', () => {
-    const deployCreds = {
+    deployCreds = {
       accessKeyId: '1234',
       secretAccessKey: 'asdfasdf',
       sessionToken: '32535'
@@ -73,9 +78,27 @@ describe('deploy command', () => {
     });
 
     apiHandlers.postVersionHandler = sinon.spy((req, res) => {
-      res.json(req.body);
+      res.json(_.assign(req.body, {
+        status: 'running',
+        appId: program.virtualApp.appId
+      }));
     });
 
+    var getVersionCall = 0;
+    apiHandlers.getVersionHandler = sinon.spy((req, res) => {
+      getVersionCall += 1;
+      const version = req.params;
+      if (getVersionCall === 3) {
+        res.json(Object.assign(version, {status: 'complete', deployedUrl: `https://${req.query.stage}.test.com`}));
+      } else {
+        res.json(Object.assign(version, {status: 'running'}));
+      }
+    });
+
+    deployCommand = require('../../commands/deploy');
+  });
+
+  it('deploys', () => {
     const sampleAppDir = path.join(__dirname, '../fixtures/sample-app');
     Object.assign(program, {cwd: sampleAppDir});
 
@@ -93,7 +116,7 @@ describe('deploy command', () => {
           tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
           key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
           bucket: config.deployBucket,
-          metadata: {stage: 'production'}
+          metadata: {stage: program.deployStage}
         }));
 
         assert.isTrue(apiHandlers.postVersionHandler.calledWith(sinon.match({
@@ -103,6 +126,35 @@ describe('deploy command', () => {
             manifest: _.omit(program.appManifest, 'appId')
           }
         })));
+
+        assert.equal(apiHandlers.getVersionHandler.callCount, 3);
+      });
+  });
+
+  it('version deploy fails', () => {
+    const sampleAppDir = path.join(__dirname, '../fixtures/sample-app');
+    Object.assign(program, {cwd: sampleAppDir});
+
+    var getVersionCall = 0;
+    apiHandlers.getVersionHandler = sinon.spy((req, res) => {
+      getVersionCall += 1;
+      const version = req.params;
+      if (getVersionCall === 2) {
+        res.json(Object.assign(version, {status: 'failed', error: 'Deploy failed'}));
+      } else {
+        res.json(Object.assign(version, {status: 'running'}));
+      }
+    });
+
+    return manifest.load(program)
+      .then(appManifest => {
+        program.appManifest = appManifest;
+        program.virtualApp = {appId: appManifest.appId, customerId};
+        return deployCommand(program);
+      })
+      .catch(err => {
+        assert.isTrue(/Deploy failed/.test(err.message));
+        assert.equal(apiHandlers.getVersionHandler.callCount, 2);
       });
   });
 });

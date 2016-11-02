@@ -2,16 +2,20 @@ const log = require('winston');
 const fs = require('fs-promise');
 const path = require('path');
 const _ = require('lodash');
+const config = require('config');
 const urlJoin = require('url-join');
 const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
 const uuid = require('node-uuid');
 const Promise = require('bluebird');
+const promiseUntil = require('promise-until');
 const minimatch = require('minimatch');
 const api = require('../lib/api');
+const manifest = require('../lib/manifest');
 
 const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
-  '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php', '**/*.asp'];
+  '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
+  '**/*.asp', 'package.json', manifest.fileName];
 
 // Command to create a new application
 module.exports = program => {
@@ -40,12 +44,9 @@ module.exports = program => {
       log.debug('Invoke API to create version %s', program.versionId);
       return api.post({url, authToken: program.authToken, body: postBody});
     })
+    .then(version => waitForDeployComplete(program, version))
     .then(version => {
-      // Now the version is created in the database with a status of 'staged'.
-      // Need to poll the API for status updates until the status has changed
-      // to 'deployed' or 'failed'.
-      // poll
-      log.info('Version %s created', version.versionId);
+      log.info('Version deployment complete. View now at %s', version.deployedUrl);
       return;
     });
 };
@@ -94,5 +95,36 @@ function uploadTarballToS3(program, tarballFile) {
       bucket: program.deployBucket,
       metadata: {stage: program.deployStage}
     });
+  });
+}
+
+// Poll the api for the version until the status is no longer "running".
+function waitForDeployComplete(program, version) {
+  var latestVersionState = version;
+  const url = urlJoin(program.apiUrl,
+    `/apps/${program.virtualApp.appId}/versions/${version.versionId}?stage=${program.deployStage}`);
+
+  return promiseUntil(() => {
+    switch (latestVersionState.status) {
+      case 'running': log.info('Version is still deploying'); return false;
+      case 'complete': return true;
+      case 'failed': throw new Error('Version deployment failed with message: ' + latestVersionState.error);
+      default:
+        throw new Error('Unexpected version status: ' + latestVersionState.status);
+    }
+  }, () => {
+    return Promise.delay(config.pollVersionStatusInterval)
+      .then(() => {
+        log.debug('Checking on version status');
+        return api.get({url, authToken: program.authToken});
+      })
+      .then(updatedVersion => {
+        latestVersionState = updatedVersion;
+        return;
+      });
+  })
+  .then(() => {
+    log.info('Version is deployed.');
+    return latestVersionState;
   });
 }
