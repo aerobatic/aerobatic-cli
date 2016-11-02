@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs-promise');
 const manifest = require('../lib/manifest');
-const shortid = require('shortid');
+const uuid = require('node-uuid');
 const path = require('path');
 const os = require('os');
 
@@ -10,7 +10,7 @@ const tmpdir = os.tmpdir();
 
 describe('manifest', () => {
   it('creates default manifest', () => {
-    const appId = shortid.generate();
+    const appId = uuid.v4();
     const program = {cwd: tmpdir};
 
     return manifest.create(program, appId)

@@ -6,11 +6,21 @@ const path = require('path');
 const program = require('commander');
 const _ = require('lodash');
 const updateNotifier = require('update-notifier');
-const shortid = require('shortid');
 const pkg = require('../package.json');
 const winston = require('winston');
 
 require('simple-errors');
+
+// Need to look for the --env arg as early as possible before the config module
+// has a chance to be require'd. Waiting for commander to parse process.argv
+// is too late.
+const envArgIndex = process.argv.indexOf('--env');
+if (envArgIndex !== -1 && envArgIndex < process.argv.length - 1) {
+  process.env.NODE_ENV = process.argv[envArgIndex + 1];
+} else {
+  process.env.NODE_ENV = 'production';
+}
+process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
 
 winston.remove(winston.transports.Console);
 winston.add(winston.transports.Console, {
@@ -19,10 +29,6 @@ winston.add(winston.transports.Console, {
 });
 
 const log = winston;
-
-// Limit any generated IDs to alpha-numeric characters
-shortid.characters(
-  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$-');
 
 updateNotifier({
   packageName: pkg.name,
@@ -139,13 +145,9 @@ process.on('exit', () => {
 function commandAction(command, commandOptions) {
   // Extend any options from program to options.
   return () => {
-    if (program.env === 'development' || program.debug) {
+    if (process.env.NODE_ENV === 'development' || program.debug) {
       winston.level = 'debug';
     }
-
-    // Override env variables for config module.
-    process.env.NODE_ENV = program.env;
-    process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
 
     // Don't require config until after NODE_ENV has been set
     const config = require('config');

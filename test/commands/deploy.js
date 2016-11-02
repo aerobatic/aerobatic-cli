@@ -88,11 +88,15 @@ describe('deploy command', () => {
     apiHandlers.getVersionHandler = sinon.spy((req, res) => {
       getVersionCall += 1;
       const version = req.params;
-      if (getVersionCall === 3) {
-        res.json(Object.assign(version, {status: 'complete', deployedUrl: `https://${req.query.stage}.test.com`}));
+      if (getVersionCall === 1) {
+        version.status = 'queued';
+      } else if (getVersionCall === 2) {
+        version.status = 'running';
       } else {
-        res.json(Object.assign(version, {status: 'running'}));
+        version.status = 'complete';
+        version.deployedUrl = `https://${req.query.stage}.test.com`;
       }
+      res.json(version);
     });
 
     deployCommand = require('../../commands/deploy');

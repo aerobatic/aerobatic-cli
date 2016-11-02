@@ -104,8 +104,10 @@ function waitForDeployComplete(program, version) {
   const url = urlJoin(program.apiUrl,
     `/apps/${program.virtualApp.appId}/versions/${version.versionId}?stage=${program.deployStage}`);
 
+  // TODO: Display a progress bar while polling for deploy status updates.
   return promiseUntil(() => {
     switch (latestVersionState.status) {
+      case 'queued':
       case 'running': log.info('Version is still deploying'); return false;
       case 'complete': return true;
       case 'failed': throw new Error('Version deployment failed with message: ' + latestVersionState.error);
