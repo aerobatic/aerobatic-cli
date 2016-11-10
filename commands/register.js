@@ -1,33 +1,34 @@
-const log = require('winston');
 const inquirer = require('inquirer');
 const urlJoin = require('url-join');
+const chalk = require('chalk');
 const userConfig = require('../lib/user-config');
 const api = require('../lib/api');
 const output = require('../lib/output');
 
 module.exports = program => {
-  output('Login to Aerobatic\n');
-  if (!program.email) {
-    output('If you don\'t already have an account, register at https://aerobatic.com/register\n');
-  }
+  output('Register new Aerobatic account');
+  output.blankLine();
 
   // Prompt for login
   return inquirer.prompt([
     {
       type: 'input',
       name: 'email',
-      default: program.email,
       message: 'Email:'
     }, {
       type: 'password',
       name: 'password',
       message: 'Password:'
+    }, {
+      type: 'input',
+      name: 'organization',
+      message: 'Organization:'
     }
   ])
   .then(answers => {
     return api.post({
-      url: urlJoin(program.apiUrl, '/auth/login'),
-      body: {email: answers.email, password: answers.password},
+      url: urlJoin(program.apiUrl, '/auth/register'),
+      body: answers,
       requireAuth: false
     })
     .then(result => {
@@ -40,7 +41,9 @@ module.exports = program => {
   })
   .then(config => {
     Object.assign(program, config);
-    log.info('Successfully logged in');
+    output(chalk.green('Account created'));
+    output(chalk.dim('To complete registration, click on the link in the ' +
+      'verification email sent to ' + chalk.white.underline(config.email) + '.'));
     return null;
   });
 };

@@ -8,6 +8,8 @@ const _ = require('lodash');
 const updateNotifier = require('update-notifier');
 const pkg = require('../package.json');
 const winston = require('winston');
+const chalk = require('chalk');
+const output = require('../lib/output');
 
 require('simple-errors');
 
@@ -23,9 +25,8 @@ if (envArgIndex !== -1 && envArgIndex < process.argv.length - 1) {
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
 
 winston.remove(winston.transports.Console);
-winston.add(winston.transports.Console, {
-  timestamp: false,
-  colorize: true
+winston.add(winston.transports.File, {
+  filename: path.join(process.cwd(), 'aero-debug.log')
 });
 
 const log = winston;
@@ -138,8 +139,11 @@ if (!process.argv.slice(2).length) {
   program.outputHelp();
 }
 
-process.on('exit', () => {
-  log.debug('Exiting');
+process.on('SIGINT', () => {
+  output.blankLine();
+  output.yellow('Aborted');
+
+  process.exit(1);
 });
 
 function commandAction(command, commandOptions) {
@@ -164,19 +168,17 @@ function commandAction(command, commandOptions) {
     require('../lib/cli-init')(program, commandOptions)
       .then(() => command(program))
       .catch(err => {
-        log.debug('Error from command promise');
+        output.blankLine();
         if (err.status === 401) {
-          log.error('Invalid authToken. Try logging in first with `aero login`.');
+          output(chalk.dim('Invalid authToken. Try logging in first with ') + chalk.green.underline('aero login'));
+        } else if (err.formatted === true) {
+          output(err.message);
         } else {
-          const errMessage = err.message;
-
-          if (err.status === 500 && program.debug) {
-            var errorJson = _.omit(Error.toJson(err), 'message');
-            log.error(errMessage + ': %j', errorJson);
-          } else {
-            log.error(errMessage);
-          }
+          log.error(Error.toJson(err));
+          output(chalk.dim('Unexpected error:'));
+          output(chalk.red(err.message));
         }
+        output.blankLine();
 
         process.exit(1);
       });

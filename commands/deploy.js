@@ -3,6 +3,7 @@ const fs = require('fs-promise');
 const path = require('path');
 const _ = require('lodash');
 const config = require('config');
+const request = require('request');
 const urlJoin = require('url-join');
 const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
@@ -45,6 +46,12 @@ module.exports = program => {
       return api.post({url, authToken: program.authToken, body: postBody});
     })
     .then(version => waitForDeployComplete(program, version))
+    .then(version => {
+      if (process.env.NODE_ENV === 'test') {
+        return flushAppForTest(program).then(() => version);
+      }
+      return Promise.resolve(version);
+    })
     .then(version => {
       log.info('Version deployment complete. View now at %s', version.deployedUrl);
       return;
@@ -128,5 +135,26 @@ function waitForDeployComplete(program, version) {
   .then(() => {
     log.info('Version is deployed.');
     return latestVersionState;
+  });
+}
+
+// Invoke the local cdn app to flush the app from cache.
+function flushAppForTest(program) {
+  const params = {
+    url: 'http://aerobatic.dev/__internal/flush-cache',
+    json: true,
+    body: {appIds: [program.virtualApp.appId]}
+  };
+
+  log.debug('Flush local cache');
+  return new Promise((resolve, reject) => {
+    request.post(params, (err, resp, body) => {
+      if (err) return reject(err);
+      if (resp.statusCode !== 200) {
+        return reject(new Error(resp.statusCode + ' status code ' +
+          'returned from flush-cache endpoint: ' + JSON.stringify(body)));
+      }
+      resolve();
+    });
   });
 }

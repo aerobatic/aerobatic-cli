@@ -20,6 +20,7 @@
     "no-underscore-dangle": 0,
     "global-require": 0,
     "no-var": 0,
+    "no-console": 0,
     "no-continue": 0,
     "prefer-const": 2,
     "prefer-template": 0,
