@@ -5,8 +5,12 @@ const userConfig = require('../lib/user-config');
 const api = require('../lib/api');
 const output = require('../lib/output');
 
+const PASSWORD_REGEXES = [/[a-z]+/, /[A-Z]+/, /[0-9]+/];
+
 module.exports = program => {
-  output('Register new Aerobatic account');
+  output.blankLine();
+  output('Welcome to Aerobatic premium static hosting');
+  output('Register new account');
   output.blankLine();
 
   // Prompt for login
@@ -18,10 +22,17 @@ module.exports = program => {
     }, {
       type: 'password',
       name: 'password',
-      message: 'Password:'
+      message: 'Password:',
+      validate: input => {
+        if (input.length < 8) return 'Password must be at least 8 characters long';
+        if (PASSWORD_REGEXES.some(re => !re.test(input))) {
+          return 'Password must contain a lowercase letter, uppercase letter, and number.';
+        }
+        return true;
+      }
     }, {
       type: 'input',
-      name: 'organization',
+      name: 'customerName',
       message: 'Organization:'
     }
   ])
@@ -31,19 +42,19 @@ module.exports = program => {
       body: answers,
       requireAuth: false
     })
-    .then(result => {
+    .then(() => {
       return userConfig.set({
-        authToken: result.idToken,
-        email: answers.email,
-        customerRoles: result.customerRoles
+        email: answers.email
       });
     });
   })
   .then(config => {
     Object.assign(program, config);
+    output.blankLine();
     output(chalk.green('Account created'));
-    output(chalk.dim('To complete registration, click on the link in the ' +
-      'verification email sent to ' + chalk.white.underline(config.email) + '.'));
+    output('To complete registration, click on the link in the ' +
+      'verification email sent to ' + chalk.white.underline(config.email) + '.');
+    output.blankLine();
     return null;
   });
 };

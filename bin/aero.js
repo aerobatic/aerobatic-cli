@@ -121,10 +121,16 @@ program
   }));
 
 program
-  .option('-u --email [email]', 'Email username')
   .command('login')
   .description('Login to Aerobatic to generate a new JWT in the ~/.aerobatic.json file')
   .action(commandAction(require('../commands/login'), {
+    requireAuth: false
+  }));
+
+program
+  .command('register')
+  .description('Register a new Aerobatic account')
+  .action(commandAction(require('../commands/register'), {
     requireAuth: false
   }));
 
