@@ -1,18 +1,22 @@
-const log = require('winston');
+// const log = require('winston');
+const chalk = require('chalk');
 const urlJoin = require('url-join');
+const output = require('../lib/output');
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
 
 // Command to create a new application
 module.exports = program => {
-  log.debug('Create application %s', program.appName);
-  return manifest.ensureNotExists(program)
-    .then(() => {
+  output.blankLine();
+  output('Creating new Aerobatic application in this directory');
+  output.blankLine();
+
+  return manifest.loadSafe(program)
+    .then(appManifest => {
       return api.post({
         url: urlJoin(program.apiUrl, '/apps'),
         authToken: program.authToken,
         body: {
-          name: program.appName,
           customerId: program.customerId
         }
       })
@@ -25,13 +29,16 @@ module.exports = program => {
           default:
             throw error;
         }
-      });
+      }).then(virtualApp => ({virtualApp, appManifest}));
     })
-    .then(virtualApp => {
-      // Write the appId to the manifest
-      return manifest.create(program, virtualApp.appId)
-        .then(() => {
-          log.info('Application %s created successfully', virtualApp.name);
-        });
+    .then(params => {
+      params.appManifest.appId = params.virtualApp.appId;
+
+      return manifest.save(program, params.appManifest).then(() => {
+        output.blankLine();
+        output('Application ' + chalk.underline(params.virtualApp.url) + ' created.');
+        output('To deploy your first version, run ' + chalk.underline.green('aero deploy') + '.');
+        output.blankLine();
+      });
     });
 };

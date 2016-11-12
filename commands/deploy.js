@@ -2,6 +2,7 @@ const log = require('winston');
 const fs = require('fs-promise');
 const path = require('path');
 const _ = require('lodash');
+const chalk = require('chalk');
 const config = require('config');
 const request = require('request');
 const urlJoin = require('url-join');
@@ -11,8 +12,10 @@ const uuid = require('node-uuid');
 const Promise = require('bluebird');
 const promiseUntil = require('promise-until');
 const minimatch = require('minimatch');
+const Spinner = require('cli-spinner').Spinner;
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
+const output = require('../lib/output');
 
 const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
   '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
@@ -20,6 +23,8 @@ const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
 
 // Command to create a new application
 module.exports = program => {
+  output.blankLine();
+
   _.defaults(program, {
     uploader: require('../lib/uploader')
   });
@@ -29,6 +34,10 @@ module.exports = program => {
     versionId: uuid.v4(),
     deployStage: 'production'
   });
+
+  var spinner = new Spinner('Deploying new Aerobatic application version.. %s');
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
 
   return createTarball(program)
     .then(tarballFile => {
@@ -47,13 +56,16 @@ module.exports = program => {
     })
     .then(version => waitForDeployComplete(program, version))
     .then(version => {
-      if (process.env.NODE_ENV === 'test') {
+      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
         return flushAppForTest(program).then(() => version);
       }
       return Promise.resolve(version);
     })
     .then(version => {
-      log.info('Version deployment complete. View now at %s', version.deployedUrl);
+      spinner.stop(true);
+      output('Version ' + version.name + ' deployment complete.');
+      output('View now at ' + chalk.underline.yellow(version.deployedUrl));
+      output.blankLine();
       return;
     });
 };
@@ -133,7 +145,6 @@ function waitForDeployComplete(program, version) {
       });
   })
   .then(() => {
-    log.info('Version is deployed.');
     return latestVersionState;
   });
 }

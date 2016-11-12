@@ -1,4 +1,3 @@
-const log = require('winston');
 const inquirer = require('inquirer');
 const urlJoin = require('url-join');
 const chalk = require('chalk');
@@ -56,7 +55,10 @@ module.exports = program => {
   })
   .then(config => {
     Object.assign(program, config);
-    log.info('Successfully logged in');
+
+    output.blankLine();
+    output(chalk.dim('Logged in as ' + config.email));
+    output.blankLine();
     return null;
   });
 };

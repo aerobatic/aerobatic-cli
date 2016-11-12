@@ -1,6 +1,7 @@
 const assert = require('assert');
 const os = require('os');
 const path = require('path');
+const uuid = require('node-uuid');
 const fs = require('fs-promise');
 const sinon = require('sinon');
 const express = require('express');
@@ -17,6 +18,7 @@ describe('create command', () => {
   var apiServer;
   var program;
   var apiPostHandler;
+  const customerId = uuid.v4();
 
   before(done => {
     const api = express();
@@ -35,6 +37,7 @@ describe('create command', () => {
   beforeEach(() => {
     program = {
       cwd: os.tmpdir(),
+      customerId,
       apiUrl: `http://localhost:${API_PORT}`,
       authToken: '23434'
     };
@@ -43,44 +46,43 @@ describe('create command', () => {
   });
 
   it('invokes api post endpoint', () => {
-    const appName = 'test-app';
     apiPostHandler = sinon.spy((req, res) => {
       res.json(req.body);
     });
 
-    return createCommand(Object.assign(program, {appName}))
+    return createCommand(program)
       .then(() => {
         assert.isTrue(apiPostHandler.calledWith(sinon.match({
-          body: {name: appName}
+          body: {customerId}
         })));
 
         return;
       });
   });
 
-  it('catches invalidAppName', () => {
-    const appName = 'test-app';
-    apiPostHandler = sinon.spy((req, res) => {
-      res.status(400).json({code: 'invalidAppName'});
-    });
+  // it('catches invalidAppName', () => {
+  //   const appName = 'test-app';
+  //   apiPostHandler = sinon.spy((req, res) => {
+  //     res.status(400).json({code: 'invalidAppName'});
+  //   });
+  //
+  //   return createCommand(Object.assign(program, {appName}))
+  //     .catch(err => {
+  //       assert.isTrue(/^App name is invalid/.test(err.message));
+  //       return;
+  //     });
+  // });
 
-    return createCommand(Object.assign(program, {appName}))
-      .catch(err => {
-        assert.isTrue(/^App name is invalid/.test(err.message));
-        return;
-      });
-  });
-
-  it('catches invalidAppName', () => {
-    const appName = 'test-app';
-    apiPostHandler = sinon.spy((req, res) => {
-      res.status(400).json({code: 'appNameUnavailable'});
-    });
-
-    return createCommand(Object.assign(program, {appName}))
-      .catch(err => {
-        assert.isTrue(/is already taken/.test(err.message));
-        return;
-      });
-  });
+  // it('catches invalidAppName', () => {
+  //   const appName = 'test-app';
+  //   apiPostHandler = sinon.spy((req, res) => {
+  //     res.status(400).json({code: 'appNameUnavailable'});
+  //   });
+  //
+  //   return createCommand(Object.assign(program, {appName}))
+  //     .catch(err => {
+  //       assert.isTrue(/is already taken/.test(err.message));
+  //       return;
+  //     });
+  // });
 });

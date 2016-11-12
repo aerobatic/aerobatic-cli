@@ -38,7 +38,7 @@ describe('manifest', () => {
     return fs.remove(path.join(tmpdir, manifest.fileName))
       .then(() => manifest.load(program))
       .catch(err => {
-        assert.isTrue(/Missing manifest file/.test(err.message));
+        assert.equal(err.code, 'missingManifest');
         return;
       });
   });
@@ -48,7 +48,7 @@ describe('manifest', () => {
     return fs.writeFile(path.join(tmpdir, manifest.fileName), 'router: []')
       .then(() => manifest.load(program))
       .catch(err => {
-        assert.isTrue(/Missing appId/.test(err.message));
+        assert.equal(err.code, 'noManifestAppId');
         return;
       });
   });
@@ -58,7 +58,7 @@ describe('manifest', () => {
     return fs.writeFile(path.join(tmpdir, manifest.fileName), 'router: []')
       .then(() => manifest.ensureNotExists(program))
       .catch(err => {
-        assert.isTrue(/already exists in this directory/.test(err.message));
+        assert.equal(err.code, 'manifestAlreadyExists');
         return;
       });
   });
