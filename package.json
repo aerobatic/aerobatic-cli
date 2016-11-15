@@ -1,5 +1,5 @@
 {
-  "name": "aero-cli",
+  "name": "aerobatic-cli",
   "version": "1.0.0",
   "description": "",
   "main": "bin/aero",
@@ -22,6 +22,7 @@
     "config": "^1.21.0",
     "fs-promise": "^0.5.0",
     "inquirer": "^1.2.2",
+    "isemail": "^2.2.1",
     "js-yaml": "^3.6.1",
     "lodash": "^4.16.4",
     "minimatch": "^3.0.3",

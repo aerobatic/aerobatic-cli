@@ -47,7 +47,6 @@ program.version(pkg.version)
 
 // Create new application
 program
-  .option('-n, --app-name [appName]', 'The unique name of the application')
   .command('create')
   .description('Create a new Aerobatic app from the current working directory')
   .action(commandAction(require('../commands/create')));
@@ -63,9 +62,17 @@ program
 
 // List the applications for an organization
 program
-  .command('list')
-  .description('List the applications for customer account')
-  .action(commandAction(require('../commands/list')));
+  .command('account')
+  .description('Display information about the current Aerobatic account')
+  .action(commandAction(require('../commands/account')));
+
+program
+  .command('info')
+  .description('Display information about the current application')
+  .action(commandAction(require('../commands/info'), {
+    loadVirtualApp: true,
+    requireAuth: true
+  }));
 
 // Set an environment variable
 // program
@@ -109,10 +116,9 @@ program
 // Deploy app version
 program
   .option('-m, --message [versionMessage]', 'Version message')
-  .option('-s, --stage', 'Stage to deploy to')
+  .option('-s, --stage [stage]', 'Stage to deploy to')
   .option('-d, --directory [deployDir]', 'The directory containing the files to deploy')
   .option('-i, --ignore [ignore]', 'Glob patterns for files to exclude from the deployment.')
-  .option('--open', 'Open the newly deployed version in a browser tab', false)
   .command('deploy')
   .description('Deploy a new version of the application')
   .action(commandAction(require('../commands/deploy'), {

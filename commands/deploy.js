@@ -19,10 +19,14 @@ const output = require('../lib/output');
 
 const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
   '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
-  '**/*.asp', 'package.json', manifest.fileName];
+  '**/*.asp', 'package.json', '*.log', manifest.fileName];
 
 // Command to create a new application
 module.exports = program => {
+  const deployStage = program.stage || 'production';
+
+  output.blankLine();
+  output('Deploy new Aerobatic app version to stage ' + chalk.bold(deployStage));
   output.blankLine();
 
   _.defaults(program, {
@@ -35,13 +39,9 @@ module.exports = program => {
     deployStage: 'production'
   });
 
-  var spinner = new Spinner('Deploying new Aerobatic application version.. %s');
-  spinner.setSpinnerString('|/-\\');
-  spinner.start();
-
   return createTarball(program)
     .then(tarballFile => {
-      return uploadTarballToS3(program, tarballFile);
+      return uploadTarballToS3(program, deployStage, tarballFile);
     })
     .then(() => {
       const url = urlJoin(program.apiUrl, `/apps/${program.virtualApp.appId}/versions`);
@@ -54,15 +54,15 @@ module.exports = program => {
       log.debug('Invoke API to create version %s', program.versionId);
       return api.post({url, authToken: program.authToken, body: postBody});
     })
-    .then(version => waitForDeployComplete(program, version))
+    .then(version => waitForDeployComplete(program, deployStage, version))
     .then(version => {
-      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development') {
         return flushAppForTest(program).then(() => version);
       }
       return Promise.resolve(version);
     })
     .then(version => {
-      spinner.stop(true);
+      output.blankLine();
       output('Version ' + version.name + ' deployment complete.');
       output('View now at ' + chalk.underline.yellow(version.deployedUrl));
       output.blankLine();
@@ -71,6 +71,7 @@ module.exports = program => {
 };
 
 function createTarball(program) {
+  const spinner = startSpinner('Compressing app directory');
   const deployManifest = program.appManifest.deploy;
   const deployDir = deployManifest.directory || program.cwd;
 
@@ -95,11 +96,15 @@ function createTarball(program) {
     pack(deployDir, {filter})
       .pipe(outStream)
       .on('error', reject)
-      .on('close', () => resolve(tarballFile));
+      .on('close', () => {
+        spinner.stop(true);
+        resolve(tarballFile);
+      });
   });
 }
 
-function uploadTarballToS3(program, tarballFile) {
+function uploadTarballToS3(program, deployStage, tarballFile) {
+  const spinner = startSpinner('Uploading archive to Aerobatic');
   log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
   return api.get({
     url: urlJoin(program.apiUrl, `/customers/${program.virtualApp.customerId}/deploy-creds`),
@@ -112,24 +117,43 @@ function uploadTarballToS3(program, tarballFile) {
       tarballFile,
       key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
       bucket: program.deployBucket,
-      metadata: {stage: program.deployStage}
+      metadata: {stage: deployStage}
     });
+  }).then(() => {
+    spinner.stop(true);
+    return;
   });
 }
 
 // Poll the api for the version until the status is no longer "running".
-function waitForDeployComplete(program, version) {
+function waitForDeployComplete(program, deployStage, version) {
+  const queueSpinner = startSpinner('Waiting for cloud deployment to begin');
+  var runningSpinner;
+
   var latestVersionState = version;
   const url = urlJoin(program.apiUrl,
-    `/apps/${program.virtualApp.appId}/versions/${version.versionId}?stage=${program.deployStage}`);
+    `/apps/${program.virtualApp.appId}/versions/${version.versionId}?stage=${deployStage}`);
 
-  // TODO: Display a progress bar while polling for deploy status updates.
+  const stopSpinners = () => {
+    if (queueSpinner.isSpinning()) queueSpinner.stop(true);
+    if (runningSpinner && runningSpinner.isSpinning()) runningSpinner.stop(true);
+  };
+
   return promiseUntil(() => {
     switch (latestVersionState.status) {
       case 'queued':
-      case 'running': log.info('Version is still deploying'); return false;
-      case 'complete': return true;
-      case 'failed': throw new Error('Version deployment failed with message: ' + latestVersionState.error);
+      case 'running':
+        if (queueSpinner.isSpinning()) queueSpinner.stop(true);
+        if (!runningSpinner) {
+          runningSpinner = startSpinner('Cloud deployment running');
+        }
+        return false;
+      case 'complete':
+        stopSpinners();
+        return true;
+      case 'failed':
+        stopSpinners();
+        throw new Error('Version deployment failed with message: ' + latestVersionState.error);
       default:
         throw new Error('Unexpected version status: ' + latestVersionState.status);
     }
@@ -168,4 +192,13 @@ function flushAppForTest(program) {
       resolve();
     });
   });
+}
+
+function startSpinner(message) {
+  process.stdout.write('     ' + chalk.dim(message));
+  var spinner = new Spinner('     %s');
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
+  process.stdout.write('\n');
+  return spinner;
 }

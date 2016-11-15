@@ -1,2 +1,3 @@
-apiUrl: https://staticnow.net/api/prod
+# apiUrl: https://aerobatic.com/api
+apiUrl: https://sgadymwhle.execute-api.us-west-2.amazonaws.com/prod
 deployBucket: aerobatic-deploy-staging

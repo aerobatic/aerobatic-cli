@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const urlJoin = require('url-join');
 const chalk = require('chalk');
+const isEmail = require('isemail');
 const userConfig = require('../lib/user-config');
 const api = require('../lib/api');
 const output = require('../lib/output');
@@ -18,7 +19,11 @@ module.exports = program => {
     {
       type: 'input',
       name: 'email',
-      message: 'Email:'
+      message: 'Email:',
+      validate: value => {
+        if (!isEmail.validate(value)) return 'Please enter a valid email';
+        return true;
+      }
     }, {
       type: 'password',
       name: 'password',
@@ -33,7 +38,10 @@ module.exports = program => {
     }, {
       type: 'input',
       name: 'customerName',
-      message: 'Organization:'
+      message: 'Organization:',
+      default: answers => {
+        return answers.email.split('@')[0].replace(/\./g, '-');
+      }
     }
   ])
   .then(answers => {
