@@ -71,7 +71,7 @@ module.exports = program => {
 };
 
 function createTarball(program) {
-  const spinner = startSpinner('Compressing app directory');
+  const spinner = startSpinner(program, 'Compressing app directory');
   const deployManifest = program.appManifest.deploy;
   const deployDir = deployManifest.directory || program.cwd;
 
@@ -104,7 +104,7 @@ function createTarball(program) {
 }
 
 function uploadTarballToS3(program, deployStage, tarballFile) {
-  const spinner = startSpinner('Uploading archive to Aerobatic');
+  const spinner = startSpinner(program, 'Uploading archive to Aerobatic');
   log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
   return api.get({
     url: urlJoin(program.apiUrl, `/customers/${program.virtualApp.customerId}/deploy-creds`),
@@ -127,7 +127,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
 
 // Poll the api for the version until the status is no longer "running".
 function waitForDeployComplete(program, deployStage, version) {
-  const queueSpinner = startSpinner('Waiting for cloud deployment to begin');
+  const queueSpinner = startSpinner(program, 'Waiting for cloud deployment to begin');
   var runningSpinner;
 
   var latestVersionState = version;
@@ -145,7 +145,7 @@ function waitForDeployComplete(program, deployStage, version) {
       case 'running':
         if (queueSpinner.isSpinning()) queueSpinner.stop(true);
         if (!runningSpinner) {
-          runningSpinner = startSpinner('Cloud deployment running');
+          runningSpinner = startSpinner(program, 'Cloud deployment running');
         }
         return false;
       case 'complete':
@@ -194,7 +194,14 @@ function flushAppForTest(program) {
   });
 }
 
-function startSpinner(message) {
+function startSpinner(program, message) {
+  // Assume if there is an AEROBATIC_API_KEY this is running in a CI build.
+  // Don't show spinners, it just messes up the CI log output.
+  if (program.unitTest || process.env.AEROBATIC_API_KEY) {
+    process.stdout.write(message + '\n');
+    return {isSpinning: () => false, stop: () => {}};
+  }
+
   process.stdout.write('     ' + chalk.dim(message));
   var spinner = new Spinner('     %s');
   spinner.setSpinnerString('|/-\\');
