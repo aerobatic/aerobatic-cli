@@ -67,6 +67,16 @@ program
   .action(commandAction(require('../commands/account')));
 
 program
+  .command('api-key')
+  .description('Get the api key for the current Aerobatic account')
+  .action(commandAction(require('../commands/api-key')));
+
+program
+  .command('reset-api-key')
+  .description('Reset the account api key to a new value')
+  .action(commandAction(require('../commands/reset-api-key')));
+
+program
   .command('info')
   .description('Display information about the current application')
   .action(commandAction(require('../commands/info'), {
@@ -128,7 +138,7 @@ program
 
 program
   .command('login')
-  .description('Login to Aerobatic to generate a new JWT in the ~/.aerobatic.json file')
+  .description('Login to Aerobatic')
   .action(commandAction(require('../commands/login'), {
     requireAuth: false
   }));

@@ -47,7 +47,7 @@ module.exports = program => {
     })
     .then(result => {
       return userConfig.set({
-        authToken: result.idToken,
+        authToken: result.sessionToken,
         email: answers.email,
         customerRoles: result.customerRoles
       });

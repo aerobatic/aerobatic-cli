@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 
 const API_PORT = 1797;
 
-log.level = 'debug';
+log.level = 'none';
 
 // Force a short polling interval for testing
 config.pollVersionStatusInterval = 20;
@@ -61,7 +61,8 @@ describe('deploy command', () => {
       authToken: '23434',
       deployBucket: config.deployBucket,
       uploader: mockUploader,
-      deployStage: 'staging'
+      stage: 'staging',
+      unitTest: true
     };
 
     deployCreds = {
@@ -120,7 +121,7 @@ describe('deploy command', () => {
           tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
           key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
           bucket: config.deployBucket,
-          metadata: {stage: program.deployStage}
+          metadata: {stage: program.stage}
         }));
 
         assert.isTrue(apiHandlers.postVersionHandler.calledWith(sinon.match({

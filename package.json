@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
     "dash-assert": "^1.2.0",
     "eslint": "^3.8.1",
     "eslint-config-airbnb-base": "^9.0.0",
@@ -49,6 +50,10 @@
     "eslint-plugin-react": "^6.4.1",
     "express": "^4.14.0",
     "mocha": "^3.1.2",
-    "sinon": "^1.17.6"
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
+  },
+  "engines": {
+    "node": ">=4"
   }
 }

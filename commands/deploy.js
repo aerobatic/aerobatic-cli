@@ -56,7 +56,7 @@ module.exports = program => {
     })
     .then(version => waitForDeployComplete(program, deployStage, version))
     .then(version => {
-      if (process.env.NODE_ENV === 'development') {
+      if (program.unitTest !== true && process.env.NODE_ENV === 'development') {
         return flushAppForTest(program).then(() => version);
       }
       return Promise.resolve(version);
