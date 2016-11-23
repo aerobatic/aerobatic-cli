@@ -21,7 +21,7 @@ module.exports = program => {
   output.blankLine();
 
   if (!program.virtualApp.paidPlan) {
-    output('This app is in TRIAL mode. Upgrade to a paid plan in order to add a custom domain.');
+    output('This app is in FREE mode. Upgrade to a paid plan in order to add a custom domain.');
     output(chalk.underline.yellow(`https://portal.aerobatic.com/${program.virtualApp.customerId}/${program.virtualApp.name}/upgrade`));
     output.blankLine();
   }

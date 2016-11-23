@@ -5,9 +5,7 @@
 appId: __appId__
 
 deploy:
-  ignore:
-    - .git
-    - node_modules
+  ignore: []
   directory: .
 
 router:
