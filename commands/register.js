@@ -9,10 +9,7 @@ const output = require('../lib/output');
 const PASSWORD_REGEXES = [/[a-z]+/, /[A-Z]+/, /[0-9]+/];
 
 module.exports = program => {
-  output.blankLine();
-  output('Welcome to Aerobatic premium static hosting');
-  output('Register new account');
-  output.blankLine();
+  output.intro();
 
   // Prompt for login
   return inquirer.prompt([

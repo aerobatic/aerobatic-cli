@@ -29,14 +29,14 @@ module.exports = program => {
           default:
             throw error;
         }
-      }).then(virtualApp => ({virtualApp, appManifest}));
+      }).then(website => ({website, appManifest}));
     })
     .then(params => {
-      params.appManifest.appId = params.virtualApp.appId;
+      params.appManifest.id = params.website.appId;
 
       return manifest.save(program, params.appManifest).then(() => {
         output.blankLine();
-        output('Application ' + chalk.underline(params.virtualApp.url) + ' created.');
+        output('Application ' + chalk.underline(params.website.url) + ' created.');
         output('To deploy your first version, run ' + chalk.underline.green('aero deploy') + '.');
         output.blankLine();
       });

@@ -1,0 +1,55 @@
+account:
+  summary: Display a summary of the current Aerobatic account.
+
+api-key:
+  summary: Get the api-key for the current Aerobatic account.
+  details: The api-key is typically configured as an enviroment variable named AEROBATIC_API_KEY on a CI server where there isn't an interactive logged in user.
+
+create:
+  summary: Create a new Aerobatic website in the current directory
+  details: If no aerobatic.yml file exists in the current directory, a new one will created with sensible defaults. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id.
+
+deploy:
+  summary: Deploy the website in the current directory.
+  options:
+    - name: stage
+      short: s
+      summary: The deploy stage this deployment should target.
+    - name: message
+      short: m
+      summary: Message for the deployment
+
+  details: |
+    The --stage argument impacts the URL of the deployed version. For example passing "--stage test" will make the new version available at https://www--test.customdomain.com or https://SITENAME--test.aerobatic.io. If no value is provided then the deployment will target the production URL.
+
+    If being invoked from a CI server, it may be useful to pass the git commit message that triggered the build as the --message option.
+
+  examples:
+    - aero deploy
+    - aero deploy -m "Added the about-us.html page"
+    - aero deploy --stage test
+
+info:
+  summary: Display a summary of the current website
+
+login:
+  summary: Login to your Aerobatic account
+  details: You'll be prompted to enter your email and password. If your credentials are correct, a file is written at ~/.aerorc.yml with an auth token that is passed in subsequent commands. The token is valid for 24 hours after which you'll be prompted to login again.
+
+rename:
+  summary: Rename the website
+  options:
+    - name: name
+      short: n
+      summary: The new name of the website
+  details: If on the free plan this changes the URL. I.e. https://SITENAME.aerobatic.io.
+  examples:
+    - aero rename -n "new-website-name"
+
+reset-api-key:
+  summary: Reset your account api-key
+  details: If your AEROBATIC_API_KEY has been possibly compromised, you can reset it with this command. You will of course need to update any environment variables referring to the old value.
+
+register:
+  summary: Register a new Aerobatic account
+  details: You'll be prompted for email, password, and organization name. A automated email will be sent to the email with a verification link. Once clicked you'll be able to run "aero login".

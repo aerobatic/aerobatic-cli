@@ -8,35 +8,44 @@ const api = require('../lib/api');
 // Display info about the current application.
 module.exports = program => {
   output.blankLine();
-  output('Information about application ' + chalk.white.bold(program.virtualApp.name));
+  output(chalk.dim('Name:'));
+  output('    ' + program.website.name);
+
   output.blankLine();
+  output(chalk.dim('Website ID:'));
+  output('    ' + program.website.appId);
 
   // Display the URLs of all deployed stages
-  const stages = Object.keys(program.virtualApp.urls);
+  output.blankLine();
+  output(chalk.dim('URLs:'));
+  const stages = Object.keys(program.website.urls);
   stages.forEach(stage => {
-    output('    ' + _.padStart(stage, 15, ' ') + ' => ' +
-      chalk.underline.yellow(program.virtualApp.urls[stage]));
+    output('    ' + _.padEnd(stage, 15, ' ') + ' => ' +
+      chalk.underline.yellow(program.website.urls[stage]));
   });
 
+  // TODO: Display bandwidth quota and MTD usage
+  output.blankLine();
+  output(chalk.dim('Plan:'));
+  if (!program.website.subscriptionPlan) {
+    output('   FREE. Upgrade to a paid plan in order to add a custom domain.');
+    output('   ' + chalk.underline.yellow(`https://ctrl-panel.aerobatic.com/${program.website.customerId}/${program.website.name}/upgrade`));
+    output.blankLine();
+  } else {
+    output('    Paid subscripton');
+  }
   output.blankLine();
 
-  if (!program.virtualApp.paidPlan) {
-    output('This app is in FREE mode. Upgrade to a paid plan in order to add a custom domain.');
-    output(chalk.underline.yellow(`https://portal.aerobatic.com/${program.virtualApp.customerId}/${program.virtualApp.name}/upgrade`));
-    output.blankLine();
-  }
-
-  log.debug('List versions for appplication %s', program.virtualApp.name);
+  log.debug('List versions for website %s', program.website.name);
   return api.get({
-    url: urlJoin(program.apiUrl, `/apps/${program.virtualApp.appId}/versions`),
+    url: urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`),
     authToken: program.authToken
   })
   .then(versions => {
-    const deployedVersions = program.virtualApp.deployedVersions;
+    const deployedVersions = program.website.deployedVersions;
     const deployedStages = Object.keys(deployedVersions);
 
     output(chalk.dim('Versions:'));
-    output.blankLine();
 
     if (versions.length === 0) {
       output('There are no versions right now.');

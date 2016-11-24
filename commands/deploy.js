@@ -44,7 +44,7 @@ module.exports = program => {
       return uploadTarballToS3(program, deployStage, tarballFile);
     })
     .then(() => {
-      const url = urlJoin(program.apiUrl, `/apps/${program.virtualApp.appId}/versions`);
+      const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`);
       const postBody = {
         versionId: program.versionId,
         message: program.versionMessage,
@@ -107,7 +107,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
   const spinner = startSpinner(program, 'Uploading archive to Aerobatic');
   log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
   return api.get({
-    url: urlJoin(program.apiUrl, `/customers/${program.virtualApp.customerId}/deploy-creds`),
+    url: urlJoin(program.apiUrl, `/customers/${program.website.customerId}/deploy-creds`),
     authToken: program.authToken
   })
   .then(creds => {
@@ -115,7 +115,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
     return program.uploader({
       creds: _.mapKeys(creds, (value, key) => camelCase(key)),
       tarballFile,
-      key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
+      key: program.website.appId + '/' + program.versionId + '.tar.gz',
       bucket: program.deployBucket,
       metadata: {stage: deployStage}
     });
@@ -132,7 +132,7 @@ function waitForDeployComplete(program, deployStage, version) {
 
   var latestVersionState = version;
   const url = urlJoin(program.apiUrl,
-    `/apps/${program.virtualApp.appId}/versions/${version.versionId}?stage=${deployStage}`);
+    `/apps/${program.website.appId}/versions/${version.versionId}?stage=${deployStage}`);
 
   const stopSpinners = () => {
     if (queueSpinner.isSpinning()) queueSpinner.stop(true);
@@ -178,7 +178,7 @@ function flushAppForTest(program) {
   const params = {
     url: 'http://aerobatic.dev/__internal/flush-cache',
     json: true,
-    body: {appIds: [program.virtualApp.appId]}
+    body: {appIds: [program.website.appId]}
   };
 
   log.debug('Flush local cache');

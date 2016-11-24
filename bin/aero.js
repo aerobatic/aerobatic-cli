@@ -10,6 +10,7 @@ const pkg = require('../package.json');
 const winston = require('winston');
 const chalk = require('chalk');
 const output = require('../lib/output');
+const wordwrap = require('wordwrap');
 
 require('simple-errors');
 
@@ -43,7 +44,8 @@ program.version(pkg.version)
   // Use command line switch to control NODE_ENV since this is running on local desktop
   .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
   // .option('--token [token]', 'JSON web token')
-  .option('--app-id [appId]', 'Set appId (in place of the one defined in package.json)');
+  .option('--app-id [appId]', 'Set appId (in place of the one defined in package.json)')
+  .option('-n, --name [name]');
 
 // Create new application
 program
@@ -56,7 +58,7 @@ program
 //   .description('Delete an existing application')
 //   .action(commandAction('delete-app', {
 //     requireAuth: true,
-//     loadVirtualApp: true,
+//     loadWebsite: true,
 //     loadManifest: false
 //   }));
 
@@ -80,7 +82,7 @@ program
   .command('info')
   .description('Display information about the current application')
   .action(commandAction(require('../commands/info'), {
-    loadVirtualApp: true,
+    loadWebsite: true,
     requireAuth: true
   }));
 
@@ -95,7 +97,7 @@ program
 //   .action(commandAction('env', {
 //     requireAuth: true,
 //     loadManifest: true,
-//     loadVirtualApp: true,
+//     loadWebsite: true,
 //     subCommand: 'set'
 //   }));
 
@@ -106,7 +108,7 @@ program
 //   .action(commandAction('env', {
 //     requireAuth: true,
 //     loadManifest: true,
-//     loadVirtualApp: true,
+//     loadWebsite: true,
 //     subCommand: 'list'
 //   }));
 //
@@ -119,7 +121,7 @@ program
 //   .action(commandAction('env', {
 //     requireAuth: true,
 //     loadManifest: true,
-//     loadVirtualApp: true,
+//     loadWebsite: true,
 //     subCommand: 'delete'
 //   }));
 
@@ -132,7 +134,7 @@ program
   .command('deploy')
   .description('Deploy a new version of the application')
   .action(commandAction(require('../commands/deploy'), {
-    loadVirtualApp: true,
+    loadWebsite: true,
     loadManifest: true
   }));
 
@@ -144,21 +146,33 @@ program
   }));
 
 program
+  .command('rename')
+  .action(commandAction(require('../commands/rename'), {
+    loadManifest: true,
+    loadWebsite: true
+  }));
+
+program
   .command('register')
   .description('Register a new Aerobatic account')
   .action(commandAction(require('../commands/register'), {
     requireAuth: false
   }));
 
-program.command('*')
-  .action(() => {
-    log.error('Invalid command ' + process.argv.slice(2));
+program.command('help')
+  .action(commandAction(require('../commands/help')), {
+    requireAuth: false
   });
+
+// program.command('*')
+//   .action(commandAction(require('../commands/help')), {
+//     requireAuth: false
+//   });
 
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
-  program.outputHelp();
+  require('../commands/help')(program);
 }
 
 process.on('SIGINT', () => {
@@ -191,14 +205,19 @@ function commandAction(command, commandOptions) {
       .then(() => command(program))
       .catch(err => {
         output.blankLine();
+        // console.log
         if (err.status === 401) {
           output(chalk.dim('Invalid authToken. Try logging in first with ') + chalk.green.underline('aero login'));
         } else if (err.formatted === true) {
-          output(err.message);
+          output(chalk.dim('Error:'));
+          output(wordwrap(4, 70)(err.message));
         } else {
           log.error(Error.toJson(err));
           output(chalk.dim('Unexpected error:'));
-          output(chalk.red(err.message));
+          output(wordwrap(4, 70)(chalk.red(err.message)));
+          if (process.env.NODE_ENV !== 'production') {
+            output(err.stack);
+          }
         }
         output.blankLine();
 

@@ -7,19 +7,19 @@ const chalk = require('chalk');
 
 // Command to create a new application
 module.exports = program => {
-  output.blankLine();
-
-  log.debug('List applications for customer %s', program.customerId);
+  log.debug('List websites for customer %s', program.customerId);
   return api.get({
     url: urlJoin(program.apiUrl, `/customers/${program.customerId}`),
     authToken: program.authToken
   })
   .then(customer => {
-    output('Details for account ' + chalk.underline.bold(customer.name));
     output.blankLine();
+    output(chalk.dim('Account name:'));
+    output('    ' + customer.name);
 
-    output(chalk.dim('CustomerId:'));
-    output(customer.customerId);
+    output.blankLine();
+    output(chalk.dim('Account ID:'));
+    output('    ' + customer.customerId);
     output.blankLine();
 
     return api.get({
@@ -28,15 +28,14 @@ module.exports = program => {
     });
   })
   .then(apps => {
-    output(chalk.dim('Apps:'));
-    output.blankLine();
+    output(chalk.dim('Websites:'));
 
     if (apps.length === 0) {
-      output('You don\'t have any apps yet.');
-      output('Run ' + chalk.green.underline('aero create') + ' in the root of your project directory.');
+      output('    You don\'t have any websites yet.');
+      output('    Run ' + chalk.green.underline('aero create') + ' in the root of your project directory.');
     } else {
       apps.forEach(app => {
-        process.stdout.write(_.padEnd(app.name, 25, ' '));
+        process.stdout.write('    ' + _.padEnd(app.name, 25, ' '));
         process.stdout.write(_.padEnd(app.url, 50, ' '));
         process.stdout.write(_.padEnd(app.subscriptionPlan ? 'PAID' : 'FREE'));
         process.stdout.write('\n');

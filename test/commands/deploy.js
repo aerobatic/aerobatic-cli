@@ -81,7 +81,7 @@ describe('deploy command', () => {
     apiHandlers.postVersionHandler = sinon.spy((req, res) => {
       res.json(_.assign(req.body, {
         status: 'running',
-        appId: program.virtualApp.appId
+        appId: program.website.appId
       }));
     });
 
@@ -110,7 +110,7 @@ describe('deploy command', () => {
     return manifest.load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
-        program.virtualApp = {appId: appManifest.appId, customerId};
+        program.website = {appId: appManifest.id, customerId};
         return deployCommand(program);
       })
       .then(() => {
@@ -119,7 +119,7 @@ describe('deploy command', () => {
         assert.isTrue(mockUploader.calledWith({
           creds: deployCreds,
           tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
-          key: program.virtualApp.appId + '/' + program.versionId + '.tar.gz',
+          key: program.website.appId + '/' + program.versionId + '.tar.gz',
           bucket: config.deployBucket,
           metadata: {stage: program.stage}
         }));
@@ -128,7 +128,7 @@ describe('deploy command', () => {
           body: {
             versionId: program.versionId,
             message: program.versionMessage,
-            manifest: _.omit(program.appManifest, 'appId')
+            manifest: _.omit(program.appManifest, 'id')
           }
         })));
 
@@ -154,7 +154,7 @@ describe('deploy command', () => {
     return manifest.load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
-        program.virtualApp = {appId: appManifest.appId, customerId};
+        program.website = {appId: appManifest.id, customerId};
         return deployCommand(program);
       })
       .catch(err => {

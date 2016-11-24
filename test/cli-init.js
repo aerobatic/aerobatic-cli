@@ -38,7 +38,7 @@ describe('cliInit', () => {
       });
   });
 
-  it('loads virtual app', () => {
+  it('loads website', () => {
     const customerId = uuid.v4();
     const appId = uuid.v4();
 
@@ -46,21 +46,21 @@ describe('cliInit', () => {
     program.authToken = '252454334';
     program.customerRoles = {[customerId]: 'admin'};
 
-    const virtualApp = {appId};
-    const getApp = sinon.spy((req, res) => {
-      res.json(virtualApp);
+    const website = {appId};
+    const getWebsite = sinon.spy((req, res) => {
+      res.json(website);
     });
 
-    mockApi.registerRoute('get', '/apps/:appId', getApp);
+    mockApi.registerRoute('get', '/apps/:appId', getWebsite);
 
-    return fs.outputFile(path.join(program.cwd, 'static.yml'), 'appId: ' + appId)
-      .then(() => cliInit(program, {loadVirtualApp: true}))
+    return fs.outputFile(path.join(program.cwd, 'static.yml'), 'id: ' + appId)
+      .then(() => cliInit(program, {loadWebsite: true}))
       .then(() => {
-        expect(getApp).to.have.been.calledWith(sinon.match({
+        expect(getWebsite).to.have.been.calledWith(sinon.match({
           params: {appId}
         }));
 
-        expect(program.virtualApp).to.eql(virtualApp);
+        expect(program.website).to.eql(website);
       });
   });
 });

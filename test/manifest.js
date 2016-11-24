@@ -16,7 +16,7 @@ describe('manifest', () => {
     return manifest.create(program, appId)
       .then(() => manifest.load(program))
       .then(appManifest => {
-        assert.equal(appManifest.appId, appId);
+        assert.equal(appManifest.id, appId);
         assert.equal(appManifest.router.length, 1);
         assert.deepEqual(appManifest.router[0], {module: 'webpage'});
         return;

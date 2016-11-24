@@ -6,8 +6,8 @@ const api = require('../lib/api');
 const output = require('../lib/output');
 
 module.exports = program => {
-  output.blankLine();
-  output('Login to Aerobatic\n');
+  output.intro();
+
   if (!program.email) {
     output('If you don\'t already have an account, you can run ' + chalk.green.underline('aero register') + '.');
   }

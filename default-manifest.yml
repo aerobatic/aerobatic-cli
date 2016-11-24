@@ -2,7 +2,7 @@
 # your web application including plugins that provided enhanced
 # functionality at runtime on the Aerobatic platform.
 
-appId: __appId__
+id: __appId__
 
 deploy:
   ignore: []
