@@ -19,6 +19,10 @@ describe('download', () => {
       res.sendFile(path.join(__dirname, './fixtures/html5-template.zip'));
     });
 
+    app.get('/stylish-portfolio', (req, res) => {
+      res.sendFile(path.join(__dirname, './fixtures/stylish-portfolio.zip'));
+    });
+
     app.get('/bootstrap-starter', (req, res) => {
       res.sendFile(path.join(__dirname, './fixtures/bootstrap-starter.tar.gz'));
     });
@@ -41,13 +45,21 @@ describe('download', () => {
   it('downloads zip file', () => {
     const destDir = path.join(os.tmpdir(), 'html5-template');
     log.debug('download and extract html5-template to %s', destDir);
-    return fs.emptyDir(destDir)
-      .then(() => {
-        return download('http://localhost:' + PORT + '/html5-template', destDir);
-      })
+    return download('http://localhost:' + PORT + '/html5-template', destDir)
       .then(() => {
         expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
         expect(fs.existsSync(path.join(destDir, 'assets/css/main.css'))).to.be.true;
+        return;
+      });
+  });
+
+  it('downloads zip file with root directory', () => {
+    const destDir = path.join(os.tmpdir(), 'stylish-portfolio');
+    log.debug('download and extract html5-template to %s', destDir);
+    return download('http://localhost:' + PORT + '/stylish-portfolio', destDir)
+      .then(() => {
+        expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
+        expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be.true;
         return;
       });
   });

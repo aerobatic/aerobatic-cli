@@ -40,7 +40,7 @@ module.exports = program => {
       return manifest.save(program, params.appManifest).then(() => {
         output.blankLine();
         output('Website ' + chalk.yellow.underline(params.website.url) + ' created.');
-        if (program.repo) {
+        if (program.source) {
           output('To deploy your first version, run ' +
             chalk.underline.green('cd ' + program.siteName) +
             ' then ' + chalk.underline.green('aero deploy') + '.');
@@ -88,9 +88,6 @@ function createSourceDirectory(program) {
   })
   .then(() => {
     program.cwd = path.join(program.cwd, program.siteName);
-    return fs.ensureDir(program.cwd);
-  })
-  .then(() => {
     output('    ' + chalk.dim('Downloading source archive ' + program.source));
     return download(program.source, program.cwd);
   });
