@@ -44,13 +44,17 @@ program.version(pkg.version)
   // Use command line switch to control NODE_ENV since this is running on local desktop
   .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
   // .option('--token [token]', 'JSON web token')
-  .option('--app-id [appId]', 'Set appId (in place of the one defined in package.json)')
-  .option('-n, --name [name]');
+  .option('--app-id [appId]')
+  .option('-n, --name [siteName]')
+  .option('-m, --message [message]')
+  .option('-s, --stage [stage]')
+  .option('-d, --directory [deployDir]')
+  .option('-S, --source [source]')
+  .option('-r, --repo [repo]');
 
 // Create new application
 program
   .command('create')
-  .description('Create a new Aerobatic app from the current working directory')
   .action(commandAction(require('../commands/create')));
 
 // program
@@ -65,22 +69,18 @@ program
 // List the applications for an organization
 program
   .command('account')
-  .description('Display information about the current Aerobatic account')
   .action(commandAction(require('../commands/account')));
 
 program
   .command('api-key')
-  .description('Get the api key for the current Aerobatic account')
   .action(commandAction(require('../commands/api-key')));
 
 program
   .command('reset-api-key')
-  .description('Reset the account api key to a new value')
   .action(commandAction(require('../commands/reset-api-key')));
 
 program
   .command('info')
-  .description('Display information about the current application')
   .action(commandAction(require('../commands/info'), {
     loadWebsite: true,
     requireAuth: true
@@ -127,12 +127,9 @@ program
 
 // Deploy app version
 program
-  .option('-m, --message [versionMessage]', 'Version message')
-  .option('-s, --stage [stage]', 'Stage to deploy to')
-  .option('-d, --directory [deployDir]', 'The directory containing the files to deploy')
-  .option('-i, --ignore [ignore]', 'Glob patterns for files to exclude from the deployment.')
+  .option('-d, --directory [deployDir]')
+  .option('-i, --ignore [ignore]')
   .command('deploy')
-  .description('Deploy a new version of the application')
   .action(commandAction(require('../commands/deploy'), {
     loadWebsite: true,
     loadManifest: true
@@ -140,7 +137,6 @@ program
 
 program
   .command('login')
-  .description('Login to Aerobatic')
   .action(commandAction(require('../commands/login'), {
     requireAuth: false
   }));
@@ -154,7 +150,6 @@ program
 
 program
   .command('register')
-  .description('Register a new Aerobatic account')
   .action(commandAction(require('../commands/register'), {
     requireAuth: false
   }));
@@ -163,11 +158,6 @@ program.command('help')
   .action(commandAction(require('../commands/help')), {
     requireAuth: false
   });
-
-// program.command('*')
-//   .action(commandAction(require('../commands/help')), {
-//     requireAuth: false
-//   });
 
 program.parse(process.argv);
 

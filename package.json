@@ -20,6 +20,7 @@
     "cli-spinner": "^0.2.5",
     "commander": "^2.9.0",
     "config": "^1.21.0",
+    "file-type": "^3.9.0",
     "fs-promise": "^0.5.0",
     "inquirer": "^1.2.2",
     "isemail": "^2.2.1",
@@ -35,6 +36,7 @@
     "s3-upload-stream": "^1.0.7",
     "simple-errors": "^1.0.1",
     "tar-pack": "^3.3.0",
+    "unzip": "^0.1.11",
     "update-notifier": "^1.0.2",
     "url-join": "^1.1.0",
     "winston": "^2.2.0",
@@ -51,6 +53,7 @@
     "eslint-plugin-react": "^6.4.1",
     "express": "^4.14.0",
     "mocha": "^3.1.2",
+    "rimraf": "^2.5.4",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0"
   },
