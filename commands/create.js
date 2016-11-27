@@ -1,7 +1,6 @@
 // const log = require('winston');
 const chalk = require('chalk');
 const path = require('path');
-const fs = require('fs-promise');
 const urlJoin = require('url-join');
 const output = require('../lib/output');
 const api = require('../lib/api');
