@@ -145,7 +145,7 @@ function waitForDeployComplete(program, deployStage, version) {
       case 'running':
         if (queueSpinner.isSpinning()) queueSpinner.stop(true);
         if (!runningSpinner) {
-          runningSpinner = startSpinner(program, 'Cloud deployment running');
+          runningSpinner = startSpinner(program, 'Cloud deployment in-progress');
         }
         return false;
       case 'complete':

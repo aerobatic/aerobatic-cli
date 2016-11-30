@@ -7,7 +7,7 @@ const api = require('../lib/api');
 const output = require('../lib/output');
 
 const PASSWORD_REGEXES = [/[a-z]+/, /[A-Z]+/, /[0-9]+/];
-const USERNAME_REGEX = /^[a-z0-9-_/+$]/g;
+const USERNAME_REGEX = /^[a-z0-9-_]+$/g;
 
 module.exports = program => {
   output.intro();
@@ -40,6 +40,7 @@ module.exports = program => {
       validate: input => {
         if (input.length < 3 || input.length > 15) return 'Usernames must be between 3 and 15 characters';
         if (!USERNAME_REGEX.test(input)) return 'Usernames can only contain letters, numbers, dashes, and underscores';
+        return true;
       },
       default: answers => {
         return answers.email.split('@')[0].replace(/\./g, '-');
