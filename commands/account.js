@@ -22,6 +22,10 @@ module.exports = program => {
     output('    ' + customer.customerId);
     output.blankLine();
 
+    output(chalk.dim('Account type:'));
+    output('    ' + customer.customerType);
+    output.blankLine();
+
     return api.get({
       url: urlJoin(program.apiUrl, `/customers/${program.customerId}/apps`),
       authToken: program.authToken

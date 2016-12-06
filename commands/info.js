@@ -53,6 +53,7 @@ module.exports = program => {
     }
 
     versions.forEach(version => {
+      if (!version.metadata) version.metadata = {size: ''};
       process.stdout.write(_.padStart(version.name, 10, ' '));
       process.stdout.write(_.padStart(version.metadata.size, 10, ' '));
       process.stdout.write('    ');

@@ -154,6 +154,10 @@ program
     requireAuth: false
   }));
 
+program
+  .command('switch')
+  .action(commandAction(require('../commands/switch')));
+
 program.command('help')
   .action(commandAction(require('../commands/help')), {
     requireAuth: false

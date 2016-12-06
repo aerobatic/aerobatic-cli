@@ -53,3 +53,7 @@ reset-api-key:
 register:
   summary: Register a new Aerobatic account
   details: You'll be prompted for email, password, and organization name. A automated email will be sent to the email with a verification link. Once clicked you'll be able to run "aero login".
+
+switch:
+  summary: Switch to a different Aerobatic account
+  details: Displays a list of all the accounts you are associated with and let's you choose which one subsequent commands should be run in the context of.

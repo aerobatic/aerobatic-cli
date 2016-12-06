@@ -39,7 +39,22 @@ module.exports = program => {
     deployStage: 'production'
   });
 
-  return createTarball(program)
+  var deployDirectory;
+  const deployManifest = program.appManifest.deploy;
+
+  // If there is a directory specified in the deploy manifest, ensure that the
+  // sub-directory exists.
+  if (deployManifest.directory) {
+    deployDirectory = path.join(program.cwd, deployManifest.directory);
+
+    if (!fs.existsSync(deployDirectory)) {
+      return Promise.reject(Error.create('The deploy directory ' + deployManifest.directory + ' does not exist.', {formatted: true}));
+    }
+  } else {
+    deployDirectory = program.cwd;
+  }
+
+  return createTarball(deployDirectory, program)
     .then(tarballFile => {
       return uploadTarballToS3(program, deployStage, tarballFile);
     })
@@ -70,10 +85,9 @@ module.exports = program => {
     });
 };
 
-function createTarball(program) {
+function createTarball(deployDirectory, program) {
   const spinner = startSpinner(program, 'Compressing app directory');
   const deployManifest = program.appManifest.deploy;
-  const deployDir = deployManifest.directory || program.cwd;
 
   var ignorePatterns = [].concat(IGNORE_PATTERNS);
   if (_.isArray(deployManifest.ignorePatterns)) {
@@ -81,7 +95,7 @@ function createTarball(program) {
   }
 
   const filter = entry => {
-    const filePath = path.relative(deployDir, entry.path);
+    const filePath = path.relative(deployDirectory, entry.path);
     return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
   };
 
@@ -93,7 +107,7 @@ function createTarball(program) {
   return new Promise((resolve, reject) => {
     log.debug('Create deployment bundle %s', tarballFile);
 
-    pack(deployDir, {filter})
+    pack(deployDirectory, {filter})
       .pipe(outStream)
       .on('error', reject)
       .on('close', () => {
