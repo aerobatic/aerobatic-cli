@@ -8,6 +8,13 @@ api-key:
 create:
   summary: Create a new Aerobatic website in the current directory
   details: If no aerobatic.yml file exists in the current directory, a new one will created with sensible defaults. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id.
+  options:
+    - name: source
+      short: S
+      summary: Specify a URL to a .zip or .tar.gz archive to create the new website from.
+  examples:
+    - aero create
+    - aero create --source https://html5up.net/editorial/download
 
 deploy:
   summary: Deploy the website in the current directory.
@@ -57,3 +64,6 @@ register:
 switch:
   summary: Switch to a different Aerobatic account
   details: Displays a list of all the accounts you are associated with and let's you choose which one subsequent commands should be run in the context of.
+
+logs:
+  summary: Tail the web logs for the current website

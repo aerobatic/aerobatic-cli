@@ -163,6 +163,12 @@ program.command('help')
     requireAuth: false
   });
 
+program.command('logs')
+  .action(commandAction(require('../commands/logs'), {
+    loadWebsite: true,
+    requireAuth: true
+  }));
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
@@ -209,7 +215,7 @@ function commandAction(command, commandOptions) {
           log.error(Error.toJson(err));
           output(chalk.dim('Unexpected error:'));
           output(wordwrap(4, 70)(chalk.red(err.message)));
-          if (process.env.NODE_ENV !== 'production') {
+          if (process.env.NODE_ENV !== 'production' || program.debug) {
             output(err.stack);
           }
         }
