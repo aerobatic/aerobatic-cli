@@ -39,22 +39,26 @@ module.exports = program => {
     deployStage: 'production'
   });
 
-  var deployDirectory;
   const deployManifest = program.appManifest.deploy;
+
+  // First check for a command line deployDir followed by a value in the manifest.
+  var deployDirectory = program.deployDir || deployManifest.directory;
+  var deployPath;
 
   // If there is a directory specified in the deploy manifest, ensure that the
   // sub-directory exists.
   if (deployManifest.directory) {
-    deployDirectory = path.join(program.cwd, deployManifest.directory);
+    deployPath = path.join(program.cwd, deployDirectory);
 
     if (!fs.existsSync(deployDirectory)) {
-      return Promise.reject(Error.create('The deploy directory ' + deployManifest.directory + ' does not exist.', {formatted: true}));
+      return Promise.reject(Error.create('The deploy directory ' + deployDirectory + ' does not exist.', {formatted: true}));
     }
   } else {
-    deployDirectory = program.cwd;
+    deployPath = program.cwd;
   }
 
-  return createTarball(deployDirectory, program)
+  return verifyDeployAssets(deployPath, program)
+    .then(() => createTarball(deployPath, program))
     .then(tarballFile => {
       return uploadTarballToS3(program, deployStage, tarballFile);
     })
@@ -63,7 +67,8 @@ module.exports = program => {
       const postBody = {
         versionId: program.versionId,
         message: program.versionMessage,
-        manifest: _.omit(program.appManifest, 'appId')
+        manifest: _.omit(program.appManifest, 'appId'),
+        commitUrl: program.commitUrl
       };
 
       log.debug('Invoke API to create version %s', program.versionId);
@@ -84,6 +89,17 @@ module.exports = program => {
       return;
     });
 };
+
+function verifyDeployAssets(deployDirectory) {
+  // Ensure that there is a index.html in the deployDirectory
+  return fs.exists(path.join(deployDirectory, 'index.html'))
+    .then(exists => {
+      if (!exists) {
+        throw Error.create('No index.html file exists in the deploy directory', {formatted: true});
+      }
+      return;
+    });
+}
 
 function createTarball(deployDirectory, program) {
   const spinner = startSpinner(program, 'Compressing app directory');
@@ -136,6 +152,9 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
   }).then(() => {
     spinner.stop(true);
     return;
+  })
+  .catch(err => {
+    throw Error.create('Error uploading to S3', {}, err);
   });
 }
 

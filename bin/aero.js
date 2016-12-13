@@ -20,6 +20,8 @@ require('simple-errors');
 const envArgIndex = process.argv.indexOf('--env');
 if (envArgIndex !== -1 && envArgIndex < process.argv.length - 1) {
   process.env.NODE_ENV = process.argv[envArgIndex + 1];
+} else if (process.env.AEROBATIC_ENV) {
+  process.env.NODE_ENV = process.env.AEROBATIC_ENV;
 } else {
   process.env.NODE_ENV = 'production';
 }
@@ -48,9 +50,10 @@ program.version(pkg.version)
   .option('-n, --name [siteName]')
   .option('-m, --message [message]')
   .option('-s, --stage [stage]')
-  .option('-d, --directory [deployDir]')
+  .option('-d, --deploy-dir [deployDir]')
   .option('-S, --source [source]')
-  .option('-r, --repo [repo]');
+  .option('-r, --repo [repo]')
+  .option('-c, --commit-url [commitUrl]');
 
 // Create new application
 program

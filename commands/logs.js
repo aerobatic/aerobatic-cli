@@ -41,6 +41,8 @@ module.exports = program => {
         output([
           _.padEnd(entry.ip, 15, ' '),
           chalk.yellow(entry.timestamp),
+          entry.statusCode,
+          entry.method + ' HTTP/' + entry.httpVersion,
           entry.url,
           geoipLocation(entry)
         ].join(' - '));

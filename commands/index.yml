@@ -19,22 +19,31 @@ create:
 deploy:
   summary: Deploy the website in the current directory.
   options:
+    - name: deploy-dir
+      short: d
+      summary: The sub-directory containing the assets to deploy. Defaults to the current directory.
     - name: stage
       short: s
       summary: The deploy stage this deployment should target.
     - name: message
       short: m
       summary: Message for the deployment
+    - name: commit-url
+      short: c
+      summary: The URL to the commit that triggered this deployment.
 
   details: |
+    The dir option overrides any value specified in the deploy section of the aerobatic.yml manifest. If no value is specified in either location the current directory is deployed.
+
     The --stage argument impacts the URL of the deployed version. For example passing "--stage test" will make the new version available at https://www--test.customdomain.com or https://SITENAME--test.aerobatic.io. If no value is provided then the deployment will target the production URL.
 
-    If being invoked from a CI server, it may be useful to pass the git commit message that triggered the build as the --message option.
+    If being invoked from a CI server, it may be useful to pass the git commit message and the URL to the commit details that triggered the build. This information will be displayed in the Aerobatic control panel as part of the deployment history.
 
   examples:
     - aero deploy
-    - aero deploy -m "Added the about-us.html page"
+    - aero deploy --directory _site
     - aero deploy --stage test
+    - aero deploy --message "Commit message" --commit https://github.com/owner/repo/commit/2495349f
 
 info:
   summary: Display a summary of the current website
