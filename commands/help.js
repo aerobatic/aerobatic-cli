@@ -10,8 +10,6 @@ const wordwrap = require('wordwrap');
 module.exports = program => {
   output.intro();
 
-  output(path.join(__dirname, '../bin/aero.js'));
-
   // Check if the help command was called with a topic, i.e. aero help create.
   var commandTopic;
   const helpIndex = program.rawArgs.indexOf('help');
@@ -47,7 +45,7 @@ function displayTopLevelHelp(metadata) {
 
   output(chalk.dim('Commands:'));
   Object.keys(metadata).forEach(command => {
-    output('    ' + _.padEnd(command, 12, ' ') + metadata[command].summary);
+    output('    ' + _.padEnd(command, 15, ' ') + metadata[command].summary);
   });
 
   output.blankLine();
