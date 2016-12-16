@@ -45,6 +45,27 @@ deploy:
     - aero deploy --stage test
     - aero deploy --message "Commit message" --commit https://github.com/owner/repo/commit/2495349f
 
+# domain command
+domain:
+  summary: Register a custom domain for the current website
+  details: |
+    This command requires that your website has already been upgraded to the paid plan. If you want to run your website at the apex domain, i.e. https://mydomain.com, your DNS provider needs to support ANAME or ALIAS records. For details see:
+    https://www.aerobatic.com/docs/custom-domains-ssl#apex-domain
+
+    You can also run the command without any arguments to get status information on the domain.
+  options:
+    - name: name
+      short: n
+      summary: The name of the domain (without any sub-domain, i.e. mydomain.com)
+    - name: subdomain
+      short: N
+      summary: The subdomain you want your website to be accessible at. For apex domain use the value '@'.
+
+  examples:
+    - aero domain --name mydomain.com --subdomain www
+    - aero domain --name mydomain.com --subdomain @
+    - aero domain
+
 info:
   summary: Display a summary of the current website
 

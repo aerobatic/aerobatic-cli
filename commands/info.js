@@ -4,6 +4,7 @@ const _ = require('lodash');
 const urlJoin = require('url-join');
 const output = require('../lib/output');
 const api = require('../lib/api');
+const urls = require('../lib/urls');
 
 // Display info about the current application.
 module.exports = program => {
@@ -14,6 +15,10 @@ module.exports = program => {
   output.blankLine();
   output(chalk.dim('Website ID:'));
   output('    ' + program.website.appId);
+
+  output.blankLine();
+  output(chalk.dim('Account ID:'));
+  output('    ' + program.website.customerId);
 
   // Display the URLs of all deployed stages
   output.blankLine();
@@ -29,10 +34,10 @@ module.exports = program => {
   output(chalk.dim('Plan:'));
   if (!program.website.subscriptionPlan) {
     output('   FREE. Upgrade to a paid plan in order to add a custom domain.');
-    output('   ' + chalk.underline.yellow(`https://ctrl-panel.aerobatic.com/${program.website.customerId}/${program.website.name}/upgrade`));
+    output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
     output.blankLine();
   } else {
-    output('    Paid subscripton');
+    output('   Paid subscripton');
   }
   output.blankLine();
 

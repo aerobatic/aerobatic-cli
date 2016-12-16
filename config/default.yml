@@ -1,2 +1,4 @@
 pollVersionStatusInterval: 3000
 githubUrl: https://github.com/
+controlPanelUrl: https://control.aerobatic.com
+awsCertificatesEmail: no-reply@certificates.amazon.com

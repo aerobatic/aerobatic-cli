@@ -47,7 +47,8 @@ program.version(pkg.version)
   .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
   // .option('--token [token]', 'JSON web token')
   .option('--app-id [appId]')
-  .option('-n, --name [siteName]')
+  .option('-n, --name [name]')
+  .option('-N, --subdomain [subdomain]')
   .option('-m, --message [message]')
   .option('-s, --stage [stage]')
   .option('-d, --deploy-dir [deployDir]')
@@ -87,6 +88,12 @@ program
   .action(commandAction(require('../commands/info'), {
     loadWebsite: true,
     requireAuth: true
+  }));
+
+program
+  .command('domain')
+  .action(commandAction(require('../commands/domain'), {
+    loadWebsite: true
   }));
 
 // Set an environment variable
@@ -219,7 +226,7 @@ function commandAction(command, commandOptions) {
           output(chalk.dim('Unexpected error:'));
           output(wordwrap(4, 70)(chalk.red(err.message)));
           if (process.env.NODE_ENV !== 'production' || program.debug) {
-            output(err.stack);
+            output(Error.toJson(err.stack));
           }
         }
         output.blankLine();
