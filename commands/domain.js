@@ -25,22 +25,23 @@ function registerDomain(program) {
 
   // Check if the current website already has a custom domain.
   if (!_.isEmpty(program.website.domainName)) {
-    throw Error.create('This website is already bound to the custom domain '
-      + chalk.yellow(program.website.domainName), {formatted: true});
+    return Promise.reject(Error.create('This website is already bound to the custom domain '
+      + chalk.yellow(program.website.domainName), {formatted: true}));
   }
 
   // Cursory check that the domain name looks ok.
   if (!/^[\.a-z0-9_-]+$/.test(program.name)) {
-    throw Error.create('Domain name has invalid characters', {formatted: true});
+    return Promise.reject(Error.create('Domain name has invalid ' +
+      'characters', {formatted: true}));
   }
 
   if (_.isEmpty(program.subdomain)) {
-    throw Error.create('Missing --subdomain argument.', {formatted: true});
+    return Promise.reject(Error.create('Missing --subdomain argument.', {formatted: true}));
   }
 
   if (program.subdomain !== '@' && !/^[a-z0-9-]{3,50}$/.test(program.subdomain)) {
-    throw Error.create('Invalid sub-domain. Valid characters are ' +
-      'letters, numbers, and dashes.', {formatted: true});
+    return Promise.reject(Error.create('Invalid sub-domain. Valid characters are ' +
+      'letters, numbers, and dashes.', {formatted: true}));
   }
 
   output('Register custom domain ' + chalk.bold(program.name));
@@ -48,15 +49,9 @@ function registerDomain(program) {
 
   // Validate that this website is on a paid plan.
   if (_.isEmpty(program.website.subscriptionPlan)) {
-    const errorMessage = 'You first need to upgrade this website to the paid ' +
-      'plan in order to register a custom domain. Visit the following URL to upgrade:';
-
-    output(wordwrap(4, 70)(errorMessage));
-    output.blankLine();
-    output('    ' + chalk.yellow(urls.upgradeWebsite(program.website)));
-    output.blankLine();
-
-    return Promise.resolve();
+    return Promise.reject(Error.create('In order to register a custom domain, this website ' +
+      'first needs to be upgraded to the paid plan. Visit the following URL to upgrade:\n' +
+      chalk.yellow(urls.upgradeWebsite(program.website))));
   }
 
   return createDomain(program)
@@ -68,6 +63,7 @@ function registerDomain(program) {
         authToken: program.authToken,
         body: {
           domainName: domain.domainName,
+          subDomain: program.subdomain,
           customerId: program.customerId
         }
       })

@@ -6,6 +6,7 @@ const sinon = require('sinon');
 chai.use(require('sinon-chai'));
 const config = require('config');
 const uuid = require('node-uuid');
+const manifest = require('../lib/manifest');
 config.userConfigFile = '.aerorc-test.yml';
 
 const userConfig = require('../lib/user-config');
@@ -44,16 +45,17 @@ describe('cliInit', () => {
 
     program.cwd = path.join(os.tmpdir(), Date.now().toString());
     program.authToken = '252454334';
+    program.customerId = customerId;
     program.customerRoles = {[customerId]: 'admin'};
 
-    const website = {appId};
+    const website = {appId, customerId};
     const getWebsite = sinon.spy((req, res) => {
       res.json(website);
     });
 
     mockApi.registerRoute('get', '/apps/:appId', getWebsite);
 
-    return fs.outputFile(path.join(program.cwd, 'static.yml'), 'id: ' + appId)
+    return fs.outputFile(path.join(program.cwd, manifest.fileName), 'id: ' + appId)
       .then(() => cliInit(program, {loadWebsite: true}))
       .then(() => {
         expect(getWebsite).to.have.been.calledWith(sinon.match({

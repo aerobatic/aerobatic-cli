@@ -8,7 +8,7 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "test": "mocha test --recursive"
+    "test": "UNIT_TEST=1 mocha test --recursive"
   },
   "license": "ISC",
   "dependencies": {
