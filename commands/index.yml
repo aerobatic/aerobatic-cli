@@ -54,7 +54,7 @@ deploy:
 domain:
   summary: Register a custom domain for the current website
   details: |
-    This command requires that your website has already been upgraded to the paid plan. If you want to run your website at the apex domain, i.e. https://mydomain.com, your DNS provider needs to support ANAME or ALIAS records. For details see:
+    This command requires that your website has already been upgraded to the Pro plan. If you want to run your website at the apex domain, i.e. https://mydomain.com, your DNS provider needs to support ANAME or ALIAS records. For details see:
     https://www.aerobatic.com/docs/custom-domains-ssl#apex-domain
 
     You can also run the command without any arguments to get status information on the domain.

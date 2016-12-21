@@ -41,7 +41,7 @@ module.exports = program => {
       apps.forEach(app => {
         process.stdout.write('    ' + _.padEnd(app.name, 25, ' '));
         process.stdout.write(_.padEnd(app.url, 50, ' '));
-        process.stdout.write(_.padEnd(app.subscriptionPlan ? 'PAID' : 'FREE'));
+        process.stdout.write(_.padEnd(app.subscriptionPlan ? 'PRO' : 'FREE'));
         process.stdout.write('\n');
       });
     }

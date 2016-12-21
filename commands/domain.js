@@ -47,10 +47,10 @@ function registerDomain(program) {
   output('Register custom domain ' + chalk.bold(program.name));
   output.blankLine();
 
-  // Validate that this website is on a paid plan.
+  // Validate that this website is on the pro plan.
   if (_.isEmpty(program.website.subscriptionPlan)) {
     return Promise.reject(Error.create('In order to register a custom domain, this website ' +
-      'first needs to be upgraded to the paid plan. Visit the following URL to upgrade:\n' +
+      'first needs to be upgraded to the Pro plan. Visit the following URL to upgrade:\n' +
       chalk.yellow(urls.upgradeWebsite(program.website))));
   }
 

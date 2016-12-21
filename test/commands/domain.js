@@ -98,7 +98,7 @@ describe('domain command', () => {
     program.website.subscriptionPlan = null;
     return domainCommand(program)
       .catch(err => {
-        expect(err.message).to.match(/first needs to be upgraded to the paid plan/);
+        expect(err.message).to.match(/first needs to be upgraded to the Pro plan/);
       });
   });
 

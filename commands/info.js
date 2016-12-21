@@ -33,11 +33,11 @@ module.exports = program => {
   output.blankLine();
   output(chalk.dim('Plan:'));
   if (!program.website.subscriptionPlan) {
-    output('   FREE. Upgrade to a paid plan in order to add a custom domain.');
+    output('   FREE. Upgrade to a Pro plan in order to add a custom domain.');
     output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
     output.blankLine();
   } else {
-    output('   Paid subscripton');
+    output('   Pro plan');
   }
   output.blankLine();
 
