@@ -3,7 +3,12 @@ account:
 
 api-key:
   summary: Get the api-key for the current Aerobatic account.
-  details: The api-key is typically configured as an enviroment variable named AEROBATIC_API_KEY on a CI server where there isn't an interactive logged in user.
+  options:
+    - name: reset
+      short: R
+      summary: Reset the api key to a new value.
+
+  details: The api-key is typically configured as an enviroment variable named AEROBATIC_API_KEY on a CI server where there isn't an interactive logged in user. If you need to reset the key, run the command with the --reset option. This will of course require any AEROBATIC_API_KEY environment variables be updated.
 
 create:
   summary: Create a new Aerobatic website in the current directory
@@ -82,10 +87,6 @@ rename:
   details: If on the free plan this changes the URL. I.e. https://SITENAME.aerobatic.io.
   examples:
     - aero rename -n "new-website-name"
-
-reset-api-key:
-  summary: Reset your account api-key
-  details: If your AEROBATIC_API_KEY has been possibly compromised, you can reset it with this command. You will of course need to update any environment variables referring to the old value.
 
 register:
   summary: Register a new Aerobatic account

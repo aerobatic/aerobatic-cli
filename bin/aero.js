@@ -54,7 +54,8 @@ program.version(pkg.version)
   .option('-d, --deploy-dir [deployDir]')
   .option('-S, --source [source]')
   .option('-r, --repo [repo]')
-  .option('-c, --commit-url [commitUrl]');
+  .option('-c, --commit-url [commitUrl]')
+  .option('-R --reset [reset]');
 
 // Create new application
 program
@@ -78,10 +79,6 @@ program
 program
   .command('api-key')
   .action(commandAction(require('../commands/api-key')));
-
-program
-  .command('reset-api-key')
-  .action(commandAction(require('../commands/reset-api-key')));
 
 program
   .command('info')
