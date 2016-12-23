@@ -113,6 +113,14 @@ function createTarball(deployDirectory, program) {
 
   const filter = entry => {
     const filePath = path.relative(deployDirectory, entry.path);
+
+    // Attempt to fix issue with Windows needing the execute bit
+    // set on directories.
+    // https://github.com/npm/node-tar/issues/7#issuecomment-17572926
+    if (entry.props.type === 'Directory') {
+      entry.props.mode |= (entry.props.mode >>> 2) & 0x0111; // eslint-disable-line
+    }
+
     return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
   };
 
