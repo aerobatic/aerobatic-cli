@@ -1,10 +1,10 @@
 {
   "name": "aerobatic-cli",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.2",
+  "description": "Command line interface for Aerobatic static hosting platform",
   "main": "bin/aero",
   "bin": {
-    "aero": "bin/aero.js"
+    "aero": "./bin/aero.js"
   },
   "preferGlobal": true,
   "scripts": {

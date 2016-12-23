@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#! /usr/bin/env node
 
 require('any-promise/register/bluebird');
 
@@ -48,6 +48,7 @@ program.version(pkg.version)
   // .option('--token [token]', 'JSON web token')
   .option('--app-id [appId]')
   .option('-n, --name [name]')
+  .option('-v, --value [value]')
   .option('-N, --subdomain [subdomain]')
   .option('-m, --message [message]')
   .option('-s, --stage [stage]')
@@ -55,7 +56,8 @@ program.version(pkg.version)
   .option('-S, --source [source]')
   .option('-r, --repo [repo]')
   .option('-c, --commit-url [commitUrl]')
-  .option('-R --reset [reset]');
+  .option('-R, --reset [reset]')
+  .option('-D, --delete');
 
 // Create new application
 program
@@ -94,48 +96,14 @@ program
   }));
 
 // Set an environment variable
-// program
-//   .option('--key [key]')
-//   .option('--value [value]')
-//   .option('--virtual-env [virtualEnv]')
-//   .option('--encrypt')
-//   .command('set-env')
-//   .description('Set an environment variable')
-//   .action(commandAction('env', {
-//     requireAuth: true,
-//     loadManifest: true,
-//     loadWebsite: true,
-//     subCommand: 'set'
-//   }));
-
-// List the environment variables
-// program
-//   .command('list-env')
-//   .description('List the environment variables')
-//   .action(commandAction('env', {
-//     requireAuth: true,
-//     loadManifest: true,
-//     loadWebsite: true,
-//     subCommand: 'list'
-//   }));
-//
-//   // Set an environment variable
-// program
-//   .option('--key [key]')
-//   .option('--virtual-env [virtualEnv]')
-//   .command('delete-env')
-//   .description('Deletes an environment variable')
-//   .action(commandAction('env', {
-//     requireAuth: true,
-//     loadManifest: true,
-//     loadWebsite: true,
-//     subCommand: 'delete'
-//   }));
+program
+  .command('env')
+  .action(commandAction(require('../commands/env'), {
+    loadWebsite: true
+  }));
 
 // Deploy app version
 program
-  .option('-d, --directory [deployDir]')
-  .option('-i, --ignore [ignore]')
   .command('deploy')
   .action(commandAction(require('../commands/deploy'), {
     loadWebsite: true,

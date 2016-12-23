@@ -12,7 +12,7 @@ api-key:
 
 create:
   summary: Create a new Aerobatic website in the current directory
-  details: If no aerobatic.yml file exists in the current directory, a new one will created with sensible defaults. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id.
+  details: If no aerobatic.yml file exists in the current directory, a new one will created. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id.
   options:
     - name: source
       short: S
@@ -70,6 +70,30 @@ domain:
     - aero domain --name mydomain.com --subdomain www
     - aero domain --name mydomain.com --subdomain @
     - aero domain
+
+env:
+  summary: Set or retrieve environment variables
+  details: Environment variables are used to store sensitive values used by plugins.
+  options:
+    - name: name
+      short: n
+      summary: The name of the environment variable to set
+    - name: value
+      short: v
+      summary: The value to assign to the variable
+    - name: stage
+      short: s
+      summary: The stage to assign the variable to. If omitted, this is the default value for all stages.
+    - name: delete
+      short: D
+      summary: Delete the variable identified by the --name (and optionally --stage) options
+
+  examples:
+    - 'aero env -n BASIC_AUTH_PASSWORD -v pass               # Set global variable'
+    - 'aero env -n BASIC_AUTH_PASSWORD -v pass --stage test  # Set a stage-specific variable'
+    - 'aero env                                              # Show all the environment variables'
+    - 'aero env -D --name BASIC_AUTH_PASSWORD                # Delete the env variable'
+    - 'aero env -D -n BASIC_AUTH_PASSWORD -s test            # Delete the test stage variable'
 
 info:
   summary: Display a summary of the current website

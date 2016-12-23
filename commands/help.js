@@ -83,7 +83,11 @@ function displayCommandHelp(command, metadata) {
     output.blankLine();
     output(chalk.dim('Examples:'));
     metadata.examples.forEach(example => {
-      output('    $ ' + example);
+      if (_.startsWith(example, '#')) {
+        output('    ' + chalk.dim(example));
+      } else {
+        output('    $ ' + example);
+      }
     });
   }
 }

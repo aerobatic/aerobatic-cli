@@ -47,10 +47,11 @@ module.exports = program => {
 
   // If there is a directory specified in the deploy manifest, ensure that the
   // sub-directory exists.
-  if (deployManifest.directory) {
+  if (deployDirectory) {
     deployPath = path.join(program.cwd, deployDirectory);
 
-    if (!fs.existsSync(deployDirectory)) {
+    log.debug('Ensure deployPath %s exists', deployPath);
+    if (!fs.existsSync(deployPath)) {
       return Promise.reject(Error.create('The deploy directory ' + deployDirectory + ' does not exist.', {formatted: true}));
     }
   } else {
@@ -154,7 +155,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
     return;
   })
   .catch(err => {
-    throw Error.create('Error uploading to S3', {}, err);
+    throw Error.create('Error uploading to S3: ' + err.message, {}, err);
   });
 }
 
