@@ -122,7 +122,7 @@ function createTarball(deployDirectory, program) {
     // https://github.com/sindresorhus/gulp-zip/issues/64#issuecomment-205324031
     if (entry.props.type === 'Directory') {
       log.debug('Set mode of directory to 777');
-      entry.props.mode = 0x0777;
+      entry.props.mode = parseInt('40777', 8); // eslint-disable-line
     }
 
     return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
