@@ -8,7 +8,7 @@ const request = require('request');
 const urlJoin = require('url-join');
 const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
-const fstream = require('fstream');
+// const fstream = require('fstream');
 const uuid = require('node-uuid');
 const Promise = require('bluebird');
 const promiseUntil = require('promise-until');
@@ -136,7 +136,8 @@ function createTarball(deployDirectory, program) {
   return new Promise((resolve, reject) => {
     log.debug('Create deployment bundle %s', tarballFile);
 
-    pack(fstream.Reader({path: deployDirectory, filter}))
+    // pack(fstream.Reader({path: deployDirectory, filter}))
+    pack(deployDirectory, {filter})
       .pipe(outStream)
       .on('error', reject)
       .on('close', () => {
