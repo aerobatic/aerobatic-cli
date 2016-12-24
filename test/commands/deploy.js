@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 
 const API_PORT = 1797;
 
-log.level = 'none';
+log.level = 'debug';
 
 // Force a short polling interval for testing
 config.pollVersionStatusInterval = 20;

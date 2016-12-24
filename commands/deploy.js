@@ -113,13 +113,16 @@ function createTarball(deployDirectory, program) {
   }
 
   const filter = entry => {
+    log.debug('test filter for entry %s', entry.path);
     const filePath = path.relative(deployDirectory, entry.path);
 
     // Attempt to fix issue with Windows needing the execute bit
     // set on directories.
     // https://github.com/npm/node-tar/issues/7#issuecomment-17572926
+    // https://github.com/sindresorhus/gulp-zip/issues/64#issuecomment-205324031
     if (entry.props.type === 'Directory') {
-      entry.props.mode |= (entry.props.mode >>> 2) & 0x0111; // eslint-disable-line
+      log.debug('Set mode of directory to 777');
+      entry.props.mode = 0x0777;
     }
 
     return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
@@ -133,7 +136,7 @@ function createTarball(deployDirectory, program) {
   return new Promise((resolve, reject) => {
     log.debug('Create deployment bundle %s', tarballFile);
 
-    pack(fstream.Reader(deployDirectory, {filter}))
+    pack(fstream.Reader({path: deployDirectory, filter}))
       .pipe(outStream)
       .on('error', reject)
       .on('close', () => {
@@ -146,26 +149,33 @@ function createTarball(deployDirectory, program) {
 function uploadTarballToS3(program, deployStage, tarballFile) {
   const spinner = startSpinner(program, 'Uploading archive to Aerobatic');
   log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
-  return api.get({
-    url: urlJoin(program.apiUrl, `/customers/${program.website.customerId}/deploy-creds`),
-    authToken: program.authToken
-  })
-  .then(creds => {
-    // Use the temporary IAM creds to create the S3 connection
-    return program.uploader({
-      creds: _.mapKeys(creds, (value, key) => camelCase(key)),
-      tarballFile,
-      key: program.website.appId + '/' + program.versionId + '.tar.gz',
-      bucket: program.deployBucket,
-      metadata: {stage: deployStage}
+
+  return Promise.resolve()
+    .then(() => {
+      return api.get({
+        url: urlJoin(program.apiUrl, `/customers/${program.website.customerId}/deploy-creds`),
+        authToken: program.authToken
+      })
+      .catch(err => {
+        throw Error.create('Error getting deploy creds: ' + err.message, {}, err);
+      });
+    })
+    .then(creds => {
+      // Use the temporary IAM creds to create the S3 connection
+      return program.uploader({
+        creds: _.mapKeys(creds, (value, key) => camelCase(key)),
+        tarballFile,
+        key: program.website.appId + '/' + program.versionId + '.tar.gz',
+        bucket: program.deployBucket,
+        metadata: {stage: deployStage}
+      });
+    }).then(() => {
+      spinner.stop(true);
+      return;
+    })
+    .catch(err => {
+      throw Error.create('Error uploading to S3: ' + err.message, {}, err);
     });
-  }).then(() => {
-    spinner.stop(true);
-    return;
-  })
-  .catch(err => {
-    throw Error.create('Error uploading to S3: ' + err.message, {}, err);
-  });
 }
 
 // Poll the api for the version until the status is no longer "running".
