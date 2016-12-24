@@ -8,7 +8,6 @@ const request = require('request');
 const urlJoin = require('url-join');
 const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
-// const fstream = require('fstream');
 const uuid = require('node-uuid');
 const Promise = require('bluebird');
 const promiseUntil = require('promise-until');
@@ -42,8 +41,8 @@ module.exports = program => {
 
   const deployManifest = program.appManifest.deploy;
 
-  // First check for a command line deployDir followed by a value in the manifest.
-  var deployDirectory = program.deployDir || deployManifest.directory;
+  // First check for a command line  followed by a value in the manifest.
+  var deployDirectory = program.directory || deployManifest.directory;
   var deployPath;
 
   // If there is a directory specified in the deploy manifest, ensure that the
