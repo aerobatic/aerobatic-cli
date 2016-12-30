@@ -11,6 +11,8 @@ npm install aerobatic-cli -g
 This will make the `aero` command globally available. Run `aero help` for usage instructions:
 
 ```sh
+Aerobatic - Professional static web publishing. (v1.0.6)
+
 Usage:
     $ aero [command] [options]
 
@@ -20,12 +22,14 @@ Commands:
     create         Create a new Aerobatic website in the current directory
     deploy         Deploy the website in the current directory.
     domain         Register a custom domain for the current website
+    env            Set or retrieve environment variables
     info           Display a summary of the current website
     login          Login to your Aerobatic account
     rename         Rename the website
     register       Register a new Aerobatic account
     switch         Switch to a different Aerobatic account
     logs           Tail the web logs for the current website
+    versions       Manage website versions
 
     Type aero help COMMAND for more details
 ```
