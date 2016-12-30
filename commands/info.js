@@ -6,7 +6,6 @@ const output = require('../lib/output');
 const api = require('../lib/api');
 const urls = require('../lib/urls');
 
-// Display info about the current application.
 module.exports = program => {
   output.blankLine();
   output(chalk.dim('Name:'));

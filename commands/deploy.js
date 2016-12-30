@@ -21,12 +21,12 @@ const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
   '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
   '**/*.asp', 'package.json', '*.log', manifest.fileName];
 
-// Command to create a new application
+// Command to create a new website version
 module.exports = program => {
   const deployStage = program.stage || 'production';
 
   output.blankLine();
-  output('Deploy new Aerobatic app version to stage ' + chalk.bold(deployStage));
+  output('Deploy new Aerobatic website version to stage ' + chalk.bold(deployStage));
   output.blankLine();
 
   _.defaults(program, {
@@ -103,7 +103,7 @@ function verifyDeployAssets(deployDirectory) {
 }
 
 function createTarball(deployDirectory, program) {
-  const spinner = startSpinner(program, 'Compressing app directory');
+  const spinner = startSpinner(program, 'Compressing website assets');
   const deployManifest = program.appManifest.deploy;
 
   var ignorePatterns = [].concat(IGNORE_PATTERNS);

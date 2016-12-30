@@ -9,7 +9,6 @@ const api = require('../lib/api');
 const output = require('../lib/output');
 const userConfig = require('../lib/user-config');
 
-// Command to create a new application
 module.exports = program => {
   return api.get({
     url: urlJoin(program.apiUrl, '/customers'),

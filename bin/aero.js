@@ -45,8 +45,6 @@ program.version(pkg.version)
   .option('--customer [customerId]', 'The id of the Aerobatic customer account to perform the command on behalf of.')
   // Use command line switch to control NODE_ENV since this is running on local desktop
   .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
-  // .option('--token [token]', 'JSON web token')
-  .option('--app-id [appId]')
   .option('-n, --name [name]')
   .option('-v, --value [value]')
   .option('-N, --subdomain [subdomain]')
@@ -59,7 +57,7 @@ program.version(pkg.version)
   .option('-R, --reset [reset]')
   .option('-D, --delete');
 
-// Create new application
+// Create new website
 program
   .command('create')
   .action(commandAction(require('../commands/create')));
@@ -73,7 +71,7 @@ program
 //     loadManifest: false
 //   }));
 
-// List the applications for an organization
+// List the websites for an organization
 program
   .command('account')
   .action(commandAction(require('../commands/account')));
@@ -142,6 +140,11 @@ program.command('logs')
   .action(commandAction(require('../commands/logs'), {
     loadWebsite: true,
     requireAuth: true
+  }));
+
+program.command('versions')
+  .action(commandAction(require('../commands/versions'), {
+    loadWebsite: true
   }));
 
 program.parse(process.argv);

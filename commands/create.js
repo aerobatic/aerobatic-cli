@@ -7,10 +7,10 @@ const api = require('../lib/api');
 const download = require('../lib/download');
 const manifest = require('../lib/manifest');
 
-// Command to create a new application
+// Command to create a new website
 module.exports = program => {
   output.blankLine();
-  output('Creating new Aerobatic application in this directory');
+  output('Creating new Aerobatic website in this directory');
   output.blankLine();
 
   return Promise.resolve()

@@ -5,7 +5,7 @@ const api = require('../lib/api');
 const output = require('../lib/output');
 const chalk = require('chalk');
 
-// Command to create a new application
+// Command to create a new website
 module.exports = program => {
   log.debug('List websites for customer %s', program.customerId);
   return api.get({

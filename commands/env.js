@@ -4,7 +4,6 @@ const urlJoin = require('url-join');
 const output = require('../lib/output');
 const api = require('../lib/api');
 
-// Display info about the current application.
 module.exports = program => {
   // If a value argument is specified, then set the environment variable
   if (program.delete === true) {

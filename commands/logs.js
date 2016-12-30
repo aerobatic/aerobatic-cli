@@ -9,7 +9,6 @@ const promiseUntil = require('promise-until');
 const api = require('../lib/api');
 const output = require('../lib/output');
 
-// Command to create a new application
 module.exports = program => {
   var lastTimestamp;
 

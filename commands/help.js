@@ -6,7 +6,6 @@ const fs = require('fs-promise');
 const path = require('path');
 const wordwrap = require('wordwrap');
 
-// Display info about the current application.
 module.exports = program => {
   output.intro();
 

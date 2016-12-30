@@ -9,7 +9,6 @@ const output = require('../lib/output');
 const api = require('../lib/api');
 const urls = require('../lib/urls');
 
-// Command to create a new application
 module.exports = program => {
   // Validate that the domain name is valid.
   if (_.isString(program.name)) {
