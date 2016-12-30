@@ -28,6 +28,14 @@ describe('versions command', () => {
       apiHandlers.deleteVersion(req, res, next);
     });
 
+    api.post('/apps/:appId/versions/:versionId/deploy/:stage', (req, res) => {
+      apiHandlers.pushVersion(req, res);
+    });
+
+    api.delete('/apps/:appId/versions/deploy/:stage', (req, res) => {
+      apiHandlers.deleteStage(req, res);
+    });
+
     apiServer = api.listen(API_PORT, done);
   });
 
@@ -76,14 +84,6 @@ describe('versions command', () => {
         });
     });
 
-    it('missing --name arg', () => {
-      program.delete = true;
-      return versionCommand(program)
-        .catch(err => {
-          expect(err.message).matches(/^Must specify --name arg/);
-        });
-    });
-
     it('Invalid --name arg', () => {
       program.delete = true;
       program.name = 'vg454';
@@ -107,5 +107,58 @@ describe('versions command', () => {
           expect(err.message).to.match(/^Invalid version number 2/);
         });
     });
+  });
+
+  it('push version to stage', () => {
+    const versionId = uuid.v4();
+    program.name = 'v1';
+    program.stage = 'test';
+
+    apiHandlers.listVersions = sinon.spy((req, res) => {
+      res.json([{versionId, versionNum: 1}]);
+    });
+
+    apiHandlers.pushVersion = sinon.spy((req, res) => {
+      res.json({
+        appId: req.params.appId,
+        urls: {
+          test: 'https://test.site.com'
+        }
+      });
+    });
+
+    return versionCommand(program)
+      .then(() => {
+        expect(apiHandlers.pushVersion).to.have.been.called;
+        const pushVersionReq = apiHandlers.pushVersion.getCall(0).args[0];
+        expect(pushVersionReq.params).to.eql({
+          appId,
+          versionId,
+          stage: 'test'
+        });
+      });
+  });
+
+  it('delete stage', () => {
+    program.delete = true;
+    program.stage = 'test';
+
+    apiHandlers.deleteStage = sinon.spy((req, res) => {
+      res.json({appId});
+    });
+
+    return versionCommand(program)
+      .then(() => {
+        expect(apiHandlers.deleteStage).to.have.been.called;
+        const deleteStageReq = apiHandlers.deleteStage.lastCall.args[0];
+        expect(deleteStageReq.params).to.eql({appId, stage: 'test'});
+      });
+  });
+
+  it('missing options', () => {
+    return versionCommand(program)
+      .catch(err => {
+        expect(err.message).matches(/^Missing options/);
+      });
   });
 });

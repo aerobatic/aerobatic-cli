@@ -6,13 +6,19 @@ const api = require('../lib/api');
 
 module.exports = program => {
   // Validate that the domain name is valid.
-  if (program.delete === true) {
+  if (program.delete === true && _.isString(program.name)) {
     return deleteVersion(program);
   }
 
   if (_.isString(program.name) && program.stage) {
     return pushVersionToStage(program);
   }
+
+  if (program.delete === true && _.isString(program.stage)) {
+    return deleteStage(program);
+  }
+
+  return Promise.reject(new Error('Missing options'));
 };
 
 function deleteVersion(program) {
@@ -47,12 +53,20 @@ function pushVersionToStage(program) {
     });
 }
 
-function findVersionByName(program) {
-  if (!_.isString(program.name)) {
-    return Promise.reject(Error.create('Must specify --name arg specifying ' +
-      'which version to delete', {formatted: true}));
-  }
+function deleteStage(program) {
+  output('Delete deploy stage ' + program.stage);
 
+  const urlPath = `apps/${program.website.appId}/versions/deploy/${encodeURIComponent(program.stage)}`;
+  return api.delete({
+    url: urlJoin(program.apiUrl, urlPath),
+    authToken: program.authToken
+  })
+  .then(() => {
+    output('Stage ' + program.stage + ' deleted');
+  });
+}
+
+function findVersionByName(program) {
   var versionNum = program.name;
   if (_.startsWith(versionNum, 'v')) {
     versionNum = versionNum.substr(1);
