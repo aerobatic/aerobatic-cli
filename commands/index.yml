@@ -1,8 +1,8 @@
 account:
   summary: Display a summary of the current Aerobatic account.
 
-api-key:
-  summary: Get the api-key for the current Aerobatic account.
+apikey:
+  summary: Get the api key for the current Aerobatic account.
   options:
     - name: reset
       short: R

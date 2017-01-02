@@ -2,9 +2,11 @@ const log = require('winston');
 const chalk = require('chalk');
 const _ = require('lodash');
 const urlJoin = require('url-join');
+const fileSize = require('filesize');
 const output = require('../lib/output');
 const api = require('../lib/api');
 const urls = require('../lib/urls');
+const commaNumber = require('comma-number');
 
 module.exports = program => {
   output.blankLine();
@@ -28,7 +30,6 @@ module.exports = program => {
       chalk.underline.yellow(program.website.urls[stage]));
   });
 
-  // TODO: Display bandwidth quota and MTD usage
   output.blankLine();
   output(chalk.dim('Plan:'));
   if (!program.website.subscriptionPlan) {
@@ -38,8 +39,31 @@ module.exports = program => {
   } else {
     output('   Pro plan');
   }
-  output.blankLine();
 
+  return displayUsage(program)
+    .then(() => displayVersions(program));
+};
+
+function displayUsage(program) {
+  return api.get({
+    url: urlJoin(program.apiUrl, `/apps/${program.website.appId}/usage`),
+    authToken: program.authToken
+  })
+  .then(usage => {
+    output.blankLine();
+    output(chalk.dim('Usage:'));
+    output('      Day: ' + fileSize(usage.day.bytesOut) + ' data out | ' + commaNumber(usage.day.requestCount) + ' requests');
+    output('    Month: ' + fileSize(usage.month.bytesOut) + ' data out | ' + commaNumber(usage.month.requestCount) + ' requests');
+    if (_.isEmpty(program.website.subscriptionPlan)) {
+      output('    Quota: ' + usage.day.bytesOutPercentUsed + '% of ' + fileSize(usage.day.bytesOutQuota) + ' daily data transfer used');
+    } else {
+      output('    Quota: ' + usage.month.bytesOutPercentUsed + '% of ' + fileSize(usage.month.bytesOutQuota) + ' monthly data transfer used');
+    }
+    output.blankLine();
+  });
+}
+
+function displayVersions(program) {
   log.debug('List versions for website %s', program.website.name);
   return api.get({
     url: urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`),
@@ -73,11 +97,11 @@ module.exports = program => {
       });
 
       if (stagesWhereVersionDeployed.length > 0) {
-        process.stdout.write('  <= ' + stagesWhereVersionDeployed.join(', '));
+        process.stdout.write(chalk.yellow('  <= ' + stagesWhereVersionDeployed.join(', ')));
       }
       process.stdout.write('\n');
     });
 
     output.blankLine();
   });
-};
+}

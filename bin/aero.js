@@ -62,23 +62,19 @@ program
   .command('create')
   .action(commandAction(require('../commands/create')));
 
-// program
-//   .command('delete-app')
-//   .description('Delete an existing application')
-//   .action(commandAction('delete-app', {
-//     requireAuth: true,
-//     loadWebsite: true,
-//     loadManifest: false
-//   }));
+program
+  .command('delete')
+  .action(commandAction(require('../commands/delete'), {
+    loadWebsite: true
+  }));
 
-// List the websites for an organization
 program
   .command('account')
   .action(commandAction(require('../commands/account')));
 
 program
-  .command('api-key')
-  .action(commandAction(require('../commands/api-key')));
+  .command('apikey')
+  .action(commandAction(require('../commands/apikey')));
 
 program
   .command('info')
