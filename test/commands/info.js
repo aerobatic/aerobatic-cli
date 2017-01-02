@@ -12,7 +12,7 @@ const infoCommand = require('../../commands/info');
 describe('info command', () => {
   var apiServer;
   var program;
-  var apiGetVersions;
+  var apiGetUsage;
   var website;
   const appId = uuid.v4();
   const customerId = uuid.v4();
@@ -20,8 +20,8 @@ describe('info command', () => {
   before(done => {
     const api = express();
 
-    api.get('/apps/:appId/versions', (req, res, next) => {
-      apiGetVersions(req, res, next);
+    api.get('/apps/:appId/usage', (req, res, next) => {
+      apiGetUsage(req, res, next);
     });
 
     apiServer = api.listen(API_PORT, done);
@@ -50,7 +50,7 @@ describe('info command', () => {
     };
   });
 
-  it('invokes api to get versions', () => {
+  it('invokes api to get usage', () => {
     const versions = [
       {versionId: uuid.v4(), name: 'v1', metadata: {size: '3MB', fileCount: 10}},
       {versionId: uuid.v4(), name: 'v2', metadata: {size: '3MB'}}
@@ -61,13 +61,24 @@ describe('info command', () => {
       test: versions[1].versionId
     };
 
-    apiGetVersions = sinon.spy((req, res) => {
-      res.json(versions);
+    apiGetUsage = sinon.spy((req, res) => {
+      res.json({
+        month: {
+          bytesOut: 245345444,
+          requestCount: 24536457,
+          bytesOutPercentUsed: 21,
+          bytesOutQuota: 567058698696
+        },
+        day: {
+          bytesOut: 435345,
+          requestCount: 4575658
+        }
+      });
     });
 
     return infoCommand(program)
       .then(() => {
-        const args = apiGetVersions.lastCall.args;
+        const args = apiGetUsage.lastCall.args;
         expect(args[0].params.appId).to.equal(appId);
 
         return;

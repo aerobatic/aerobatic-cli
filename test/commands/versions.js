@@ -46,7 +46,8 @@ describe('versions command', () => {
   beforeEach(() => {
     website = {
       appId,
-      name: 'test-website'
+      name: 'test-website',
+      deployedVersions: {}
     };
 
     program = {
@@ -55,6 +56,19 @@ describe('versions command', () => {
       authToken: '23434',
       website
     };
+  });
+
+  it('lists versions', () => {
+    apiHandlers.listVersions = sinon.spy((req, res) => {
+      res.json([{versionId: '123', versionNum: 1}]);
+    });
+
+    return versionCommand(program)
+      .then(() => {
+        const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
+        expect(listVersionsReq.params.appId).to.equal(appId);
+        return;
+      });
   });
 
   describe('delete version', () => {
@@ -152,13 +166,6 @@ describe('versions command', () => {
         expect(apiHandlers.deleteStage).to.have.been.called;
         const deleteStageReq = apiHandlers.deleteStage.lastCall.args[0];
         expect(deleteStageReq.params).to.eql({appId, stage: 'test'});
-      });
-  });
-
-  it('missing options', () => {
-    return versionCommand(program)
-      .catch(err => {
-        expect(err.message).matches(/^Missing options/);
       });
   });
 });

@@ -1,4 +1,3 @@
-const log = require('winston');
 const chalk = require('chalk');
 const _ = require('lodash');
 const urlJoin = require('url-join');
@@ -40,8 +39,7 @@ module.exports = program => {
     output('   Pro plan');
   }
 
-  return displayUsage(program)
-    .then(() => displayVersions(program));
+  return displayUsage(program);
 };
 
 function displayUsage(program) {
@@ -59,49 +57,6 @@ function displayUsage(program) {
     } else {
       output('    Quota: ' + usage.month.bytesOutPercentUsed + '% of ' + fileSize(usage.month.bytesOutQuota) + ' monthly data transfer used');
     }
-    output.blankLine();
-  });
-}
-
-function displayVersions(program) {
-  log.debug('List versions for website %s', program.website.name);
-  return api.get({
-    url: urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`),
-    authToken: program.authToken
-  })
-  .then(versions => {
-    const deployedVersions = program.website.deployedVersions;
-    const deployedStages = Object.keys(deployedVersions);
-
-    output(chalk.dim('Versions:'));
-
-    if (versions.length === 0) {
-      output('There are no versions right now.');
-      output('Deploy a new version with the ' + chalk.green.underline('aero deploy') + ' command.');
-    }
-
-    versions.forEach(version => {
-      if (!version.metadata) version.metadata = {size: ''};
-      process.stdout.write(_.padStart(version.name, 10, ' '));
-      process.stdout.write(_.padStart(version.metadata.size, 10, ' '));
-      process.stdout.write('    ');
-      process.stdout.write(_.padEnd(version.metadata.fileCount ? version.metadata.fileCount + ' files' : '', 12, ' '));
-      process.stdout.write(_.padEnd(version.created, 20, ' '));
-
-      // Check if this version is deployed to any stages
-      const stagesWhereVersionDeployed = [];
-      deployedStages.forEach(stage => {
-        if (deployedVersions[stage] === version.versionId) {
-          stagesWhereVersionDeployed.push(stage);
-        }
-      });
-
-      if (stagesWhereVersionDeployed.length > 0) {
-        process.stdout.write(chalk.yellow('  <= ' + stagesWhereVersionDeployed.join(', ')));
-      }
-      process.stdout.write('\n');
-    });
-
     output.blankLine();
   });
 }

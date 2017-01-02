@@ -126,14 +126,17 @@ logs:
 versions:
   summary: Manage website versions
   details: |
-   To delete an existing version, pass the -D option. An error will be returned if attempting to delete the version deployed to production.
+    Run with no options to see a list of all website versions
 
-   To push an existing version to a deploy stage, pass the --name and --stage options. If the stage already has an assigned version, it will be overwritten.
+    To delete an existing version, pass the -D option. An error will be returned if attempting to delete the version deployed to production.
 
-   Finally to delete a deployment stage, pass the --stage and -D options. This will cause a 404 response for the stage URL. It is not possible to delete the production stage.
+    To push an existing version to a deploy stage, pass the --name and --stage options. If the stage already has an assigned version, it will be overwritten.
+
+    Finally to delete a deployment stage, pass the --stage and -D options. This will cause a 404 response for the stage URL. It is not possible to delete the production stage.
 
   examples:
-    - 'aero version -D --name v21                   # Delete version v21'
-    - 'aero version --name v2 --stage production    # Deploy version v2 to production stage'
-    - 'aero version -n v3 -s test                   # Deploy version v3 to test stage'
-    - 'aero version --delete --stage test           # Delete the test deploy stage'
+    - 'aero versions                                 # Display a list of all versions'
+    - 'aero versions -D --name v21                   # Delete version v21'
+    - 'aero versions --name v2 --stage production    # Deploy version v2 to production stage'
+    - 'aero versions -n v3 -s test                   # Deploy version v3 to test stage'
+    - 'aero versions --delete --stage test           # Delete the test deploy stage'
