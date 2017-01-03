@@ -55,10 +55,9 @@ module.exports = program => {
 // Invoke the API to create the website
 function createWebsite(program) {
   return api.post({
-    url: urlJoin(program.apiUrl, '/apps'),
+    url: urlJoin(program.apiUrl, `/customers/${program.customerId}/apps`),
     authToken: program.authToken,
     body: {
-      customerId: program.customerId,
       name: program.siteName
     }
   })

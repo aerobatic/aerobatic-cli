@@ -14,13 +14,7 @@ const wordwrap = require('wordwrap');
 
 require('simple-errors');
 
-// Need to look for the --env arg as early as possible before the config module
-// has a chance to be require'd. Waiting for commander to parse process.argv
-// is too late.
-const envArgIndex = process.argv.indexOf('--env');
-if (envArgIndex !== -1 && envArgIndex < process.argv.length - 1) {
-  process.env.NODE_ENV = process.argv[envArgIndex + 1];
-} else if (process.env.AEROBATIC_ENV) {
+if (process.env.AEROBATIC_ENV) {
   process.env.NODE_ENV = process.env.AEROBATIC_ENV;
 } else {
   process.env.NODE_ENV = 'production';
@@ -43,8 +37,6 @@ updateNotifier({
 program.version(pkg.version)
   .option('--debug', 'Emit debug messages')
   .option('--customer [customerId]', 'The id of the Aerobatic customer account to perform the command on behalf of.')
-  // Use command line switch to control NODE_ENV since this is running on local desktop
-  .option('--env [nodeEnv]', 'Override the NODE_ENV', 'production')
   .option('-n, --name [name]')
   .option('-v, --value [value]')
   .option('-N, --subdomain [subdomain]')

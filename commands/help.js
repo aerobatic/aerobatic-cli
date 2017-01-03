@@ -43,7 +43,9 @@ function displayTopLevelHelp(metadata) {
   output.blankLine();
 
   output(chalk.dim('Commands:'));
-  Object.keys(metadata).forEach(command => {
+  const commandNames = Object.keys(metadata).sort();
+
+  commandNames.forEach(command => {
     output('    ' + _.padEnd(command, 15, ' ') + metadata[command].summary);
   });
 

@@ -1,4 +1,3 @@
-const assert = require('assert');
 const os = require('os');
 const path = require('path');
 const uuid = require('node-uuid');
@@ -25,7 +24,7 @@ describe('create command', () => {
   var apiServer;
   var fileServer;
   var program;
-  var apiPostHandler;
+  var createAppHandler;
   var apiGetRandomName;
   var downloadFileHandler;
   const customerId = uuid.v4();
@@ -33,8 +32,8 @@ describe('create command', () => {
   before(done => {
     const api = express();
 
-    api.post('/apps', [bodyParser.json()], (req, res, next) => {
-      apiPostHandler(req, res, next);
+    api.post('/customers/:customerId/apps', [bodyParser.json()], (req, res, next) => {
+      createAppHandler(req, res, next);
     });
 
     api.get('/apps/random-name', (req, res) => {
@@ -70,7 +69,7 @@ describe('create command', () => {
       authToken: '23434'
     };
 
-    apiPostHandler = sinon.spy((req, res) => {
+    createAppHandler = sinon.spy((req, res) => {
       res.json(req.body);
     });
 
@@ -84,10 +83,8 @@ describe('create command', () => {
   it('invokes api post endpoint', () => {
     return createCommand(program)
       .then(() => {
-        assert.isTrue(apiPostHandler.calledWith(sinon.match({
-          body: {customerId}
-        })));
-
+        const createAppHandlerReq = createAppHandler.lastCall.args[0];
+        expect(createAppHandlerReq.params).to.eql({customerId: program.customerId});
         return;
       });
   });

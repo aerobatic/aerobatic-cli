@@ -50,6 +50,10 @@ deploy:
     - aero deploy --stage test
     - aero deploy --message "Commit message" --commit https://github.com/owner/repo/commit/2495349f
 
+delete:
+  summary: Delete the current website
+  details: If subscribed to the Pro plan, recurring payments will be cancelled.
+
 # domain command
 domain:
   summary: Register a custom domain for the current website
