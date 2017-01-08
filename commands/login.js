@@ -49,7 +49,8 @@ module.exports = program => {
       return userConfig.set({
         authToken: result.sessionToken,
         email: answers.email,
-        customerRoles: result.customerRoles
+        customerRoles: result.customerRoles,
+        customerId: Object.keys(result.customerRoles)[0]
       });
     });
   })

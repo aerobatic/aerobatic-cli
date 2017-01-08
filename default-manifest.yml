@@ -8,7 +8,7 @@ deploy:
   ignore: []
   directory: .
 
-router:
+plugins:
   # The webpage plugin provides the core functionality for serving
   # .html files
-  - module: webpage
+  - name: webpage
