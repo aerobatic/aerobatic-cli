@@ -17,8 +17,8 @@ describe('manifest', () => {
       .then(() => manifest.load(program))
       .then(appManifest => {
         assert.equal(appManifest.id, appId);
-        assert.equal(appManifest.router.length, 1);
-        assert.deepEqual(appManifest.router[0], {module: 'webpage'});
+        assert.equal(appManifest.plugins.length, 1);
+        assert.deepEqual(appManifest.plugins[0], {name: 'webpage'});
         return;
       });
   });

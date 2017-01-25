@@ -39,6 +39,11 @@ module.exports = program => {
     deployStage: 'production'
   });
 
+  if (!/^[a-z0-9-]{3,50}$/.test(program.deployStage)) {
+    return Promise.reject(Error.create('Invalid deploy stage arg. Must consist ' +
+      'only of lowercase letter, numbers, and dashes.', {formatted: true}));
+  }
+
   const deployManifest = program.appManifest.deploy;
 
   // First check for a command line  followed by a value in the manifest.
