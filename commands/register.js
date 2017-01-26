@@ -48,7 +48,7 @@ module.exports = program => {
     }
   ])
   .then(answers => {
-    answers.verifyRedirectUrl = 'https://dashboard.aerobatic.com/verified';
+    answers.verifyRedirectUrl = urlJoin(program.dashboardUrl, 'verified');
     return api.post({
       url: urlJoin(program.apiUrl, '/auth/register'),
       body: answers,
