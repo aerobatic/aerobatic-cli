@@ -255,8 +255,8 @@ function flushAppForTest(program) {
 function startSpinner(program, message) {
   // Assume if there is an AEROBATIC_API_KEY this is running in a CI build.
   // Don't show spinners, it just messes up the CI log output.
-  if (program.unitTest || process.env.AEROBATIC_API_KEY) {
-    process.stdout.write(message + '\n');
+  if (program.unitTest || process.env.CI) {
+    log.info(message);
     return {isSpinning: () => false, stop: () => {}};
   }
 

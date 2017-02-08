@@ -38,10 +38,19 @@ if (process.env.AEROBATIC_ENV) {
 }
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '../config');
 
-winston.remove(winston.transports.Console);
-winston.add(winston.transports.File, {
-  filename: path.join(process.cwd(), 'aero-debug.log')
-});
+// If the CI environment variables is not set and there is an AEROBATIC_API_KEY
+// then assume this is a CI env.
+if (!process.env.CI && process.env.AEROBATIC_API_KEY) {
+  process.env.CI = 1;
+}
+
+// If this is not a CI build then log to a file rather than stdout
+if (!process.env.CI) {
+  winston.remove(winston.transports.Console);
+  winston.add(winston.transports.File, {
+    filename: path.join(process.cwd(), 'aero-debug.log')
+  });
+}
 
 const log = winston;
 
