@@ -9,10 +9,27 @@ const updateNotifier = require('update-notifier');
 const pkg = require('../package.json');
 const winston = require('winston');
 const chalk = require('chalk');
+const fs = require('fs');
+const dotenv = require('dotenv');
 const output = require('../lib/output');
 const wordwrap = require('wordwrap');
 
 require('simple-errors');
+
+// Look for a .env file two levels up and in the current directory
+const dotenvPaths = [path.join(process.cwd(), '../'), process.cwd()];
+dotenvPaths.forEach(dir => {
+  const filePath = path.join(dir, '.env');
+  if (fs.existsSync(filePath)) {
+    const envConfig = dotenv.parse(fs.readFileSync(filePath));
+
+    _.forEach(envConfig, (value, key) => {
+      if (_.startsWith(key, 'AEROBATIC_')) {
+        process.env[key] = value;
+      }
+    });
+  }
+});
 
 if (process.env.AEROBATIC_ENV) {
   process.env.NODE_ENV = process.env.AEROBATIC_ENV;
@@ -182,7 +199,7 @@ function commandAction(command, commandOptions) {
           output(chalk.dim('Unexpected error:'));
           output(wordwrap(4, 70)(chalk.red(err.message)));
           if (process.env.NODE_ENV !== 'production' || program.debug) {
-            output(Error.toJson(err.stack));
+            output(JSON.stringify(Error.toJson(err)));
           }
         }
         output.blankLine();

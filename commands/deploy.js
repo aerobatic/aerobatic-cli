@@ -19,7 +19,7 @@ const output = require('../lib/output');
 
 const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
   '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
-  '**/*.asp', 'package.json', '*.log', manifest.fileName];
+  '**/*.asp', 'package.json', '*.log', 'aero-deploy.tar.gz', manifest.fileName];
 
 // Command to create a new website version
 module.exports = program => {

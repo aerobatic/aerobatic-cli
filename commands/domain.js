@@ -29,7 +29,7 @@ function registerDomain(program) {
   }
 
   // Cursory check that the domain name looks ok.
-  if (!/^[\.a-z0-9_-]+$/.test(program.name)) {
+  if (!/^[.a-z0-9_-]+$/.test(program.name)) {
     return Promise.reject(Error.create('Domain name has invalid ' +
       'characters', {formatted: true}));
   }
