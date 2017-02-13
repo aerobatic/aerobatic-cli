@@ -53,6 +53,16 @@ describe('manifest', () => {
       });
   });
 
+  it('throws error if appId invalid', () => {
+    const program = {cwd: tmpdir};
+    return fs.writeFile(path.join(tmpdir, manifest.fileName), 'id: 123abc')
+      .then(() => manifest.load(program))
+      .catch(err => {
+        assert.equal(err.code, 'invalidAppId');
+        return;
+      });
+  });
+
   it('ensure not exists throws error if file exists', () => {
     const program = {cwd: tmpdir};
     return fs.writeFile(path.join(tmpdir, manifest.fileName), 'router: []')
