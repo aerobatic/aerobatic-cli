@@ -141,7 +141,8 @@ function createTarball(deployDirectory, program) {
     log.debug('Create deployment bundle %s', tarballFile);
 
     // pack(fstream.Reader({path: deployDirectory, filter}))
-    pack(deployDirectory, {filter})
+    // Set ignoreFiles to an empty array. The filter command
+    pack(deployDirectory, {filter, ignoreFiles: []})
       .pipe(outStream)
       .on('error', reject)
       .on('close', () => {
