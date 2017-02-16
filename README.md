@@ -1,3 +1,7 @@
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Build Status][travis-image]][travis-url]
+
 # aerobatic-cli
 
 Command line interface for interacting with the [Aerobatic](https://www.aerobatic.com) static hosting platform.
@@ -36,3 +40,10 @@ Commands:
 ```
 
 Complete docs available at: [https://www.aerobatic.com/docs/cli](https://www.aerobatic.com/docs/cli)
+
+[npm-image]: https://img.shields.io/npm/v/aerobatic-cli.svg?style=flat
+[npm-url]: https://npmjs.org/package/aerobatic-cli
+[travis-image]: https://img.shields.io/travis/aerobatic/cli.svg?style=flat
+[travis-url]: https://travis-ci.org/aerobatic/cli
+[downloads-image]: https://img.shields.io/npm/dm/aerobatic-cli.svg?style=flat
+[downloads-url]: https://npmjs.org/package/aerobatic-cli
