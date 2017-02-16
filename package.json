@@ -40,7 +40,6 @@
     "promise-until": "^1.0.0",
     "request": "^2.75.0",
     "request-promise": "^4.1.1",
-    "rimraf": "^2.5.4",
     "s3-upload-stream": "^1.0.7",
     "simple-errors": "^1.0.1",
     "tar-pack": "^3.3.0",
