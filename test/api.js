@@ -81,4 +81,46 @@ describe('api', () => {
         expect(errorCaught).to.be.true;
       });
   });
+
+  it('retries timed-out api calls', () => {
+    var callNumber = 0;
+
+    const apiHandler = sinon.spy((req, res) => {
+      callNumber += 1;
+      // The api call succeeds on the last try
+      if (callNumber === MAX_TRIES) {
+        res.json({status: 'OK'});
+      } else {
+        setTimeout(() => res.json({status: 'nope'}), 50);
+      }
+    });
+
+    mockApi.registerRoute('get', '/', apiHandler);
+
+    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
+      .then(res => {
+        expect(res).to.eql({status: 'OK'});
+        expect(apiHandler.callCount).to.equal(MAX_TRIES);
+      });
+  });
+
+  it('fails after too many timeouts', () => {
+    const apiHandler = sinon.spy((req, res) => {
+      setTimeout(() => res.json({status: 'nope'}), 50);
+    });
+
+    mockApi.registerRoute('get', '/', apiHandler);
+
+    var errorCaught;
+    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
+      .catch(err => {
+        errorCaught = true;
+        expect(err.message).to.equal('Aerobatic API timeout');
+        expect(err.retryable).to.be.true;
+      })
+      .then(() => {
+        expect(errorCaught).to.be.true;
+        expect(apiHandler.callCount).to.equal(MAX_TRIES);
+      });
+  });
 });
