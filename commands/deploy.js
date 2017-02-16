@@ -105,6 +105,23 @@ function verifyDeployAssets(deployDirectory) {
       }
       return;
     });
+    // .then(() => {
+    //   ['_config.yml', 'config.toml', 'config.yml'].map((fileName) => {
+    //     return fs.exists(path.join(deployDirectory, fileName))
+    //       .then(exists => {
+    //         if (exists) {
+    //           throw Error.create('Deploy directory contains a ' + fileName + '. You probably want to set the --directory ');
+    //         }
+    //       });
+    //   });
+    //
+    //   return Promise.each()
+    //
+    //
+    //   Promise.any()
+    // }
+    //   Promise.
+    // });
 }
 
 function createTarball(deployDirectory, program) {
