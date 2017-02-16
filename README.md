@@ -39,11 +39,11 @@ Commands:
     Type aero help COMMAND for more details
 ```
 
-Complete docs available at: [https://www.aerobatic.com/docs/cli](https://www.aerobatic.com/docs/cli)
+Complete docs available at: [https://www.aerobatic.com/docs/cli](https://www.aerobatic.com/docs/cli/)
 
 [npm-image]: https://img.shields.io/npm/v/aerobatic-cli.svg?style=flat
 [npm-url]: https://npmjs.org/package/aerobatic-cli
-[travis-image]: https://img.shields.io/travis/aerobatic/cli.svg?style=flat
-[travis-url]: https://travis-ci.org/aerobatic/cli
+[travis-image]: https://img.shields.io/travis/aerobatic/aerobatic-cli.svg?style=flat
+[travis-url]: https://travis-ci.org/aerobatic/aerobatic-cli
 [downloads-image]: https://img.shields.io/npm/dm/aerobatic-cli.svg?style=flat
 [downloads-url]: https://npmjs.org/package/aerobatic-cli
