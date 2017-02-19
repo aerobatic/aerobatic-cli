@@ -110,7 +110,8 @@ function verifyDeployAssets(deployDirectory) {
     //     return fs.exists(path.join(deployDirectory, fileName))
     //       .then(exists => {
     //         if (exists) {
-    //           throw Error.create('Deploy directory contains a ' + fileName + '. You probably want to set the --directory ');
+    //           throw Error.create('Deploy directory contains a ' + fileName +
+    // '. You probably want to set the --directory ');
     //         }
     //       });
     //   });
@@ -215,7 +216,13 @@ function waitForDeployComplete(program, deployStage, version) {
     if (runningSpinner && runningSpinner.isSpinning()) runningSpinner.stop(true);
   };
 
+  const startTime = Date.now();
+
   return promiseUntil(() => {
+    if ((Date.now() - startTime) > config.deployTimeoutSeconds * 1000) {
+      throw Error.create('Deployment has timed out', {code: 'deploymentTimedOut'});
+    }
+
     switch (latestVersionState.status) {
       case 'queued':
       case 'running':
@@ -246,7 +253,25 @@ function waitForDeployComplete(program, deployStage, version) {
   })
   .then(() => {
     return latestVersionState;
+  })
+  .catch(err => {
+    // If deployment timed out, update the version status and re-throw
+    if (err.code === 'deploymentTimedOut') {
+      return cleanupVersions(program)
+        .then(() => {
+          throw err;
+        });
+    }
+    throw err;
   });
+}
+
+function cleanupVersions(program) {
+  const url = urlJoin(program.apiUrl,
+    `/apps/${program.website.appId}/versions/cleanup`);
+
+  log.debug('Update version status to timedOut');
+  return api.post({url, authToken: program.authToken});
 }
 
 // Invoke the local cdn app to flush the app from cache.

@@ -12,6 +12,9 @@ const urls = require('../lib/urls');
 module.exports = program => {
   // Validate that the domain name is valid.
   if (_.isString(program.name)) {
+    // if (program.reset) {
+    //   return resendValidationEmail(program);
+    // }
     return registerDomain(program);
   }
 
@@ -115,10 +118,10 @@ function displayNextSteps() {
     'a few minutes, read through these troubleshooting tips:'));
   output('    ' + chalk.yellow('https://www.aerobatic.com/docs/custom-domains-ssl#troubleshooting'));
 
-  output.blankLine();
-  output(wordwrap(4, 80)('You can run the command ' + chalk.green.underline('aero domain') +
-    ' in this same directory (with no arguments) to get a status ' +
-    ' update on the domain provisioning process.'));
+  // output.blankLine();
+  // output(wordwrap(4, 80)('You can run the command ' + chalk.green.underline('aero domain') +
+  //   ' in this same directory (with no arguments) to get a status ' +
+  //   ' update on the domain provisioning process.'));
   output.blankLine();
 
   output(wordwrap(4, 80)('If you still need assistance, don\'t hesitate to contact us at ' +

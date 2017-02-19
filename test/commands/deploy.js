@@ -16,6 +16,7 @@ log.level = 'debug';
 
 // Force a short polling interval for testing
 config.pollVersionStatusInterval = 20;
+config.deployTimeoutSeconds = 1;
 
 require('dash-assert');
 
@@ -43,6 +44,10 @@ describe('deploy command', () => {
 
     api.get('/apps/:appId/versions/:versionId', (req, res, next) => {
       apiHandlers.getVersionHandler(req, res, next);
+    });
+
+    api.post('/apps/:appId/versions/cleanup', (req, res, next) => {
+      apiHandlers.cleanupVersionsHandler(req, res, next);
     });
 
     apiServer = api.listen(API_PORT, done);
@@ -160,6 +165,37 @@ describe('deploy command', () => {
       .catch(err => {
         assert.isTrue(/Deploy failed/.test(err.message));
         assert.equal(apiHandlers.getVersionHandler.callCount, 2);
+      });
+  });
+
+  it('deployment times out', () => {
+    const sampleAppDir = path.join(__dirname, '../fixtures/sample-app');
+    Object.assign(program, {cwd: sampleAppDir});
+
+    apiHandlers.cleanupVersionsHandler = sinon.spy((req, res) => {
+      res.status(204).end();
+    });
+
+    apiHandlers.getVersionHandler = sinon.spy((req, res) => {
+      // Make the version handler take a long time to simulate a timeout
+      setTimeout(() => res.json(Object.assign(req.params, {status: 'running'})), 1000);
+    });
+
+    var errorThrown;
+    return manifest.load(program)
+      .then(appManifest => {
+        program.appManifest = appManifest;
+        program.website = {appId: appManifest.id, customerId};
+        return deployCommand(program);
+      })
+      .catch(err => {
+        errorThrown = true;
+        assert.equal(err.code, 'deploymentTimedOut');
+        return;
+      })
+      .then(() => {
+        assert.isTrue(errorThrown);
+        assert.isTrue(apiHandlers.cleanupVersionsHandler.called);
       });
   });
 });

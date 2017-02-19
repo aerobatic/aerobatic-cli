@@ -3,3 +3,4 @@ githubUrl: https://github.com/
 dashboardUrl: https://dashboard.aerobatic.com
 awsCertificatesEmail: no-reply@certificates.amazon.com
 userConfigFile: .aerorc.test.yml
+deployTimeoutSeconds: 360
