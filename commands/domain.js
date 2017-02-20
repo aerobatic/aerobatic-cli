@@ -9,17 +9,22 @@ const output = require('../lib/output');
 const api = require('../lib/api');
 const urls = require('../lib/urls');
 
+const TROUBLESHOOTING_URL = 'http://bit.ly/2lbV2SC';
+const DNS_SETUP_URL = 'http://bit.ly/2ll4B0c';
+const SUPPORT_EMAIL = 'support@aerobatic.com';
+
 module.exports = program => {
   // Validate that the domain name is valid.
   if (_.isString(program.name)) {
-    // if (program.reset) {
-    //   return resendValidationEmail(program);
-    // }
     return registerDomain(program);
   }
 
+  if (program.reset) {
+    return resendValidationEmail(program);
+  }
+
   // If the command is run without a name arg then check the status of the domain
-  return domainStatus();
+  return domainStatus(program);
 };
 
 function registerDomain(program) {
@@ -77,8 +82,69 @@ function registerDomain(program) {
     });
 }
 
-function domainStatus() {
-  return Promise.resolve();
+function domainStatus(program) {
+  output.blankLine();
+  if (_.isEmpty(program.website.domainName)) {
+    return noCustomDomainMessage();
+  }
+
+  // Make api call to create the domain.
+  return api.get({
+    url: urlJoin(program.apiUrl, `/customers/${program.customerId}/domains?` +
+      `domainName=${encodeURIComponent(program.website.domainName)}`),
+    authToken: program.authToken
+  })
+  .then(domain => {
+    output(chalk.dim('Domain name:'));
+    output('    ' + domain.domainName);
+    output.blankLine();
+
+    switch (domain.status.toUpperCase()) {
+      case 'CERTIFICATE_PENDING':
+        output(chalk.dim('Domain status:'));
+        output(wordwrap(4, 80)('Certificate is still pending. A validation email was ' +
+          'sent to the email on the WHOIS record for the domain as well as ' +
+          'admin@' + domain.domainName + ' and webmaster@' + domain.domainName +
+          '. If it\'s been more than 5 minutes since you registered the domain with Aerobatic, see ' +
+          'these troubleshooting tips: ' + chalk.yellow(TROUBLESHOOTING_URL)));
+        output.blankLine();
+        output('    You can trigger the validation email to be resent by running:');
+        output('    ' + output.command('aero domain --reset'));
+        output.blankLine();
+        output(wordwrap(4, 80)('If you need assistance, don\'t hesitate to contact us at ' +
+          chalk.underline(SUPPORT_EMAIL)));
+        break;
+      case 'DISTRIBUTION_CREATING':
+        output(chalk.dim('Domain status:'));
+        output(wordwrap(4, 80)('Your certificate has been approved and your CDN distribution ' +
+          'is being provisioned. An email with instructions on setting up your DNS records will ' +
+          'be sent to ' + domain.contactEmail + ' as soon as that completes. The process take anywhere ' +
+          'from 30-60 minutes from the time the link in the validation email was clicked.'));
+        break;
+      case 'DEPLOYED':
+        output(chalk.dim('DNS Value:'));
+        output('    ' + domain.dnsValue);
+        output.blankLine();
+
+        output(chalk.dim('Domain status:'));
+        output(wordwrap(4, 80)('Your SSL certificate and CDN distribution are fully provisioned. An email with ' +
+          'DNS instructions should have been sent to ' + domain.contactEmail + '. Full details on configuring ' +
+          'DNS at: ' + chalk.yellow(DNS_SETUP_URL)));
+        break;
+      default:
+        output('    Unknown domain status ' + domain.status);
+        break;
+    }
+    output.blankLine();
+    return null;
+  });
+}
+
+function noCustomDomainMessage() {
+  output('This website does not have a custom domain.');
+  output('You can register one by running ' + output.command('aero domain --name yourdomain.com'));
+  output.blankLine();
+  return Promise.resolve(null);
 }
 
 function createDomain(program) {
@@ -99,9 +165,27 @@ function createDomain(program) {
   });
 }
 
+function resendValidationEmail(program) {
+  if (_.isEmpty(program.website.domainName)) {
+    return noCustomDomainMessage();
+  }
+
+  return api.post({
+    url: urlJoin(program.apiUrl, `/customers/${program.customerId}/domains/resend`),
+    authToken: program.authToken,
+    body: {
+      domainName: program.website.domainName
+    }
+  })
+  .then(() => {
+    output.blankLine();
+    output('     ' + chalk.green('Validation email has been resent.'));
+  });
+}
+
 function displayNextSteps() {
   // Display next steps to the user.
-  output(wordwrap(4, 80)('A verification email should arrive shortly from ' +
+  output(wordwrap(4, 80)('A validation email should arrive shortly from ' +
   chalk.underline(config.awsCertificatesEmail) + ' containing a link to ' +
   'approve the provisioning of your SSL certificate. Click the link and ' +
   'also the approve button in the launched webpage.'));
@@ -110,21 +194,23 @@ function displayNextSteps() {
   output(wordwrap(4, 80)('Once you\'ve approved the certificate, the domain ' +
   'provisioning process will begin. This takes anywhere from 20-40 minutes to ' +
   'fully propagate across our global CDN. Once complete, you\'ll get a second ' +
-  'email from ' + chalk.underline('support@aerobatic.com') + ' with next steps for configuring the ' +
+  'email from ' + chalk.underline(SUPPORT_EMAIL) + ' with next steps for configuring the ' +
   'necessary records with your DNS provider.'));
 
   output.blankLine();
   output(wordwrap(4, 80)('If you don\'t receive the verification email within ' +
     'a few minutes, read through these troubleshooting tips:'));
-  output('    ' + chalk.yellow('https://www.aerobatic.com/docs/custom-domains-ssl#troubleshooting'));
+  output('    ' + chalk.yellow(TROUBLESHOOTING_URL));
+  output.blankLine();
+  output('You can trigger the validation email to be resent by running: ' +
+    output.command('aero domain -R --name yourdomain.com'));
 
-  // output.blankLine();
-  // output(wordwrap(4, 80)('You can run the command ' + chalk.green.underline('aero domain') +
-  //   ' in this same directory (with no arguments) to get a status ' +
-  //   ' update on the domain provisioning process.'));
+  output.blankLine();
+  output(wordwrap(4, 80)('You can run the command ' + chalk.green.underline('aero domain --name yourdomain.com') +
+    ' in this same directory to get a status update on the domain provisioning process.'));
   output.blankLine();
 
   output(wordwrap(4, 80)('If you still need assistance, don\'t hesitate to contact us at ' +
-    chalk.underline('support@aerobatic.com')));
+    chalk.underline(SUPPORT_EMAIL)));
   output.blankLine();
 }

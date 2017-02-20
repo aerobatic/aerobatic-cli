@@ -27,6 +27,10 @@ describe('domain command', () => {
       apiHandlers.createDomain(req, res, next);
     });
 
+    api.post('/customers/:customerId/domains/resend', (req, res, next) => {
+      apiHandlers.resendValidationEmail(req, res, next);
+    });
+
     api.put('/apps/:appId', (req, res) => {
       apiHandlers.updateWebsite(req, res);
     });
@@ -76,7 +80,7 @@ describe('domain command', () => {
   });
 
   it('missing sub-domain', () => {
-    program.website.domainName = 'domain.com';
+    program.website.name = 'domain.com';
     return domainCommand(program)
       .catch(err => {
         expect(err.message).to.match(/Missing --subdomain argument/);
@@ -122,6 +126,24 @@ describe('domain command', () => {
           domainName: program.name,
           subDomain: program.subdomain,
           customerId
+        });
+      });
+  });
+
+  it('resends validation email', () => {
+    const domainName = 'domain.com';
+    program.website.domainName = domainName;
+    program.reset = true;
+
+    apiHandlers.resendValidationEmail = sinon.spy((req, res) => {
+      res.status(204).end();
+    });
+
+    return domainCommand(program)
+      .then(() => {
+        expect(apiHandlers.resendValidationEmail).to.have.been.called;
+        expect(apiHandlers.resendValidationEmail.lastCall.args[0].body).to.eql({
+          domainName
         });
       });
   });
