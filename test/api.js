@@ -82,7 +82,7 @@ describe('api', () => {
       });
   });
 
-  it('retries timed-out api calls', () => {
+  it('retries ESOCKETTIMEDOUT api calls', () => {
     var callNumber = 0;
 
     const apiHandler = sinon.spy((req, res) => {
@@ -120,6 +120,28 @@ describe('api', () => {
       })
       .then(() => {
         expect(errorCaught).to.be.true;
+        expect(apiHandler.callCount).to.equal(MAX_TRIES);
+      });
+  });
+
+  it('retries ETIMEDOUT api calls', () => {
+    var callNumber = 0;
+
+    const apiHandler = sinon.spy((req, res) => {
+      callNumber += 1;
+      // The api call succeeds on the last try
+      if (callNumber === MAX_TRIES) {
+        res.json({status: 'OK'});
+      } else {
+        res.status(500).json({message: 'ETIMEDOUT'});
+      }
+    });
+
+    mockApi.registerRoute('get', '/', apiHandler);
+
+    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
+      .then(res => {
+        expect(res).to.eql({status: 'OK'});
         expect(apiHandler.callCount).to.equal(MAX_TRIES);
       });
   });
