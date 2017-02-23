@@ -1,6 +1,6 @@
 const os = require('os');
 const path = require('path');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const fs = require('fs-promise');
 const log = require('winston');
 const rimraf = require('rimraf');

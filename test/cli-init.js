@@ -5,7 +5,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 chai.use(require('sinon-chai'));
 const config = require('config');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const manifest = require('../lib/manifest');
 config.userConfigFile = '.aerorc-test.yml';
 

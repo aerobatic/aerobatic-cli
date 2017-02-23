@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs-promise');
 const manifest = require('../lib/manifest');
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const path = require('path');
 const os = require('os');
 

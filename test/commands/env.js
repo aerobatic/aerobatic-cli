@@ -1,4 +1,4 @@
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const log = require('winston');
 const sinon = require('sinon');
 const chai = require('chai');

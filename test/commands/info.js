@@ -1,4 +1,4 @@
-const uuid = require('node-uuid');
+const uuid = require('uuid');
 const sinon = require('sinon');
 const express = require('express');
 const chai = require('chai');
