@@ -63,7 +63,28 @@ module.exports = program => {
     deployPath = program.cwd;
   }
 
+  const deployParams = {};
   return verifyDeployAssets(deployPath, program)
+    .then(() => assetPathHasher(deployParams, program))
+    // Create version inserts into versions table and returns versionId and temporary credentials
+    .then(() => createVersion(deployParams, program))
+    .then(() => uploader(deployParams, program))
+    .then(() => markVersionReadyForReplication(deployParams, program))
+    .then(version => waitForDeployComplete(program, deployStage, version))
+    .then(version => {
+      if (program.unitTest !== true && _.includes(['development', 'test'], process.env.NODE_ENV)) {
+        return flushAppForTest(program).then(() => version);
+      }
+      return Promise.resolve(version);
+    })
+    .then(version => {
+      output.blankLine();
+      output('Version ' + version.name + ' deployment complete.');
+      output('View now at ' + chalk.underline.yellow(version.deployedUrl));
+      output.blankLine();
+      return;
+    });
+
     .then(() => createTarball(deployPath, program))
     .then(tarballFile => {
       return uploadTarballToS3(program, deployStage, tarballFile);
