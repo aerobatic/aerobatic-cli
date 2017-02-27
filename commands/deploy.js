@@ -6,20 +6,14 @@ const chalk = require('chalk');
 const config = require('config');
 const request = require('request');
 const urlJoin = require('url-join');
-const camelCase = require('camel-case');
-const pack = require('tar-pack').pack;
+// const camelCase = require('camel-case');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const promiseUntil = require('promise-until');
-const minimatch = require('minimatch');
 const Spinner = require('cli-spinner').Spinner;
 const api = require('../lib/api');
-const manifest = require('../lib/manifest');
 const output = require('../lib/output');
-
-const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
-  '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
-  '**/*.asp', 'package.json', '*.log', 'aero-deploy.tar.gz', manifest.fileName];
+const fileCollector = require('../lib/file-collector');
 
 // Command to create a new website version
 module.exports = program => {
@@ -63,12 +57,15 @@ module.exports = program => {
     deployPath = program.cwd;
   }
 
-  const deployParams = {};
+  const deployParams = {
+    deployPath
+  };
+
   return verifyDeployAssets(deployPath, program)
-    .then(() => assetPathHasher(deployParams, program))
+    .then(() => fileCollector(deployParams))
     // Create version inserts into versions table and returns versionId and temporary credentials
     .then(() => createVersion(deployParams, program))
-    .then(() => uploader(deployParams, program))
+    .then(() => uploadFiles(deployParams, program))
     .then(() => markVersionReadyForReplication(deployParams, program))
     .then(version => waitForDeployComplete(program, deployStage, version))
     .then(version => {
@@ -83,23 +80,6 @@ module.exports = program => {
       output('View now at ' + chalk.underline.yellow(version.deployedUrl));
       output.blankLine();
       return;
-    });
-
-    .then(() => createTarball(deployPath, program))
-    .then(tarballFile => {
-      return uploadTarballToS3(program, deployStage, tarballFile);
-    })
-    .then(() => {
-      const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`);
-      const postBody = {
-        versionId: program.versionId,
-        message: program.versionMessage,
-        manifest: _.omit(program.appManifest, 'appId'),
-        commitUrl: program.commitUrl
-      };
-
-      log.debug('Invoke API to create version %s', program.versionId);
-      return api.post({url, authToken: program.authToken, body: postBody});
     })
     .then(version => waitForDeployComplete(program, deployStage, version))
     .then(version => {
@@ -116,6 +96,20 @@ module.exports = program => {
       return;
     });
 };
+
+function createVersion(deployParams, program) {
+  const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions?requestCredentials=1`);
+  const postBody = {
+    versionId: program.versionId,
+    message: program.versionMessage,
+    manifest: _.omit(program.appManifest, 'appId'),
+    commitUrl: program.commitUrl
+  };
+
+  log.debug('Invoke API to create version %s', program.versionId);
+  return api.post({url, authToken: program.authToken, body: postBody})
+    .then(newVersion => _.assign(deployParams, newVersion));
+}
 
 function verifyDeployAssets(deployDirectory) {
   // Ensure that there is a index.html in the deployDirectory
@@ -146,81 +140,17 @@ function verifyDeployAssets(deployDirectory) {
     // });
 }
 
-function createTarball(deployDirectory, program) {
-  const spinner = startSpinner(program, 'Compressing website assets');
-  const deployManifest = program.appManifest.deploy;
-
-  var ignorePatterns = [].concat(IGNORE_PATTERNS);
-  if (_.isArray(deployManifest.ignorePatterns)) {
-    ignorePatterns = ignorePatterns.concat(deployManifest.ignore);
-  }
-
-  const filter = entry => {
-    log.debug('test filter for entry %s', entry.path);
-    const filePath = path.relative(deployDirectory, entry.path);
-
-    // Attempt to fix issue with Windows needing the execute bit
-    // set on directories.
-    // https://github.com/npm/node-tar/issues/7#issuecomment-17572926
-    // https://github.com/sindresorhus/gulp-zip/issues/64#issuecomment-205324031
-    if (entry.props.type === 'Directory') {
-      log.debug('Set mode of directory to 777');
-      entry.props.mode = parseInt('40777', 8); // eslint-disable-line
-    }
-
-    return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
-  };
-
-  const tarballFile = path.join(program.cwd, 'aero-deploy.tar.gz');
-  fs.removeSync(tarballFile);
-
-  const outStream = fs.createWriteStream(tarballFile);
-
-  return new Promise((resolve, reject) => {
-    log.debug('Create deployment bundle %s', tarballFile);
-
-    // pack(fstream.Reader({path: deployDirectory, filter}))
-    // Set ignoreFiles to an empty array. The filter command
-    pack(deployDirectory, {filter, ignoreFiles: []})
-      .pipe(outStream)
-      .on('error', reject)
-      .on('close', () => {
-        spinner.stop(true);
-        resolve(tarballFile);
-      });
-  });
+function uploadFiles(deployParams, program) {
+  const spinner = startSpinner(program, 'Uploading files');
+  return program.uploader(deployParams, program)
+    .then(() => {
+      spinner.stop(true);
+    });
 }
 
-function uploadTarballToS3(program, deployStage, tarballFile) {
-  const spinner = startSpinner(program, 'Uploading archive to Aerobatic');
-  log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
-
-  return Promise.resolve()
-    .then(() => {
-      return api.get({
-        url: urlJoin(program.apiUrl, `/customers/${program.website.customerId}/deploy-creds`),
-        authToken: program.authToken
-      })
-      .catch(err => {
-        throw Error.create('Error getting deploy creds: ' + err.message, {}, err);
-      });
-    })
-    .then(creds => {
-      // Use the temporary IAM creds to create the S3 connection
-      return program.uploader({
-        creds: _.mapKeys(creds, (value, key) => camelCase(key)),
-        tarballFile,
-        key: program.website.appId + '/' + program.versionId + '.tar.gz',
-        bucket: program.deployBucket,
-        metadata: {stage: deployStage}
-      });
-    }).then(() => {
-      spinner.stop(true);
-      return;
-    })
-    .catch(err => {
-      throw Error.create('Error uploading to S3: ' + err.message, {}, err);
-    });
+function markVersionReadyForReplication(deployParams, program) {
+  const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions/${deployParams.versionId}`);
+  return api.put({url, body: {status: 'initiated'}});
 }
 
 // Poll the api for the version until the status is no longer "running".
@@ -246,6 +176,7 @@ function waitForDeployComplete(program, deployStage, version) {
 
     switch (latestVersionState.status) {
       case 'queued':
+      case 'pending':
       case 'running':
         if (queueSpinner.isSpinning()) queueSpinner.stop(true);
         if (!runningSpinner) {

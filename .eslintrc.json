@@ -12,6 +12,7 @@
       "varsIgnorePattern": "debug",
       "argsIgnorePattern": "(err|settings|options)"
     }],
+    "strict": 0,
     "object-curly-spacing": [2, "never"],
     "space-before-function-paren": [2, "never"],
     "consistent-return": 0,

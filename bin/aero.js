@@ -161,6 +161,11 @@ program.command('versions')
     loadWebsite: true
   }));
 
+program.command('debug')
+  .action(commandAction(require('../commands/debug'), {
+    requireAuth: true
+  }));
+
 program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
