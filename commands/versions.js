@@ -32,7 +32,7 @@ function deleteVersion(program) {
       .then(() => version);
     })
     .then(version => {
-      output('Version ' + version.versionNum + ' deleted');
+      output('    Version ' + version.versionNum + ' deleted');
       return null;
     });
 }

@@ -74,7 +74,8 @@ module.exports = program => {
         versionId: program.versionId,
         message: program.versionMessage,
         manifest: _.omit(program.appManifest, 'appId'),
-        commitUrl: program.commitUrl
+        commitUrl: program.commitUrl,
+        keyFormat: 'v2'
       };
 
       log.debug('Invoke API to create version %s', program.versionId);
@@ -89,7 +90,12 @@ module.exports = program => {
     })
     .then(version => {
       output.blankLine();
-      output('Version ' + version.name + ' deployment complete.');
+      var message = 'Version ' + version.name + ' deployment complete';
+      if (_.isObject(version.metadata) && _.isNumber(version.metadata.duration)) {
+        message += ' - ' + version.metadata.duration + 'ms';
+      }
+
+      output(message);
       output('View now at ' + chalk.underline.yellow(version.deployedUrl));
       output.blankLine();
       return;

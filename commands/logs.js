@@ -43,7 +43,8 @@ module.exports = program => {
           entry.statusCode,
           entry.method + ' HTTP/' + entry.httpVersion,
           entry.url,
-          geoipLocation(entry)
+          geoipLocation(entry),
+          entry.awsRegion
         ].join(' - '));
       });
       return null;

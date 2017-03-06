@@ -8,8 +8,12 @@ const api = require('../lib/api');
 
 require('simple-errors');
 
-// Rename the website
+// Delete the website
 module.exports = program => {
+  // Seems like commander automatically calls the delete command if -D arg
+  // is specified. Ensure that the command "delete" was explicitly typed.
+  if (!_.includes(program.rawArgs, 'delete')) return Promise.resolve();
+
   output('WARNING: Deleting this website will take down ' + program.website.url);
   output.blankLine();
 
