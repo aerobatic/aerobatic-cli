@@ -27,13 +27,19 @@ describe('create command', () => {
   var createAppHandler;
   var apiGetRandomName;
   var downloadFileHandler;
+  var apiCheckNameAvailable;
   const customerId = uuid.v4();
 
   before(done => {
     const api = express();
 
-    api.post('/customers/:customerId/apps', [bodyParser.json()], (req, res, next) => {
+    api.use(bodyParser.json());
+    api.post('/customers/:customerId/apps', (req, res, next) => {
       createAppHandler(req, res, next);
+    });
+
+    api.post('/apps/available', (req, res) => {
+      apiCheckNameAvailable(req, res);
     });
 
     api.get('/apps/random-name', (req, res) => {
@@ -73,11 +79,47 @@ describe('create command', () => {
       res.json(req.body);
     });
 
+    apiCheckNameAvailable = sinon.spy((req, res) => {
+      res.json({available: true});
+    });
+
     return fs.emptyDir(program.cwd);
   });
 
   afterEach(done => {
     return rimraf(program.cwd, done);
+  });
+
+  it('checks name availablity if name arg provided', () => {
+    program.name = 'website-name';
+    return createCommand(program)
+      .then(() => {
+        const nameAvailableReq = apiCheckNameAvailable.lastCall.args[0];
+        expect(nameAvailableReq.body).to.eql({name: program.name});
+        expect(createAppHandler).to.have.been.called;
+      });
+  });
+
+  it('does not create app if name not available', () => {
+    program.name = 'website-name';
+    apiCheckNameAvailable = sinon.spy((req, res) => {
+      res.json({available: false});
+    });
+
+    var errorThrown;
+    return createCommand(program)
+      .then(() => {
+        const nameAvailableReq = apiCheckNameAvailable.lastCall.args[0];
+        expect(nameAvailableReq.body).to.eql({name: program.name});
+      })
+      .catch(err => {
+        errorThrown = true;
+        expect(err.message).to.match(/is already taken/);
+      })
+      .then(() => {
+        expect(errorThrown).to.be.true;
+        expect(createAppHandler).to.not.have.been.called;
+      });
   });
 
   it('invokes api post endpoint', () => {

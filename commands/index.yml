@@ -12,14 +12,20 @@ apikey:
 
 create:
   summary: Create a new Aerobatic website in the current directory
-  details: If no aerobatic.yml file exists in the current directory, a new one will created. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id.
+  details: If no aerobatic.yml file exists in the current directory, a new one will created. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id. You can optionally specify a --name option. If no name is provided then a random name will be generated for you.
   options:
+    - name: name
+      short: n
+      summary: Specify the unique name for the website. The name must be URL friendly consiting of lowercase letters, numbers, and dashes.
     - name: source
       short: S
       summary: Specify a URL to a .zip or .tar.gz archive to create the new website from.
   examples:
     - aero create
+    - aero create --name my-new-site
+    - aero create -n my-new-site
     - aero create --source https://html5up.net/editorial/download
+    - aero create -S https://html5up.net/editorial/download -n my-new-site
 
 deploy:
   summary: Deploy the website in the current directory.
@@ -119,10 +125,6 @@ rename:
   details: If on the free plan this changes the URL. I.e. https://SITENAME.aerobatic.io.
   examples:
     - aero rename -n "new-website-name"
-
-register:
-  summary: Register a new Aerobatic account
-  details: You'll be prompted for email, password, and organization name. A automated email will be sent to the email with a verification link. Once clicked you'll be able to run "aero login".
 
 switch:
   summary: Switch to a different Aerobatic account
