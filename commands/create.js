@@ -1,4 +1,4 @@
-// const log = require('winston');
+const log = require('winston');
 const chalk = require('chalk');
 const path = require('path');
 const _ = require('lodash');
@@ -97,9 +97,10 @@ function createWebsite(program) {
 
 function createSourceDirectory(program) {
   return Promise.resolve().then(() => {
-    if (!program.name) {
+    if (!_.isString(program.name) || _.isEmpty(program.name)) {
       return getRandomSiteName(program)
         .then(siteName => {
+          log.debug('Generated random site name %s', siteName);
           program.name = siteName;
           return;
         });
