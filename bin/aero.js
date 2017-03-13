@@ -73,6 +73,7 @@ program.version(pkg.version)
   .option('-r, --repo [repo]')
   .option('-c, --commit-url [commitUrl]')
   .option('-R, --reset [reset]')
+  .option('-f, --format [format]')
   .option('-D, --delete');
 
 // Create new website

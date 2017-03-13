@@ -32,20 +32,24 @@ module.exports = program => {
       lastTimestamp = results.lastTimestamp;
 
       results.entries.forEach(entry => {
-        // Apache combined log format.
-        // morgan.format('combined', ':remote-addr - :remote-user [:date[clf]]
-        // ":method :url HTTP/:http-version" :status :res[content-length]
-        // ":referrer" ":user-agent"')
-        // https://github.com/expressjs/morgan/blob/master/index.js
-        output([
-          _.padEnd(entry.ip, 15, ' '),
-          chalk.yellow(entry.timestamp),
-          entry.statusCode,
-          entry.method + ' HTTP/' + entry.httpVersion,
-          entry.url,
-          geoipLocation(entry),
-          entry.awsRegion
-        ].join(' - '));
+        if (program.format === 'json') {
+          output(JSON.stringify(entry));
+        } else {
+          // Apache combined log format.
+          // morgan.format('combined', ':remote-addr - :remote-user [:date[clf]]
+          // ":method :url HTTP/:http-version" :status :res[content-length]
+          // ":referrer" ":user-agent"')
+          // https://github.com/expressjs/morgan/blob/master/index.js
+          output([
+            _.padEnd(entry.ip, 15, ' '),
+            chalk.yellow(entry.timestamp),
+            entry.statusCode,
+            entry.method + ' HTTP/' + entry.httpVersion,
+            entry.url,
+            geoipLocation(entry),
+            entry.awsRegion
+          ].join(' - '));
+        }
       });
       return null;
     });

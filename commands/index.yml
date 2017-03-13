@@ -132,6 +132,16 @@ switch:
 
 logs:
   summary: Tail the web logs for the current website
+  options:
+    - name: format
+      short: f
+      summary: The output format of the log entries.
+  details: |
+     By default log entries are display in a format similiar to the Apache combined log format. Pass the value "json" to the --format option to see the raw log entries in their entirety.
+  examples:
+    - aero logs
+    - aero logs --format json
+    - aero logs -f json
 
 versions:
   summary: Manage website versions
