@@ -143,6 +143,14 @@ logs:
     - aero logs --format json
     - aero logs -f json
 
+validate:
+  summary: Validate the aerobatic.yml file
+  details: |
+    Checks that there are no errors in the aerobatic.yml file that will prevent you from deploying.
+
+  examples:
+    - aero validate
+
 versions:
   summary: Manage website versions
   details: |

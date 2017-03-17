@@ -1,6 +1,6 @@
 {
   "name": "aerobatic-cli",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Command line interface for Aerobatic static hosting platform",
   "main": "bin/aero",
   "bin": {

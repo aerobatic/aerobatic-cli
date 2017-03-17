@@ -99,6 +99,19 @@ module.exports = program => {
       output('View now at ' + chalk.underline.yellow(version.deployedUrl));
       output.blankLine();
       return;
+    })
+    .catch(err => {
+      if (err.code === 'invalidManifest') {
+        output.blankLine();
+        output('     ' + chalk.red('The aerobatic.yml has the following errors:'));
+        output.blankLine();
+        err.errors.forEach(message => {
+          output('     * ' + chalk.dim(message));
+        });
+        output.blankLine();
+      } else {
+        throw err;
+      }
     });
 };
 

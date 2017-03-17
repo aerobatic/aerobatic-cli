@@ -143,13 +143,20 @@ program
   }));
 
 program
+  .command('validate')
+  .action(commandAction(require('../commands/validate'), {
+    loadManifest: true,
+    requireAuth: false
+  }));
+
+program
   .command('switch')
   .action(commandAction(require('../commands/switch')));
 
 program.command('help')
-  .action(commandAction(require('../commands/help')), {
+  .action(commandAction(require('../commands/help'), {
     requireAuth: false
-  });
+  }));
 
 program.command('logs')
   .action(commandAction(require('../commands/logs'), {
