@@ -211,7 +211,7 @@ function commandAction(command, commandOptions) {
         } else if (err.formatted === true) {
           output(chalk.dim('Error:'));
           output(wordwrap(4, 70)(err.message));
-        } else {
+        } else if (err.doNothing !== true) {
           log.error(Error.toJson(err));
           output(chalk.dim('Unexpected error:'));
           output(wordwrap(4, 70)(chalk.red(err.message)));

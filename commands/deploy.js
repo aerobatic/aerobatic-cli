@@ -108,7 +108,7 @@ module.exports = program => {
         err.errors.forEach(message => {
           output('     * ' + chalk.dim(message));
         });
-        output.blankLine();
+        throw Error.create('Already handled', {doNothing: true});
       } else {
         throw err;
       }
