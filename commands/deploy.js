@@ -63,6 +63,7 @@ module.exports = program => {
     deployPath = program.cwd;
   }
 
+  program.bundleFileCount = 0;
   return verifyDeployAssets(deployPath, program)
     .then(() => createTarball(deployPath, program))
     .then(tarballFile => {
@@ -166,7 +167,11 @@ function createTarball(deployDirectory, program) {
       entry.props.mode = parseInt('40777', 8); // eslint-disable-line
     }
 
-    return !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
+    const include = !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
+    if (include) {
+      program.bundleFileCount += 1;
+    }
+    return include;
   };
 
   const tarballFile = path.join(program.cwd, 'aero-deploy.tar.gz');
@@ -210,7 +215,11 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
         tarballFile,
         key: program.website.appId + '/' + program.versionId + '.tar.gz',
         bucket: program.deployBucket,
-        metadata: {stage: deployStage}
+        metadata: {
+          stage: deployStage,
+          // S3 metadata must be strings
+          fileCount: program.bundleFileCount.toString()
+        }
       });
     }).then(() => {
       spinner.stop(true);
