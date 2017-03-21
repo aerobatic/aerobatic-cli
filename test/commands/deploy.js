@@ -128,7 +128,7 @@ describe('deploy command', () => {
           bucket: config.deployBucket,
           metadata: {
             stage: program.stage,
-            fileCount: 3
+            fileCount: '3'
           }
         }));
 
