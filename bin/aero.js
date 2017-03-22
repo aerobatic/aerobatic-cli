@@ -137,12 +137,6 @@ program
   }));
 
 program
-  .command('register')
-  .action(commandAction(require('../commands/register'), {
-    requireAuth: false
-  }));
-
-program
   .command('validate')
   .action(commandAction(require('../commands/validate'), {
     loadManifest: true,
