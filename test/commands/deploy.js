@@ -77,7 +77,7 @@ describe('deploy command', () => {
     };
 
     program.versionId = uuid.v4();
-    program.versionMessage = 'New version message';
+    program.message = 'New version message';
 
     apiHandlers.getDeployCreds = sinon.spy((req, res) => {
       res.json(deployCreds);
@@ -135,7 +135,7 @@ describe('deploy command', () => {
         assert.isTrue(apiHandlers.postVersionHandler.calledWith(sinon.match({
           body: {
             versionId: program.versionId,
-            message: program.versionMessage,
+            message: program.message,
             manifest: _.omit(program.appManifest, 'id')
           }
         })));

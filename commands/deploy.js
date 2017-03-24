@@ -73,7 +73,7 @@ module.exports = program => {
       const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`);
       const postBody = {
         versionId: program.versionId,
-        message: program.versionMessage,
+        message: program.message,
         manifest: _.omit(program.appManifest, 'appId'),
         commitUrl: program.commitUrl,
         keyFormat: 'v2'
