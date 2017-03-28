@@ -46,7 +46,7 @@ function registerDomain(program) {
     return Promise.reject(Error.create('Missing --subdomain argument.', {formatted: true}));
   }
 
-  if (program.subdomain !== '@' && !/^[a-z0-9-]{3,50}$/.test(program.subdomain)) {
+  if (program.subdomain !== '@' && program.subDomain !== '*' && !/^[a-z0-9-]{3,50}$/.test(program.subdomain)) {
     return Promise.reject(Error.create('Invalid sub-domain. Valid characters are ' +
       'letters, numbers, and dashes.', {formatted: true}));
   }
