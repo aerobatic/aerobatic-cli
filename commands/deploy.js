@@ -10,6 +10,7 @@ const camelCase = require('camel-case');
 const pack = require('tar-pack').pack;
 const uuid = require('uuid');
 const Promise = require('bluebird');
+const wordwrap = require('wordwrap');
 const promiseUntil = require('promise-until');
 const minimatch = require('minimatch');
 const Spinner = require('cli-spinner').Spinner;
@@ -116,33 +117,49 @@ module.exports = program => {
     });
 };
 
-function verifyDeployAssets(deployDirectory) {
-  // Ensure that there is a index.html in the deployDirectory
-  return fs.exists(path.join(deployDirectory, 'index.html'))
-    .then(exists => {
-      if (!exists) {
-        throw Error.create('No index.html file exists in the deploy directory', {formatted: true});
-      }
-      return;
+function verifyDeployAssets(deployDirectory, program) {
+  // Check if this appears to be a Jekyll site.
+  return Promise.resolve()
+    .then(() => {
+      if (program.force === true) return null;
+
+      return warnIfStaticGeneratorConfig(deployDirectory, '_config.yml', 'Jekyll', '_site')
+        .then(() => warnIfStaticGeneratorConfig(deployDirectory, 'config.toml', 'Hugo', 'public'));
+    })
+    .then(() => {
+      // Ensure that there is a index.html in the deployDirectory
+      return fs.exists(path.join(deployDirectory, 'index.html'))
+        .then(exists => {
+          if (!exists) {
+            throw Error.create('No index.html file exists in the deploy directory', {formatted: true});
+          }
+          return;
+        });
     });
-    // .then(() => {
-    //   ['_config.yml', 'config.toml', 'config.yml'].map((fileName) => {
-    //     return fs.exists(path.join(deployDirectory, fileName))
-    //       .then(exists => {
-    //         if (exists) {
-    //           throw Error.create('Deploy directory contains a ' + fileName +
-    // '. You probably want to set the --directory ');
-    //         }
-    //       });
-    //   });
-    //
-    //   return Promise.each()
-    //
-    //
-    //   Promise.any()
-    // }
-    //   Promise.
-    // });
+}
+
+function warnIfStaticGeneratorConfig(deployDirectory, configFile, generatorName, outputDirectory) {
+  return fs.exists(path.join(deployDirectory, configFile))
+    .then(exists => {
+      if (!exists) return null;
+
+      output(wordwrap(4, 70)(chalk.yellow('WARNING:') + ' Detected a ' + configFile + ' file in the deploy directory. If this site is ' +
+        'built with ' + generatorName + ' or another static site generator, you should ' +
+        'run the following command:'));
+      output.blankLine();
+
+      output('    $ ' + chalk.green('aero deploy --directory ' + outputDirectory));
+      output.blankLine();
+      output(wordwrap(4, 70)('Or you can set the directory option in the deploy section of your aerobatic.yml file:'));
+
+      output.blankLine();
+      output(chalk.dim('    deploy:'));
+      output(chalk.dim('       directory: ' + outputDirectory));
+
+      output.blankLine();
+      output('    If you know what you are doing, you can override this warning by passing the --force option.');
+      throw Error.create('', {code: 'staticGeneratorConfigInDeployDir', doNothing: true});
+    });
 }
 
 function createTarball(deployDirectory, program) {

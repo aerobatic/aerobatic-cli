@@ -4,7 +4,7 @@ deploy:
   ignore:
     - ignore-me
 
-router:
+plugins:
   # The webpage plugin provides the core functionality for serving
   # .html files
   - module: webpage

@@ -201,4 +201,19 @@ describe('deploy command', () => {
         assert.isTrue(apiHandlers.cleanupVersionsHandler.called);
       });
   });
+
+  it('does not deploy if _config.yml in the deploy directory', () => {
+    const jekyllSiteDir = path.join(__dirname, '../fixtures/jekyll-site');
+    Object.assign(program, {cwd: jekyllSiteDir});
+
+    return manifest.load(program)
+      .then(appManifest => {
+        program.appManifest = appManifest;
+        program.website = {appId: appManifest.id, customerId};
+        return deployCommand(program);
+      })
+      .catch(err => {
+        assert.equal(err.code, 'staticGeneratorConfigInDeployDir');
+      });
+  });
 });

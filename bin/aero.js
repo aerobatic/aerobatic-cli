@@ -74,7 +74,8 @@ program.version(pkg.version)
   .option('-c, --commit-url [commitUrl]')
   .option('-R, --reset [reset]')
   .option('-f, --format [format]')
-  .option('-D, --delete');
+  .option('-D, --delete')
+  .option('-f, --force');
 
 // Create new website
 program
