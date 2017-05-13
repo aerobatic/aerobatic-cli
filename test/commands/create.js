@@ -46,6 +46,10 @@ describe('create command', () => {
       apiGetRandomName(req, res);
     });
 
+    api.get('/customers', (req, res) => {
+      res.json([{customerId}]);
+    });
+
     apiServer = api.listen(API_PORT, done);
   });
 

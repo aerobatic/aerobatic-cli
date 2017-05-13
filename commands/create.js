@@ -2,6 +2,7 @@ const log = require('winston');
 const chalk = require('chalk');
 const path = require('path');
 const _ = require('lodash');
+const inquirer = require('inquirer');
 const urlJoin = require('url-join');
 const output = require('../lib/output');
 const api = require('../lib/api');
@@ -32,6 +33,24 @@ module.exports = program => {
       }
       return null;
     })
+    .then(() => {
+      // If the user is associated with multiple accounts, prompt them to choose
+      // which one to associate the site with.
+      return api.get({
+        url: urlJoin(program.apiUrl, '/customers'),
+        authToken: program.authToken
+      });
+    })
+    .then(customers => {
+      if (customers.length < 2) return null;
+
+      return promptForCustomer(program, customers)
+        .then(customerId => {
+          program.customerId = customerId;
+          output.blankLine();
+          return;
+        });
+    })
     .then(() => manifest.loadSafe(program))
     .then(appManifest => {
       return createWebsite(program)
@@ -41,13 +60,14 @@ module.exports = program => {
       params.appManifest.id = params.website.appId;
 
       return manifest.save(program, params.appManifest).then(() => {
-        output('Website ' + chalk.yellow.underline(params.website.url) + ' created.');
+        output('    Website ' + chalk.underline(params.website.url) + ' created.');
+        output.blankLine();
+        output(chalk.bold('    --NOTHING HAS BEEN DEPLOYED YET--'));
+
         if (program.source) {
-          output('To deploy your first version, run ' +
-            chalk.underline.green('cd ' + program.name) +
-            ' then ' + chalk.underline.green('aero deploy') + '.');
+          output('    To deploy your first version, run "cd ' + program.name + '" then "aero deploy".');
         } else {
-          output('To deploy your first version, run ' + chalk.underline.green('aero deploy') + '.');
+          output('    To deploy your first version, run "aero deploy".');
         }
 
         output.blankLine();
@@ -71,6 +91,24 @@ function checkNameAvailability(program) {
 
 function throwNameTakenError(name) {
   throw Error.create('The website name ' + name + ' is already taken. Please try a different name.', {formatted: true});
+}
+
+function promptForCustomer(program, customers) {
+  return inquirer.prompt([
+    {
+      name: 'customerId',
+      type: 'list',
+      message: 'Select which account this website belongs to:',
+      choices: customers.map(customer => {
+        return {
+          name: customer.name,
+          value: customer.customerId
+        };
+      }),
+      default: program.customerId,
+    }
+  ])
+  .then(answers => answers.customerId);
 }
 
 // Invoke the API to create the website
