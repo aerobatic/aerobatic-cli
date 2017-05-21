@@ -13,6 +13,7 @@ const Promise = require('bluebird');
 const wordwrap = require('wordwrap');
 const promiseUntil = require('promise-until');
 const minimatch = require('minimatch');
+const exec = require('child_process').exec;
 const Spinner = require('cli-spinner').Spinner;
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
@@ -50,22 +51,31 @@ module.exports = program => {
   // First check for a command line  followed by a value in the manifest.
   var deployDirectory = program.directory || deployManifest.directory;
   var deployPath;
-
-  // If there is a directory specified in the deploy manifest, ensure that the
-  // sub-directory exists.
-  if (deployDirectory) {
-    deployPath = path.join(program.cwd, deployDirectory);
-
-    log.debug('Ensure deployPath %s exists', deployPath);
-    if (!fs.existsSync(deployPath)) {
-      return Promise.reject(Error.create('The deploy directory ' + deployDirectory + ' does not exist.', {formatted: true}));
-    }
-  } else {
-    deployPath = program.cwd;
-  }
-
   program.bundleFileCount = 0;
-  return verifyDeployAssets(deployPath, program)
+
+  return Promise.resolve()
+    .then(() => {
+      if (_.isArray(deployManifest.build)) {
+        return runBuildSteps(program, deployManifest.build);
+      }
+      return null;
+    })
+    .then(() => {
+      // If there is a directory specified in the deploy manifest, ensure that the
+      // sub-directory exists.
+      if (deployDirectory) {
+        deployPath = path.join(program.cwd, deployDirectory);
+
+        log.debug('Ensure deployPath %s exists', deployPath);
+        if (!fs.existsSync(deployPath)) {
+          throw Error.create('The deploy directory ' + deployDirectory + ' does not exist.', {formatted: true});
+        }
+      } else {
+        deployPath = program.cwd;
+      }
+
+      return verifyDeployAssets(deployPath, program);
+    })
     .then(() => createTarball(deployPath, program))
     .then(tarballFile => {
       return uploadTarballToS3(program, deployStage, tarballFile);
@@ -308,6 +318,24 @@ function waitForDeployComplete(program, deployStage, version) {
         });
     }
     throw err;
+  });
+}
+
+function runBuildSteps(program, steps) {
+  log.debug('Running pre-deploy build steps in dir ' + program.cwd);
+  const spinner = startSpinner(program, 'Building site');
+  return Promise.each(steps, step => {
+    return new Promise((resolve, reject) => {
+      exec(step, {cwd: program.cwd}, (err, stepOutput) => {
+        if (err) return reject(err);
+        log.debug(stepOutput.toString());
+        resolve();
+      });
+    });
+  })
+  .then(() => {
+    spinner.stop(true);
+    return;
   });
 }
 

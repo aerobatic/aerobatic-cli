@@ -26,14 +26,6 @@ module.exports = program => {
       return null;
     })
     .then(() => {
-      // If a repo argument was provided then create a new folder to extract
-      // the repo contents to.
-      if (program.source) {
-        return createSourceDirectory(program);
-      }
-      return null;
-    })
-    .then(() => {
       // If the user is associated with multiple accounts, prompt them to choose
       // which one to associate the site with.
       return api.get({
@@ -51,7 +43,15 @@ module.exports = program => {
           return;
         });
     })
-    .then(() => manifest.loadSafe(program))
+    .then(() => {
+      // If a repo argument was provided then create a new folder to extract
+      // the repo contents to.
+      if (program.source || program.theme) {
+        return createSourceDirectory(program);
+      }
+      return null;
+    })
+    .then(() => manifest.loadSafe(program, false))
     .then(appManifest => {
       return createWebsite(program)
         .then(website => ({website, appManifest}));
@@ -63,13 +63,18 @@ module.exports = program => {
         output('    Website ' + chalk.underline(params.website.url) + ' created.');
         output.blankLine();
         output(chalk.bold('    --NOTHING HAS BEEN DEPLOYED YET--'));
+        output.blankLine();
 
-        if (program.source) {
-          output('    To deploy your first version, run "cd ' + program.name + '" then "aero deploy".');
+        let nextCommand;
+        if (program.source || program.theme) {
+          nextCommand = 'cd ' + program.name + ' && aero deploy';
         } else {
-          output('    To deploy your first version, run "aero deploy".');
+          nextCommand = 'aero deploy';
         }
 
+        output('    To deploy your first version, run the following:');
+        output.blankLine();
+        output('    [' + chalk.bold('$') + '] ' + nextCommand);
         output.blankLine();
       });
     });
@@ -147,8 +152,16 @@ function createSourceDirectory(program) {
   })
   .then(() => {
     program.cwd = path.join(program.cwd, program.name);
-    output('    ' + chalk.dim('Downloading source archive ' + program.source));
-    return download(program.source, program.cwd);
+    let sourceUrl;
+    if (program.theme) {
+      sourceUrl = urlJoin(program.themesBaseUrl, program.theme + '.tar.gz');
+      output('    ' + chalk.dim('Downloading theme ' + program.theme));
+    } else {
+      sourceUrl = program.source;
+      output('    ' + chalk.dim('Downloading source archive ' + sourceUrl));
+    }
+
+    return download(sourceUrl, program.cwd);
   });
 }
 
