@@ -74,7 +74,7 @@ module.exports = program => {
 
         output('    To deploy your first version, run the following:');
         output.blankLine();
-        output('    [' + chalk.bold('$') + '] ' + nextCommand);
+        output('    ' + chalk.bold('$') + ' ' + nextCommand);
         output.blankLine();
       });
     });
