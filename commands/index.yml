@@ -17,6 +17,9 @@ create:
     - name: name
       short: n
       summary: Specify the unique name for the website. The name must be URL friendly consiting of lowercase letters, numbers, and dashes.
+    - name: theme
+      short: t
+      summary: Specify a theme from the Aerobatic gallery to use to kickstart the website.
     - name: source
       short: S
       summary: Specify a URL to a .zip or .tar.gz archive to create the new website from.
@@ -24,6 +27,7 @@ create:
     - aero create
     - aero create --name my-new-site
     - aero create -n my-new-site
+    - aero create --theme hugo/agency
     - aero create --source https://html5up.net/editorial/download
     - aero create -S https://html5up.net/editorial/download -n my-new-site
 

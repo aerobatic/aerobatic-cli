@@ -65,7 +65,7 @@ module.exports = program => {
         output(chalk.bold('    --NOTHING HAS BEEN DEPLOYED YET--'));
         output.blankLine();
 
-        let nextCommand;
+        var nextCommand;
         if (program.source || program.theme) {
           nextCommand = 'cd ' + program.name + ' && aero deploy';
         } else {
@@ -118,12 +118,17 @@ function promptForCustomer(program, customers) {
 
 // Invoke the API to create the website
 function createWebsite(program) {
+  const appData = {
+    name: _.isString(program.name) ? program.name : null
+  };
+  if (!_.isEmpty(program.theme)) {
+    appData.theme = program.theme;
+  }
+
   return api.post({
     url: urlJoin(program.apiUrl, `/customers/${program.customerId}/apps`),
     authToken: program.authToken,
-    body: {
-      name: _.isString(program.name) ? program.name : null
-    }
+    body: appData
   })
   .catch(error => {
     switch (error.code) {
@@ -152,7 +157,7 @@ function createSourceDirectory(program) {
   })
   .then(() => {
     program.cwd = path.join(program.cwd, program.name);
-    let sourceUrl;
+    var sourceUrl;
     if (program.theme) {
       sourceUrl = urlJoin(program.themesBaseUrl, program.theme + '.tar.gz');
       output('    ' + chalk.dim('Downloading theme ' + program.theme));
