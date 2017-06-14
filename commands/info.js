@@ -32,9 +32,29 @@ module.exports = program => {
   output.blankLine();
   output(chalk.dim('Plan:'));
   if (!program.website.subscriptionPlan) {
-    output('   FREE. Upgrade to a Pro plan in order to add a custom domain.');
-    output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
-    output.blankLine();
+    if (_.isNumber(program.website.trialEnd)) {
+      if (program.website.trialEnd < Date.now()) {
+        output('   ' + chalk.bold('Trial over!'));
+        output('   Upgrade to the Pro plan to reactivate your site.');
+        output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
+      } else {
+        const daysTillTrialEnds = Math.floor((Date.now() - program.website.trialEnd) / 86400000);
+        if (daysTillTrialEnds === 0) {
+          output('   Trial ends ' + chalk.bold('today!'));
+          output('   Upgrade to the Pro plan to keep your site active');
+          output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
+        } else {
+          output('   Trial ends in ' + chalk.bold(daysTillTrialEnds + ' day' + (daysTillTrialEnds > 1 ? 's' : '')));
+          output('   Upgrade to the Pro plan in order to add a custom domain');
+          output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
+        }
+      }
+    } else {
+      output('   Trial');
+      output('   Upgrade to the Pro plan in order to add a custom domain');
+      output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
+      output.blankLine();
+    }
   } else {
     output('   Pro plan');
   }

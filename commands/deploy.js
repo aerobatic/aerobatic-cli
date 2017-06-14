@@ -18,6 +18,7 @@ const Spinner = require('cli-spinner').Spinner;
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
 const output = require('../lib/output');
+const urls = require('../lib/urls');
 
 const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
   '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
@@ -120,6 +121,12 @@ module.exports = program => {
         err.errors.forEach(message => {
           output('     * ' + chalk.dim(message));
         });
+        throw Error.create('Already handled', {doNothing: true});
+      } else if (err.code === 'appTrialOver') {
+        output.blankLine();
+        output('     --- ' + chalk.bold('FREE TRIAL HAS ENDED') + ' --');
+        output('     Please upgrade to the Pro Plan to reactivate.');
+        output('     ' + chalk.yellow(urls.upgradeWebsite(program.website)));
         throw Error.create('Already handled', {doNothing: true});
       } else {
         throw err;

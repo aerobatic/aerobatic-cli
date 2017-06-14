@@ -60,7 +60,7 @@ module.exports = program => {
       params.appManifest.id = params.website.appId;
 
       return manifest.save(program, params.appManifest).then(() => {
-        output('    Website ' + chalk.underline(params.website.url) + ' created.');
+        output('    Website ' + chalk.underline(params.website.url) + ' created. The trial period will end in 30 days.');
         output.blankLine();
         output(chalk.bold('    --NOTHING HAS BEEN DEPLOYED YET--'));
         output.blankLine();
