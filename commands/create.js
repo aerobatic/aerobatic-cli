@@ -6,6 +6,7 @@ const inquirer = require('inquirer');
 const urlJoin = require('url-join');
 const output = require('../lib/output');
 const api = require('../lib/api');
+const userConfig = require('../lib/user-config');
 const download = require('../lib/download');
 const manifest = require('../lib/manifest');
 
@@ -25,6 +26,10 @@ module.exports = program => {
       }
       return null;
     })
+    // Refresh the auth token so that if the current user has been
+    // invited to a team account since they last logged in it will
+    // be returned in the subsequent API call to /customers.
+    .then(() => refreshAuthToken(program))
     .then(() => {
       // If the user is associated with multiple accounts, prompt them to choose
       // which one to associate the site with.
@@ -96,6 +101,23 @@ function checkNameAvailability(program) {
 
 function throwNameTakenError(name) {
   throw Error.create('The website name ' + name + ' is already taken. Please try a different name.', {formatted: true});
+}
+
+function refreshAuthToken(program) {
+  return api.get({
+    url: urlJoin(program.apiUrl, '/auth/refresh'),
+    authToken: program.authToken
+  })
+  .then(result => {
+    return userConfig.set({
+      authToken: result.sessionToken,
+      customerRoles: result.customerRoles
+    });
+  })
+  .then(config => {
+    Object.assign(program, config);
+    return null;
+  });
 }
 
 function promptForCustomer(program, customers) {

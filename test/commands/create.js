@@ -50,6 +50,13 @@ describe('create command', () => {
       res.json([{customerId}]);
     });
 
+    api.get('/auth/refresh', (req, res) => {
+      res.json({
+        sessionToken: '123',
+        customerRoles: {[customerId]: 'admin'}
+      });
+    });
+
     apiServer = api.listen(API_PORT, done);
   });
 
