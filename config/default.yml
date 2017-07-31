@@ -4,5 +4,5 @@ dashboardUrl: https://dashboard.aerobatic.com
 awsCertificatesEmail: no-reply@certificates.amazon.com
 userConfigFile: .aerorc.test.yml
 deployTimeoutSeconds: 360
-# The URL to the bucket where the Aerobatic themes reside
-themesBaseUrl: https://aerobatic-themes.s3-accelerate.amazonaws.com/
+# The URL to the bucket where the Aerobatic quick starts reside
+quickStartBaseUrl: https://aerobatic-themes.s3-accelerate.amazonaws.com/

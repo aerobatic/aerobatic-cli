@@ -51,7 +51,7 @@ module.exports = program => {
     .then(() => {
       // If a repo argument was provided then create a new folder to extract
       // the repo contents to.
-      if (program.source || program.theme) {
+      if (program.source || program.quickStart) {
         return createSourceDirectory(program);
       }
       return null;
@@ -71,7 +71,7 @@ module.exports = program => {
         output.blankLine();
 
         var nextCommand;
-        if (program.source || program.theme) {
+        if (program.source || program.quickStart) {
           nextCommand = 'cd ' + program.name + ' && aero deploy';
         } else {
           nextCommand = 'aero deploy';
@@ -143,8 +143,8 @@ function createWebsite(program) {
   const appData = {
     name: _.isString(program.name) ? program.name : null
   };
-  if (!_.isEmpty(program.theme)) {
-    appData.theme = program.theme;
+  if (!_.isEmpty(program.quickStart)) {
+    appData.theme = program.quickStart;
   }
 
   return api.post({
@@ -180,9 +180,9 @@ function createSourceDirectory(program) {
   .then(() => {
     program.cwd = path.join(program.cwd, program.name);
     var sourceUrl;
-    if (program.theme) {
-      sourceUrl = urlJoin(program.themesBaseUrl, program.theme + '.tar.gz');
-      output('    ' + chalk.dim('Downloading theme ' + program.theme));
+    if (program.quickStart) {
+      sourceUrl = urlJoin(program.quickStartBaseUrl, program.quickStart + '.tar.gz');
+      output('    ' + chalk.dim('Downloading quick start ' + program.quickStart));
     } else {
       sourceUrl = program.source;
       output('    ' + chalk.dim('Downloading source archive ' + sourceUrl));
