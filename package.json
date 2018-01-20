@@ -1,6 +1,6 @@
 {
   "name": "aerobatic-cli",
-  "version": "1.0.46",
+  "version": "1.0.47",
   "description": "Command line interface for Aerobatic static hosting platform",
   "main": "bin/aero",
   "bin": {
@@ -8,8 +8,13 @@
   },
   "preferGlobal": true,
   "scripts": {
+    "format":
+      "prettier --write --print-width 80 --single-quote \"{lib,commands,bin,test}/**/*.js\"",
+    "lint": "eslint --ext .js \"**/*.js\"",
+    "check": "npm run lint && npm run test",
     "test": "UNIT_TEST=1 mocha test --recursive",
-    "test-travis": "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
+    "test-travis":
+      "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
   },
   "license": "ISC",
   "repository": "aerobatic/aerobatic-cli",
@@ -55,12 +60,15 @@
     "dash-assert": "^1.2.0",
     "eslint": "^3.8.1",
     "eslint-config-airbnb-base": "^9.0.0",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.0.1",
     "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-prettier": "^2.5.0",
     "eslint-plugin-react": "^6.4.1",
     "express": "^4.14.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.1.2",
+    "prettier": "^1.10.2",
     "rimraf": "^2.5.4",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0"

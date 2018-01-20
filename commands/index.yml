@@ -50,7 +50,7 @@ deploy:
   details: |
     The dir option overrides any value specified in the deploy section of the aerobatic.yml manifest. If no value is specified in either location the current directory is deployed.
 
-    The --stage argument impacts the URL of the deployed version. For example passing "--stage test" will make the new version available at https://www--test.customdomain.com or https://SITENAME--test.aerobatic.io. If no value is provided then the deployment will target the production URL.
+    The --stage argument impacts the URL of the deployed version. For example passing "--stage test" will make the new version available at https://www--test.customdomain.com or https://SITENAME--test.aerobaticapp.com. If no value is provided then the deployment will target the production URL.
 
     If being invoked from a CI server, it may be useful to pass the git commit message and the URL to the commit details that triggered the build. This information will be displayed in the Aerobatic control panel as part of the deployment history.
 
@@ -126,7 +126,7 @@ rename:
     - name: name
       short: n
       summary: The new name of the website
-  details: If on the free plan this changes the URL. I.e. https://SITENAME.aerobatic.io.
+  details: If on the free plan this changes the URL. I.e. https://SITENAME.aerobaticapp.com.
   examples:
     - aero rename -n "new-website-name"
 

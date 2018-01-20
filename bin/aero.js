@@ -60,9 +60,13 @@ updateNotifier({
   updateCheckInterval: 1000 * 60 * 60 * 2 // Check for updates every 2 hours
 }).notify();
 
-program.version(pkg.version)
+program
+  .version(pkg.version)
   .option('--debug', 'Emit debug messages')
-  .option('--customer [customerId]', 'The id of the Aerobatic customer account to perform the command on behalf of.')
+  .option(
+    '--customer [customerId]',
+    'The id of the Aerobatic customer account to perform the command on behalf of.'
+  )
   .option('-n, --name [name]')
   .option('-v, --value [value]')
   .option('-N, --subdomain [subdomain]')
@@ -79,91 +83,88 @@ program.version(pkg.version)
   .option('-f, --force');
 
 // Create new website
-program
-  .command('create')
-  .action(commandAction(require('../commands/create')));
+program.command('create').action(commandAction(require('../commands/create')));
 
-program
-  .command('delete')
-  .action(commandAction(require('../commands/delete'), {
+program.command('delete').action(
+  commandAction(require('../commands/delete'), {
     loadWebsite: true
-  }));
+  })
+);
 
 program
   .command('account')
   .action(commandAction(require('../commands/account')));
 
-program
-  .command('apikey')
-  .action(commandAction(require('../commands/apikey')));
+program.command('apikey').action(commandAction(require('../commands/apikey')));
 
-program
-  .command('info')
-  .action(commandAction(require('../commands/info'), {
+program.command('info').action(
+  commandAction(require('../commands/info'), {
     loadWebsite: true,
     requireAuth: true
-  }));
+  })
+);
 
-program
-  .command('domain')
-  .action(commandAction(require('../commands/domain'), {
+program.command('domain').action(
+  commandAction(require('../commands/domain'), {
     loadWebsite: true
-  }));
+  })
+);
 
 // Set an environment variable
-program
-  .command('env')
-  .action(commandAction(require('../commands/env'), {
+program.command('env').action(
+  commandAction(require('../commands/env'), {
     loadWebsite: true
-  }));
+  })
+);
 
 // Deploy app version
-program
-  .command('deploy')
-  .action(commandAction(require('../commands/deploy'), {
+program.command('deploy').action(
+  commandAction(require('../commands/deploy'), {
     loadWebsite: true,
     loadManifest: true
-  }));
+  })
+);
 
-program
-  .command('login')
-  .action(commandAction(require('../commands/login'), {
+program.command('login').action(
+  commandAction(require('../commands/login'), {
     requireAuth: false
-  }));
+  })
+);
 
-program
-  .command('rename')
-  .action(commandAction(require('../commands/rename'), {
+program.command('rename').action(
+  commandAction(require('../commands/rename'), {
     loadManifest: true,
     loadWebsite: true
-  }));
+  })
+);
 
-program
-  .command('validate')
-  .action(commandAction(require('../commands/validate'), {
+program.command('validate').action(
+  commandAction(require('../commands/validate'), {
     loadManifest: true,
     requireAuth: false
-  }));
+  })
+);
 
-program
-  .command('switch')
-  .action(commandAction(require('../commands/switch')));
+program.command('switch').action(commandAction(require('../commands/switch')));
 
-program.command('help')
-  .action(commandAction(require('../commands/help'), {
+program.command('help').action(
+  commandAction(require('../commands/help'), {
     requireAuth: false
-  }));
+  })
+);
 
-program.command('logs')
-  .action(commandAction(require('../commands/logs'), {
+program.command('logs').action(
+  commandAction(require('../commands/logs'), {
     loadWebsite: true,
     requireAuth: true
-  }));
+  })
+);
 
-program.command('versions')
-  .action(commandAction(require('../commands/versions'), {
+program.command('versions').action(
+  commandAction(require('../commands/versions'), {
     loadWebsite: true
-  }));
+  })
+);
 
 program.parse(process.argv);
 
@@ -203,7 +204,10 @@ function commandAction(command, commandOptions) {
         output.blankLine();
         // console.log
         if (err.status === 401) {
-          output(chalk.dim('Invalid authToken. Try logging in first with ') + chalk.green.underline('aero login'));
+          output(
+            chalk.dim('Invalid authToken. Try logging in first with ') +
+              chalk.green.underline('aero login')
+          );
         } else if (err.formatted === true) {
           output(chalk.dim('Error:'));
           output(wordwrap(4, 70)(err.message));

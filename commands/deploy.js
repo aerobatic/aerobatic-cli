@@ -20,16 +20,31 @@ const manifest = require('../lib/manifest');
 const output = require('../lib/output');
 const urls = require('../lib/urls');
 
-const IGNORE_PATTERNS = ['node_modules/**', '.*', '.*/**',
-  '*.tar.gz', 'README.*', 'LICENSE', '**/*.less', '**/*.scss', '**/*.php',
-  '**/*.asp', 'package.json', '*.log', 'aero-deploy.tar.gz', manifest.fileName];
+const IGNORE_PATTERNS = [
+  'node_modules/**',
+  '.*',
+  '.*/**',
+  '*.tar.gz',
+  'README.*',
+  'LICENSE',
+  '**/*.less',
+  '**/*.scss',
+  '**/*.php',
+  '**/*.asp',
+  'package.json',
+  '*.log',
+  'aero-deploy.tar.gz',
+  manifest.fileName
+];
 
 // Command to create a new website version
 module.exports = program => {
   const deployStage = program.stage || 'production';
 
   output.blankLine();
-  output('Deploy new Aerobatic website version to stage ' + chalk.bold(deployStage));
+  output(
+    'Deploy new Aerobatic website version to stage ' + chalk.bold(deployStage)
+  );
   output.blankLine();
 
   _.defaults(program, {
@@ -43,8 +58,13 @@ module.exports = program => {
   });
 
   if (!/^[a-z0-9-]{3,50}$/.test(program.deployStage)) {
-    return Promise.reject(Error.create('Invalid deploy stage arg. Must consist ' +
-      'only of lowercase letter, numbers, and dashes.', {formatted: true}));
+    return Promise.reject(
+      Error.create(
+        'Invalid deploy stage arg. Must consist ' +
+          'only of lowercase letter, numbers, and dashes.',
+        {formatted: true}
+      )
+    );
   }
 
   const deployManifest = program.appManifest.deploy;
@@ -69,7 +89,10 @@ module.exports = program => {
 
         log.debug('Ensure deployPath %s exists', deployPath);
         if (!fs.existsSync(deployPath)) {
-          throw Error.create('The deploy directory ' + deployDirectory + ' does not exist.', {formatted: true});
+          throw Error.create(
+            'The deploy directory ' + deployDirectory + ' does not exist.',
+            {formatted: true}
+          );
         }
       } else {
         deployPath = program.cwd;
@@ -82,7 +105,10 @@ module.exports = program => {
       return uploadTarballToS3(program, deployStage, tarballFile);
     })
     .then(() => {
-      const url = urlJoin(program.apiUrl, `/apps/${program.website.appId}/versions`);
+      const url = urlJoin(
+        program.apiUrl,
+        `/apps/${program.website.appId}/versions`
+      );
       const postBody = {
         versionId: program.versionId,
         message: program.message,
@@ -96,7 +122,10 @@ module.exports = program => {
     })
     .then(version => waitForDeployComplete(program, deployStage, version))
     .then(version => {
-      if (program.unitTest !== true && _.includes(['development', 'test'], process.env.NODE_ENV)) {
+      if (
+        program.unitTest !== true &&
+        _.includes(['development', 'test'], process.env.NODE_ENV)
+      ) {
         return flushAppForTest(program).then(() => version);
       }
       return Promise.resolve(version);
@@ -104,7 +133,10 @@ module.exports = program => {
     .then(version => {
       output.blankLine();
       var message = 'Version ' + version.name + ' deployment complete';
-      if (_.isObject(version.metadata) && _.isNumber(version.metadata.duration)) {
+      if (
+        _.isObject(version.metadata) &&
+        _.isNumber(version.metadata.duration)
+      ) {
         message += ' - ' + version.metadata.duration + 'ms';
       }
 
@@ -116,7 +148,9 @@ module.exports = program => {
     .catch(err => {
       if (err.code === 'invalidManifest') {
         output.blankLine();
-        output('     ' + chalk.red('The aerobatic.yml has the following errors:'));
+        output(
+          '     ' + chalk.red('The aerobatic.yml has the following errors:')
+        );
         output.blankLine();
         err.errors.forEach(message => {
           output('     * ' + chalk.dim(message));
@@ -140,43 +174,82 @@ function verifyDeployAssets(deployDirectory, program) {
     .then(() => {
       if (program.force === true) return null;
 
-      return warnIfStaticGeneratorConfig(deployDirectory, '_config.yml', 'Jekyll', '_site')
-        .then(() => warnIfStaticGeneratorConfig(deployDirectory, 'config.toml', 'Hugo', 'public'));
+      return warnIfStaticGeneratorConfig(
+        deployDirectory,
+        '_config.yml',
+        'Jekyll',
+        '_site'
+      ).then(() =>
+        warnIfStaticGeneratorConfig(
+          deployDirectory,
+          'config.toml',
+          'Hugo',
+          'public'
+        )
+      );
     })
     .then(() => {
       // Ensure that there is a index.html in the deployDirectory
-      return fs.exists(path.join(deployDirectory, 'index.html'))
+      return fs
+        .exists(path.join(deployDirectory, 'index.html'))
         .then(exists => {
           if (!exists) {
-            throw Error.create('No index.html file exists in the deploy directory', {formatted: true});
+            throw Error.create(
+              'No index.html file exists in the deploy directory',
+              {formatted: true}
+            );
           }
           return;
         });
     });
 }
 
-function warnIfStaticGeneratorConfig(deployDirectory, configFile, generatorName, outputDirectory) {
-  return fs.exists(path.join(deployDirectory, configFile))
-    .then(exists => {
-      if (!exists) return null;
+function warnIfStaticGeneratorConfig(
+  deployDirectory,
+  configFile,
+  generatorName,
+  outputDirectory
+) {
+  return fs.exists(path.join(deployDirectory, configFile)).then(exists => {
+    if (!exists) return null;
 
-      output(wordwrap(4, 70)(chalk.yellow('WARNING:') + ' Detected a ' + configFile + ' file in the deploy directory. If this site is ' +
-        'built with ' + generatorName + ' or another static site generator, you should ' +
-        'run the following command:'));
-      output.blankLine();
+    output(
+      wordwrap(4, 70)(
+        chalk.yellow('WARNING:') +
+          ' Detected a ' +
+          configFile +
+          ' file in the deploy directory. If this site is ' +
+          'built with ' +
+          generatorName +
+          ' or another static site generator, you should ' +
+          'run the following command:'
+      )
+    );
+    output.blankLine();
 
-      output('    $ ' + chalk.green('aero deploy --directory ' + outputDirectory));
-      output.blankLine();
-      output(wordwrap(4, 70)('Or you can set the directory option in the deploy section of your aerobatic.yml file:'));
+    output(
+      '    $ ' + chalk.green('aero deploy --directory ' + outputDirectory)
+    );
+    output.blankLine();
+    output(
+      wordwrap(4, 70)(
+        'Or you can set the directory option in the deploy section of your aerobatic.yml file:'
+      )
+    );
 
-      output.blankLine();
-      output(chalk.dim('    deploy:'));
-      output(chalk.dim('       directory: ' + outputDirectory));
+    output.blankLine();
+    output(chalk.dim('    deploy:'));
+    output(chalk.dim('       directory: ' + outputDirectory));
 
-      output.blankLine();
-      output('    If you know what you are doing, you can override this warning by passing the --force option.');
-      throw Error.create('', {code: 'staticGeneratorConfigInDeployDir', doNothing: true});
+    output.blankLine();
+    output(
+      '    If you know what you are doing, you can override this warning by passing the --force option.'
+    );
+    throw Error.create('', {
+      code: 'staticGeneratorConfigInDeployDir',
+      doNothing: true
     });
+  });
 }
 
 function createTarball(deployDirectory, program) {
@@ -201,7 +274,9 @@ function createTarball(deployDirectory, program) {
       entry.props.mode = parseInt('40777', 8); // eslint-disable-line
     }
 
-    const include = !_.some(ignorePatterns, pattern => minimatch(filePath, pattern));
+    const include = !_.some(ignorePatterns, pattern =>
+      minimatch(filePath, pattern)
+    );
     if (include) {
       program.bundleFileCount += 1;
     }
@@ -230,17 +305,27 @@ function createTarball(deployDirectory, program) {
 
 function uploadTarballToS3(program, deployStage, tarballFile) {
   const spinner = startSpinner(program, 'Uploading archive to Aerobatic');
-  log.debug('Invoke API to get temporary AWS credentials for uploading tarball to S3');
+  log.debug(
+    'Invoke API to get temporary AWS credentials for uploading tarball to S3'
+  );
 
   return Promise.resolve()
     .then(() => {
-      return api.get({
-        url: urlJoin(program.apiUrl, `/customers/${program.website.customerId}/deploy-creds`),
-        authToken: program.authToken
-      })
-      .catch(err => {
-        throw Error.create('Error getting deploy creds: ' + err.message, {}, err);
-      });
+      return api
+        .get({
+          url: urlJoin(
+            program.apiUrl,
+            `/customers/${program.website.customerId}/deploy-creds`
+          ),
+          authToken: program.authToken
+        })
+        .catch(err => {
+          throw Error.create(
+            'Error getting deploy creds: ' + err.message,
+            {},
+            err
+          );
+        });
     })
     .then(creds => {
       // Use the temporary IAM creds to create the S3 connection
@@ -255,7 +340,8 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
           fileCount: program.bundleFileCount.toString()
         }
       });
-    }).then(() => {
+    })
+    .then(() => {
       spinner.stop(true);
       return;
     })
@@ -266,66 +352,86 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
 
 // Poll the api for the version until the status is no longer "running".
 function waitForDeployComplete(program, deployStage, version) {
-  const queueSpinner = startSpinner(program, 'Waiting for cloud deployment to begin');
+  const queueSpinner = startSpinner(
+    program,
+    'Waiting for cloud deployment to begin'
+  );
   var runningSpinner;
 
   var latestVersionState = version;
-  const url = urlJoin(program.apiUrl,
-    `/apps/${program.website.appId}/versions/${version.versionId}?stage=${deployStage}`);
+  const url = urlJoin(
+    program.apiUrl,
+    `/apps/${program.website.appId}/versions/${
+      version.versionId
+    }?stage=${deployStage}`
+  );
 
   const stopSpinners = () => {
     if (queueSpinner.isSpinning()) queueSpinner.stop(true);
-    if (runningSpinner && runningSpinner.isSpinning()) runningSpinner.stop(true);
+    if (runningSpinner && runningSpinner.isSpinning())
+      runningSpinner.stop(true);
   };
 
   const startTime = Date.now();
 
-  return promiseUntil(() => {
-    if ((Date.now() - startTime) > config.deployTimeoutSeconds * 1000) {
-      throw Error.create('Deployment has timed out', {code: 'deploymentTimedOut'});
-    }
+  return promiseUntil(
+    () => {
+      if (Date.now() - startTime > config.deployTimeoutSeconds * 1000) {
+        throw Error.create('Deployment has timed out', {
+          code: 'deploymentTimedOut'
+        });
+      }
 
-    switch (latestVersionState.status) {
-      case 'queued':
-      case 'running':
-        if (queueSpinner.isSpinning()) queueSpinner.stop(true);
-        if (!runningSpinner) {
-          runningSpinner = startSpinner(program, 'Cloud deployment in-progress');
-        }
-        return false;
-      case 'complete':
-        stopSpinners();
-        return true;
-      case 'failed':
-        stopSpinners();
-        throw new Error('Version deployment failed with message: ' + latestVersionState.error);
-      default:
-        throw new Error('Unexpected version status: ' + latestVersionState.status);
-    }
-  }, () => {
-    return Promise.delay(config.pollVersionStatusInterval)
-      .then(() => {
-        log.debug('Checking on version status');
-        return api.get({url, authToken: program.authToken});
-      })
-      .then(updatedVersion => {
-        latestVersionState = updatedVersion;
-        return;
-      });
-  })
-  .then(() => {
-    return latestVersionState;
-  })
-  .catch(err => {
-    // If deployment timed out, update the version status and re-throw
-    if (err.code === 'deploymentTimedOut') {
-      return cleanupVersions(program)
+      switch (latestVersionState.status) {
+        case 'queued':
+        case 'running':
+          if (queueSpinner.isSpinning()) queueSpinner.stop(true);
+          if (!runningSpinner) {
+            runningSpinner = startSpinner(
+              program,
+              'Cloud deployment in-progress'
+            );
+          }
+          return false;
+        case 'complete':
+          stopSpinners();
+          return true;
+        case 'failed':
+          stopSpinners();
+          throw new Error(
+            'Version deployment failed with message: ' +
+              latestVersionState.error
+          );
+        default:
+          throw new Error(
+            'Unexpected version status: ' + latestVersionState.status
+          );
+      }
+    },
+    () => {
+      return Promise.delay(config.pollVersionStatusInterval)
         .then(() => {
-          throw err;
+          log.debug('Checking on version status');
+          return api.get({url, authToken: program.authToken});
+        })
+        .then(updatedVersion => {
+          latestVersionState = updatedVersion;
+          return;
         });
     }
-    throw err;
-  });
+  )
+    .then(() => {
+      return latestVersionState;
+    })
+    .catch(err => {
+      // If deployment timed out, update the version status and re-throw
+      if (err.code === 'deploymentTimedOut') {
+        return cleanupVersions(program).then(() => {
+          throw err;
+        });
+      }
+      throw err;
+    });
 }
 
 function runBuildSteps(program, steps) {
@@ -339,16 +445,17 @@ function runBuildSteps(program, steps) {
         resolve();
       });
     });
-  })
-  .then(() => {
+  }).then(() => {
     spinner.stop(true);
     return;
   });
 }
 
 function cleanupVersions(program) {
-  const url = urlJoin(program.apiUrl,
-    `/apps/${program.website.appId}/versions/cleanup`);
+  const url = urlJoin(
+    program.apiUrl,
+    `/apps/${program.website.appId}/versions/cleanup`
+  );
 
   log.debug('Update version status to timedOut');
   return api.post({url, authToken: program.authToken});
@@ -367,8 +474,14 @@ function flushAppForTest(program) {
     request.post(params, (err, resp, body) => {
       if (err) return reject(err);
       if (resp.statusCode !== 200) {
-        return reject(new Error(resp.statusCode + ' status code ' +
-          'returned from flush-cache endpoint: ' + JSON.stringify(body)));
+        return reject(
+          new Error(
+            resp.statusCode +
+              ' status code ' +
+              'returned from flush-cache endpoint: ' +
+              JSON.stringify(body)
+          )
+        );
       }
       resolve();
     });

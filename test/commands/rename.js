@@ -46,13 +46,12 @@ describe('rename command', () => {
     });
 
     program.name = 'new-website-name';
-    return renameCommand(program)
-      .then(() => {
-        const args = apiPutHandler.lastCall.args;
-        expect(args[0].params.appId).to.equal(appId);
-        expect(args[0].body).to.eql({customerId, name: program.name});
+    return renameCommand(program).then(() => {
+      const args = apiPutHandler.lastCall.args;
+      expect(args[0].params.appId).to.equal(appId);
+      expect(args[0].body).to.eql({customerId, name: program.name});
 
-        return;
-      });
+      return;
+    });
   });
 });

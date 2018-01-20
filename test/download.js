@@ -45,52 +45,67 @@ describe('download', () => {
   it('downloads zip file', () => {
     const destDir = path.join(os.tmpdir(), 'html5-template');
     log.debug('download and extract html5-template to %s', destDir);
-    return download('http://localhost:' + PORT + '/html5-template', destDir)
-      .then(() => {
-        expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
-        expect(fs.existsSync(path.join(destDir, 'assets/css/main.css'))).to.be.true;
-        return;
-      });
+    return download(
+      'http://localhost:' + PORT + '/html5-template',
+      destDir
+    ).then(() => {
+      expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
+      expect(fs.existsSync(path.join(destDir, 'assets/css/main.css'))).to.be
+        .true;
+      return;
+    });
   });
 
   it('downloads zip file with root directory', () => {
     const destDir = path.join(os.tmpdir(), 'stylish-portfolio');
     log.debug('download and extract html5-template to %s', destDir);
-    return download('http://localhost:' + PORT + '/stylish-portfolio', destDir)
-      .then(() => {
-        expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
-        expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be.true;
-        return;
-      });
+    return download(
+      'http://localhost:' + PORT + '/stylish-portfolio',
+      destDir
+    ).then(() => {
+      expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
+      expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be.true;
+      return;
+    });
   });
 
   it('downloads tarball file', () => {
     const destDir = path.join(os.tmpdir(), 'bootstrap-starter');
-    return fs.emptyDir(destDir)
+    return fs
+      .emptyDir(destDir)
       .then(() => {
-        return download('http://localhost:' + PORT + '/bootstrap-starter', destDir);
+        return download(
+          'http://localhost:' + PORT + '/bootstrap-starter',
+          destDir
+        );
       })
       .then(() => {
         expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
-        expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be.true;
+        expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be
+          .true;
         return;
       });
   });
 
   it('handles 404 of source url', () => {
     const url = 'http://localhost:' + PORT + '/not-found';
-    return download(url, process.cwd())
-      .catch(err => {
-        expect(err.message).to.equal('Source archive ' + url + ' could not be found.');
-        return null;
-      });
+    return download(url, process.cwd()).catch(err => {
+      expect(err.message).to.equal(
+        'Source archive ' + url + ' could not be found.'
+      );
+      return null;
+    });
   });
 
   it('handles an invalid archive', () => {
     const destDir = path.join(os.tmpdir(), 'invalid-archive');
-    return fs.emptyDir(destDir)
+    return fs
+      .emptyDir(destDir)
       .then(() => {
-        return download('http://localhost:' + PORT + '/invalid-archive', destDir);
+        return download(
+          'http://localhost:' + PORT + '/invalid-archive',
+          destDir
+        );
       })
       .catch(err => {
         expect(err.message).to.match(/^Unsupported source mimetype/);

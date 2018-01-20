@@ -35,7 +35,8 @@ describe('api', () => {
 
     mockApi.registerRoute('get', '/', apiHandler);
 
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
       .then(res => {
         expect(res).to.eql({status: 'OK'});
         expect(apiHandler.callCount).to.equal(MAX_TRIES);
@@ -50,7 +51,8 @@ describe('api', () => {
     mockApi.registerRoute('get', '/', apiHandler);
 
     var errorCaught;
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
       .catch(err => {
         errorCaught = true;
         expect(err.message).to.equal('Internal server error');
@@ -70,7 +72,8 @@ describe('api', () => {
     mockApi.registerRoute('get', '/', apiHandler);
 
     var errorCaught;
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
       .catch(err => {
         errorCaught = true;
         expect(err.message).to.equal('Some other error');
@@ -97,7 +100,8 @@ describe('api', () => {
 
     mockApi.registerRoute('get', '/', apiHandler);
 
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
       .then(res => {
         expect(res).to.eql({status: 'OK'});
         expect(apiHandler.callCount).to.equal(MAX_TRIES);
@@ -112,7 +116,8 @@ describe('api', () => {
     mockApi.registerRoute('get', '/', apiHandler);
 
     var errorCaught;
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES, timeout: 10})
       .catch(err => {
         errorCaught = true;
         expect(err.message).to.equal('Aerobatic API timeout');
@@ -139,7 +144,8 @@ describe('api', () => {
 
     mockApi.registerRoute('get', '/', apiHandler);
 
-    return api.get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
+    return api
+      .get({url: config.apiUrl + '/', maxTries: MAX_TRIES})
       .then(res => {
         expect(res).to.eql({status: 'OK'});
         expect(apiHandler.callCount).to.equal(MAX_TRIES);

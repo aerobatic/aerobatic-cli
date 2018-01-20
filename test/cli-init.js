@@ -30,7 +30,8 @@ describe('cliInit', () => {
   });
 
   it('extends program with userConfig settings', () => {
-    return userConfig.set({userValue1: 1, userValue2: 2})
+    return userConfig
+      .set({userValue1: 1, userValue2: 2})
       .then(() => cliInit(program, {requireAuth: false}))
       .then(() => {
         expect(program.userValue1).to.equal(1);
@@ -55,12 +56,15 @@ describe('cliInit', () => {
 
     mockApi.registerRoute('get', '/apps/:appId', getWebsite);
 
-    return fs.outputFile(path.join(program.cwd, manifest.fileName), 'id: ' + appId)
+    return fs
+      .outputFile(path.join(program.cwd, manifest.fileName), 'id: ' + appId)
       .then(() => cliInit(program, {loadWebsite: true}))
       .then(() => {
-        expect(getWebsite).to.have.been.calledWith(sinon.match({
-          params: {appId}
-        }));
+        expect(getWebsite).to.have.been.calledWith(
+          sinon.match({
+            params: {appId}
+          })
+        );
 
         expect(program.website).to.eql(website);
       });

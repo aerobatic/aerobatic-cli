@@ -1,5 +1,6 @@
 {
-  "extends": "airbnb-base",
+  "extends": ["airbnb-base", "prettier"],
+  "plugins": ["prettier"],
   "rules": {
     "id-length": 0,
     "comma-dangle": 0,
@@ -7,11 +8,17 @@
     "func-names": 0,
     "one-var": 0,
     "no-use-before-define": [2, "nofunc"],
-    "new-cap": [2, { "capIsNewExceptions": ["Readable", "Writable", "Extract", "Reader"] }],
-    "no-unused-vars": [2, {
-      "varsIgnorePattern": "debug",
-      "argsIgnorePattern": "(err|settings|options)"
-    }],
+    "new-cap": [
+      2,
+      {"capIsNewExceptions": ["Readable", "Writable", "Extract", "Reader"]}
+    ],
+    "no-unused-vars": [
+      2,
+      {
+        "varsIgnorePattern": "debug",
+        "argsIgnorePattern": "(err|settings|options)"
+      }
+    ],
     "object-curly-spacing": [2, "never"],
     "space-before-function-paren": [2, "never"],
     "consistent-return": 0,

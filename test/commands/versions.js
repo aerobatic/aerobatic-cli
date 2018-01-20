@@ -63,12 +63,11 @@ describe('versions command', () => {
       res.json([{versionId: '123', versionNum: 1}]);
     });
 
-    return versionCommand(program)
-      .then(() => {
-        const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
-        expect(listVersionsReq.params.appId).to.equal(appId);
-        return;
-      });
+    return versionCommand(program).then(() => {
+      const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
+      expect(listVersionsReq.params.appId).to.equal(appId);
+      return;
+    });
   });
 
   describe('delete version', () => {
@@ -85,26 +84,24 @@ describe('versions command', () => {
         res.status(204).end();
       });
 
-      return versionCommand(program)
-        .then(() => {
-          const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
-          expect(listVersionsReq.params.appId).to.equal(appId);
+      return versionCommand(program).then(() => {
+        const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
+        expect(listVersionsReq.params.appId).to.equal(appId);
 
-          const deleteVersionReq = apiHandlers.deleteVersion.lastCall.args[0];
-          expect(apiHandlers.deleteVersion).to.have.been.called;
-          expect(deleteVersionReq.params.versionId).to.equal(versionId);
+        const deleteVersionReq = apiHandlers.deleteVersion.lastCall.args[0];
+        expect(apiHandlers.deleteVersion).to.have.been.called;
+        expect(deleteVersionReq.params.versionId).to.equal(versionId);
 
-          return;
-        });
+        return;
+      });
     });
 
     it('Invalid --name arg', () => {
       program.delete = true;
       program.name = 'vg454';
-      return versionCommand(program)
-        .catch(err => {
-          expect(err.message).matches(/^Invalid --name arg/);
-        });
+      return versionCommand(program).catch(err => {
+        expect(err.message).matches(/^Invalid --name arg/);
+      });
     });
 
     it('Invalid version number', () => {
@@ -116,10 +113,9 @@ describe('versions command', () => {
         res.json([{versionId, versionNum: 1}]);
       });
 
-      return versionCommand(program)
-        .catch(err => {
-          expect(err.message).to.match(/^Invalid version number 2/);
-        });
+      return versionCommand(program).catch(err => {
+        expect(err.message).to.match(/^Invalid version number 2/);
+      });
     });
   });
 
@@ -141,16 +137,15 @@ describe('versions command', () => {
       });
     });
 
-    return versionCommand(program)
-      .then(() => {
-        expect(apiHandlers.pushVersion).to.have.been.called;
-        const pushVersionReq = apiHandlers.pushVersion.getCall(0).args[0];
-        expect(pushVersionReq.params).to.eql({
-          appId,
-          versionId,
-          stage: 'test'
-        });
+    return versionCommand(program).then(() => {
+      expect(apiHandlers.pushVersion).to.have.been.called;
+      const pushVersionReq = apiHandlers.pushVersion.getCall(0).args[0];
+      expect(pushVersionReq.params).to.eql({
+        appId,
+        versionId,
+        stage: 'test'
       });
+    });
   });
 
   it('delete stage', () => {
@@ -161,11 +156,10 @@ describe('versions command', () => {
       res.json({appId});
     });
 
-    return versionCommand(program)
-      .then(() => {
-        expect(apiHandlers.deleteStage).to.have.been.called;
-        const deleteStageReq = apiHandlers.deleteStage.lastCall.args[0];
-        expect(deleteStageReq.params).to.eql({appId, stage: 'test'});
-      });
+    return versionCommand(program).then(() => {
+      expect(apiHandlers.deleteStage).to.have.been.called;
+      const deleteStageReq = apiHandlers.deleteStage.lastCall.args[0];
+      expect(deleteStageReq.params).to.eql({appId, stage: 'test'});
+    });
   });
 });

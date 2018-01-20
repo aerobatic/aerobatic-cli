@@ -7,7 +7,7 @@ const api = require('../lib/api');
 
 require('simple-errors');
 
-const NAME_REGEX = /^[a-z0-9\-]{3,50}$/;
+const NAME_REGEX = /^[a-z0-9-]{3,50}$/;
 
 // Rename the website
 module.exports = program => {
@@ -17,8 +17,11 @@ module.exports = program => {
 
   // Do some initial validation of the website name
   if (!NAME_REGEX.test(program.name)) {
-    throw Error.create('Name must be URL friendly consisting only of numbers, ' +
-      'lowercase letters, and dashes.', {formatted: true});
+    throw Error.create(
+      'Name must be URL friendly consisting only of numbers, ' +
+        'lowercase letters, and dashes.',
+      {formatted: true}
+    );
   }
 
   const postData = {
@@ -26,21 +29,28 @@ module.exports = program => {
     customerId: program.customerId
   };
 
-  return api.put({
-    url: urlJoin(program.apiUrl, `/apps/${program.website.appId}`),
-    body: postData,
-    authToken: program.authToken
-  }).then(updatedWebsite => {
-    // TODO: Only display the new url if it's not using a custom domain
-    output('   Website name updated.');
-    if (!updatedWebsite.domainName) {
-      output('   The new url is ' + chalk.yellow.underline(updatedWebsite.url));
-    }
-  })
-  .catch(err => {
-    if (err.code === 'appNameUnavailable') {
-      throw Error.create('Website name ' + program.name + ' is not available.', {formatted: true});
-    }
-    throw err;
-  });
+  return api
+    .put({
+      url: urlJoin(program.apiUrl, `/apps/${program.website.appId}`),
+      body: postData,
+      authToken: program.authToken
+    })
+    .then(updatedWebsite => {
+      // TODO: Only display the new url if it's not using a custom domain
+      output('   Website name updated.');
+      if (!updatedWebsite.domainName) {
+        output(
+          '   The new url is ' + chalk.yellow.underline(updatedWebsite.url)
+        );
+      }
+    })
+    .catch(err => {
+      if (err.code === 'appNameUnavailable') {
+        throw Error.create(
+          'Website name ' + program.name + ' is not available.',
+          {formatted: true}
+        );
+      }
+      throw err;
+    });
 };

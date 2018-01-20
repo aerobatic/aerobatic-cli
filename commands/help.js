@@ -16,24 +16,23 @@ module.exports = program => {
     commandTopic = program.rawArgs[helpIndex + 1];
   }
 
-  return fs.readFile(path.join(__dirname, './index.yml'))
-    .then(contents => {
-      const commandMetadata = yaml.safeLoad(contents.toString());
+  return fs.readFile(path.join(__dirname, './index.yml')).then(contents => {
+    const commandMetadata = yaml.safeLoad(contents.toString());
 
-      if (commandTopic) {
-        if (!commandMetadata[commandTopic]) {
-          output('    There is no command named ' + commandTopic);
-          output.blankLine();
-          return null;
-        }
-
-        displayCommandHelp(commandTopic, commandMetadata[commandTopic]);
-      } else {
-        displayTopLevelHelp(commandMetadata);
+    if (commandTopic) {
+      if (!commandMetadata[commandTopic]) {
+        output('    There is no command named ' + commandTopic);
+        output.blankLine();
+        return null;
       }
-      output.blankLine();
-      return null;
-    });
+
+      displayCommandHelp(commandTopic, commandMetadata[commandTopic]);
+    } else {
+      displayTopLevelHelp(commandMetadata);
+    }
+    output.blankLine();
+    return null;
+  });
 };
 
 // Display the top level help
@@ -50,7 +49,11 @@ function displayTopLevelHelp(metadata) {
   });
 
   output.blankLine();
-  output('    Type ' + chalk.green.underline('aero help COMMAND') + ' for more details');
+  output(
+    '    Type ' +
+      chalk.green.underline('aero help COMMAND') +
+      ' for more details'
+  );
 }
 
 // Display help specific to a command
@@ -70,7 +73,13 @@ function displayCommandHelp(command, metadata) {
     output(chalk.dim('Options:'));
 
     metadata.options.forEach(option => {
-      output('    -' + option.short + ', --' + _.padEnd(option.name, 12, ' ') + option.summary);
+      output(
+        '    -' +
+          option.short +
+          ', --' +
+          _.padEnd(option.name, 12, ' ') +
+          option.summary
+      );
     });
   }
 

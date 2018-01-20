@@ -52,7 +52,11 @@ describe('info command', () => {
 
   it('invokes api to get usage', () => {
     const versions = [
-      {versionId: uuid.v4(), name: 'v1', metadata: {size: '3MB', fileCount: 10}},
+      {
+        versionId: uuid.v4(),
+        name: 'v1',
+        metadata: {size: '3MB', fileCount: 10}
+      },
       {versionId: uuid.v4(), name: 'v2', metadata: {size: '3MB'}}
     ];
 
@@ -76,12 +80,11 @@ describe('info command', () => {
       });
     });
 
-    return infoCommand(program)
-      .then(() => {
-        const args = apiGetUsage.lastCall.args;
-        expect(args[0].params.appId).to.equal(appId);
+    return infoCommand(program).then(() => {
+      const args = apiGetUsage.lastCall.args;
+      expect(args[0].params.appId).to.equal(appId);
 
-        return;
-      });
+      return;
+    });
   });
 });

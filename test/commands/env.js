@@ -75,29 +75,26 @@ describe('env command', () => {
     });
   });
 
-  afterEach(() => {
-  });
+  afterEach(() => {});
 
   it('get environment variables', () => {
     envVariables._global = {FOO: {value: '10'}};
-    return envCommand(program)
-      .then(() => {
-        const getParams = apiHandlers.getEnvVars.getCall(0).args[0].params;
-        expect(getParams).to.eql({appId});
-      });
+    return envCommand(program).then(() => {
+      const getParams = apiHandlers.getEnvVars.getCall(0).args[0].params;
+      expect(getParams).to.eql({appId});
+    });
   });
 
   it('set global environment variable', () => {
     program.name = 'FOO';
     program.value = '10';
-    return envCommand(program)
-      .then(() => {
-        expect(apiHandlers.putEnvVar).to.have.been.called;
-        const putReq = apiHandlers.putEnvVar.getCall(0).args[0];
-        expect(putReq.method).to.equal('PUT');
-        expect(putReq.params).to.eql({appId, key: 'FOO'});
-        expect(putReq.body).to.eql({value: '10'});
-      });
+    return envCommand(program).then(() => {
+      expect(apiHandlers.putEnvVar).to.have.been.called;
+      const putReq = apiHandlers.putEnvVar.getCall(0).args[0];
+      expect(putReq.method).to.equal('PUT');
+      expect(putReq.params).to.eql({appId, key: 'FOO'});
+      expect(putReq.body).to.eql({value: '10'});
+    });
   });
 
   it('set stage specific environment variable', () => {
@@ -105,27 +102,25 @@ describe('env command', () => {
     program.value = '10';
     program.stage = 'test';
 
-    return envCommand(program)
-      .then(() => {
-        expect(apiHandlers.putEnvVar).to.have.been.called;
-        const putReq = apiHandlers.putEnvVar.getCall(0).args[0];
-        expect(putReq.method).to.equal('PUT');
-        expect(putReq.params).to.eql({appId, key: 'FOO', stage: 'test'});
-        expect(putReq.body).to.eql({value: '10'});
-      });
+    return envCommand(program).then(() => {
+      expect(apiHandlers.putEnvVar).to.have.been.called;
+      const putReq = apiHandlers.putEnvVar.getCall(0).args[0];
+      expect(putReq.method).to.equal('PUT');
+      expect(putReq.params).to.eql({appId, key: 'FOO', stage: 'test'});
+      expect(putReq.body).to.eql({value: '10'});
+    });
   });
 
   it('delete global environment variable', () => {
     program.name = 'FOO';
     program.value = '10';
     program.delete = true;
-    return envCommand(program)
-      .then(() => {
-        expect(apiHandlers.deleteEnvVar).to.have.been.called;
-        const deleteReq = apiHandlers.deleteEnvVar.getCall(0).args[0];
-        expect(deleteReq.method).to.equal('DELETE');
-        expect(deleteReq.params).to.eql({appId, key: 'FOO'});
-      });
+    return envCommand(program).then(() => {
+      expect(apiHandlers.deleteEnvVar).to.have.been.called;
+      const deleteReq = apiHandlers.deleteEnvVar.getCall(0).args[0];
+      expect(deleteReq.method).to.equal('DELETE');
+      expect(deleteReq.params).to.eql({appId, key: 'FOO'});
+    });
   });
 
   it('delete stage specific environment variable', () => {
@@ -133,12 +128,11 @@ describe('env command', () => {
     program.value = '10';
     program.delete = true;
     program.stage = 'test';
-    return envCommand(program)
-      .then(() => {
-        expect(apiHandlers.deleteEnvVar).to.have.been.called;
-        const deleteReq = apiHandlers.deleteEnvVar.getCall(0).args[0];
-        expect(deleteReq.method).to.equal('DELETE');
-        expect(deleteReq.params).to.eql({appId, key: 'FOO', stage: 'test'});
-      });
+    return envCommand(program).then(() => {
+      expect(apiHandlers.deleteEnvVar).to.have.been.called;
+      const deleteReq = apiHandlers.deleteEnvVar.getCall(0).args[0];
+      expect(deleteReq.method).to.equal('DELETE');
+      expect(deleteReq.params).to.eql({appId, key: 'FOO', stage: 'test'});
+    });
   });
 });

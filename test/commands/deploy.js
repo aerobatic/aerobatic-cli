@@ -84,10 +84,12 @@ describe('deploy command', () => {
     });
 
     apiHandlers.postVersionHandler = sinon.spy((req, res) => {
-      res.json(_.assign(req.body, {
-        status: 'running',
-        appId: program.website.appId
-      }));
+      res.json(
+        _.assign(req.body, {
+          status: 'running',
+          appId: program.website.appId
+        })
+      );
     });
 
     var getVersionCall = 0;
@@ -112,7 +114,8 @@ describe('deploy command', () => {
     const sampleAppDir = path.join(__dirname, '../fixtures/sample-app');
     Object.assign(program, {cwd: sampleAppDir});
 
-    return manifest.load(program)
+    return manifest
+      .load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
         program.website = {appId: appManifest.id, customerId};
@@ -121,24 +124,30 @@ describe('deploy command', () => {
       .then(() => {
         assert.isTrue(fs.existsSync(sampleAppDir + '/aero-deploy.tar.gz'));
         // unpack the tarball and verify the contents
-        assert.isTrue(mockUploader.calledWith({
-          creds: deployCreds,
-          tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
-          key: program.website.appId + '/' + program.versionId + '.tar.gz',
-          bucket: config.deployBucket,
-          metadata: {
-            stage: program.stage,
-            fileCount: '3'
-          }
-        }));
+        assert.isTrue(
+          mockUploader.calledWith({
+            creds: deployCreds,
+            tarballFile: sampleAppDir + '/aero-deploy.tar.gz',
+            key: program.website.appId + '/' + program.versionId + '.tar.gz',
+            bucket: config.deployBucket,
+            metadata: {
+              stage: program.stage,
+              fileCount: '3'
+            }
+          })
+        );
 
-        assert.isTrue(apiHandlers.postVersionHandler.calledWith(sinon.match({
-          body: {
-            versionId: program.versionId,
-            message: program.message,
-            manifest: _.omit(program.appManifest, 'id')
-          }
-        })));
+        assert.isTrue(
+          apiHandlers.postVersionHandler.calledWith(
+            sinon.match({
+              body: {
+                versionId: program.versionId,
+                message: program.message,
+                manifest: _.omit(program.appManifest, 'id')
+              }
+            })
+          )
+        );
 
         assert.equal(apiHandlers.getVersionHandler.callCount, 3);
       });
@@ -153,13 +162,16 @@ describe('deploy command', () => {
       getVersionCall += 1;
       const version = req.params;
       if (getVersionCall === 2) {
-        res.json(Object.assign(version, {status: 'failed', error: 'Deploy failed'}));
+        res.json(
+          Object.assign(version, {status: 'failed', error: 'Deploy failed'})
+        );
       } else {
         res.json(Object.assign(version, {status: 'running'}));
       }
     });
 
-    return manifest.load(program)
+    return manifest
+      .load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
         program.website = {appId: appManifest.id, customerId};
@@ -181,11 +193,15 @@ describe('deploy command', () => {
 
     apiHandlers.getVersionHandler = sinon.spy((req, res) => {
       // Make the version handler take a long time to simulate a timeout
-      setTimeout(() => res.json(Object.assign(req.params, {status: 'running'})), 1000);
+      setTimeout(
+        () => res.json(Object.assign(req.params, {status: 'running'})),
+        1000
+      );
     });
 
     var errorThrown;
-    return manifest.load(program)
+    return manifest
+      .load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
         program.website = {appId: appManifest.id, customerId};
@@ -206,7 +222,8 @@ describe('deploy command', () => {
     const jekyllSiteDir = path.join(__dirname, '../fixtures/jekyll-site');
     Object.assign(program, {cwd: jekyllSiteDir});
 
-    return manifest.load(program)
+    return manifest
+      .load(program)
       .then(appManifest => {
         program.appManifest = appManifest;
         program.website = {appId: appManifest.id, customerId};

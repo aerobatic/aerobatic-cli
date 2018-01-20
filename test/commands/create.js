@@ -103,12 +103,11 @@ describe('create command', () => {
 
   it('checks name availablity if name arg provided', () => {
     program.name = 'website-name';
-    return createCommand(program)
-      .then(() => {
-        const nameAvailableReq = apiCheckNameAvailable.lastCall.args[0];
-        expect(nameAvailableReq.body).to.eql({name: program.name});
-        expect(createAppHandler).to.have.been.called;
-      });
+    return createCommand(program).then(() => {
+      const nameAvailableReq = apiCheckNameAvailable.lastCall.args[0];
+      expect(nameAvailableReq.body).to.eql({name: program.name});
+      expect(createAppHandler).to.have.been.called;
+    });
   });
 
   it('does not create app if name not available', () => {
@@ -134,12 +133,13 @@ describe('create command', () => {
   });
 
   it('invokes api post endpoint', () => {
-    return createCommand(program)
-      .then(() => {
-        const createAppHandlerReq = createAppHandler.lastCall.args[0];
-        expect(createAppHandlerReq.params).to.eql({customerId: program.customerId});
-        return;
+    return createCommand(program).then(() => {
+      const createAppHandlerReq = createAppHandler.lastCall.args[0];
+      expect(createAppHandlerReq.params).to.eql({
+        customerId: program.customerId
       });
+      return;
+    });
   });
 
   it('creates app from a source zip download', () => {
@@ -150,14 +150,14 @@ describe('create command', () => {
     });
 
     program.source = 'http://localhost:' + FILE_PORT + '/html5-template';
-    return createCommand(program)
-      .then(() => {
-        expect(apiGetRandomName).to.have.been.called;
-        expect(downloadFileHandler).to.have.been.called;
+    return createCommand(program).then(() => {
+      expect(apiGetRandomName).to.have.been.called;
+      expect(downloadFileHandler).to.have.been.called;
 
-        expect(fs.existsSync(path.join(program.cwd, manifest.fileName))).to.be.true;
-        expect(fs.existsSync(path.join(program.cwd, 'index.html'))).to.be.true;
-      });
+      expect(fs.existsSync(path.join(program.cwd, manifest.fileName))).to.be
+        .true;
+      expect(fs.existsSync(path.join(program.cwd, 'index.html'))).to.be.true;
+    });
   });
 
   // it('catches invalidAppName', () => {

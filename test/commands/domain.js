@@ -59,75 +59,75 @@ describe('domain command', () => {
     });
   });
 
-  afterEach(() => {
-  });
+  afterEach(() => {});
 
   it('website already has domain', () => {
     program.name = 'test.com';
     program.website.domainName = 'domain.com';
-    return domainCommand(program)
-      .catch(err => {
-        expect(err.message).to.match(/This website is already bound to the custom domain/);
-      });
+    return domainCommand(program).catch(err => {
+      expect(err.message).to.match(
+        /This website is already bound to the custom domain/
+      );
+    });
   });
 
   it('invalid domain name characters', () => {
     program.name = '*&##.com';
-    return domainCommand(program)
-      .catch(err => {
-        expect(err.message).to.match(/Domain name has invalid characters/);
-      });
+    return domainCommand(program).catch(err => {
+      expect(err.message).to.match(/Domain name has invalid characters/);
+    });
   });
 
   it('missing sub-domain', () => {
     program.website.name = 'domain.com';
-    return domainCommand(program)
-      .catch(err => {
-        expect(err.message).to.match(/Missing --subdomain argument/);
-      });
+    return domainCommand(program).catch(err => {
+      expect(err.message).to.match(/Missing --subdomain argument/);
+    });
   });
 
   it('invalid sub-domain', () => {
     program.name = 'domain.com';
     program.subdomain = '*&#';
-    return domainCommand(program)
-      .catch(err => {
-        expect(err.message).to.match(/Invalid sub-domain/);
-      });
+    return domainCommand(program).catch(err => {
+      expect(err.message).to.match(/Invalid sub-domain/);
+    });
   });
 
   it('website is on free plan', () => {
     program.name = 'domain.com';
     program.subdomain = '@';
     program.website.subscriptionPlan = null;
-    return domainCommand(program)
-      .catch(err => {
-        expect(err.message).to.match(/first needs to be upgraded to the Pro plan/);
-      });
+    return domainCommand(program).catch(err => {
+      expect(err.message).to.match(
+        /first needs to be upgraded to the Pro plan/
+      );
+    });
   });
 
   it('creates domain', () => {
     program.name = 'domain.com';
     program.subdomain = '@';
     program.website.subscriptionPlan = 'paid-plan';
-    return domainCommand(program)
-      .then(() => {
-        expect(apiHandlers.createDomain).to.have.been.called;
-        expect(apiHandlers.createDomain.getCall(0).args[0].params).to.eql({customerId});
-        expect(apiHandlers.createDomain.getCall(0).args[0].body).to.eql({
-          domainName: program.name,
-          customerId
-        });
-
-        expect(apiHandlers.updateWebsite).to.have.been.called;
-        expect(apiHandlers.updateWebsite.getCall(0).args[0].params)
-          .to.eql({appId: program.website.appId});
-        expect(apiHandlers.updateWebsite.getCall(0).args[0].body).to.eql({
-          domainName: program.name,
-          subDomain: program.subdomain,
-          customerId
-        });
+    return domainCommand(program).then(() => {
+      expect(apiHandlers.createDomain).to.have.been.called;
+      expect(apiHandlers.createDomain.getCall(0).args[0].params).to.eql({
+        customerId
       });
+      expect(apiHandlers.createDomain.getCall(0).args[0].body).to.eql({
+        domainName: program.name,
+        customerId
+      });
+
+      expect(apiHandlers.updateWebsite).to.have.been.called;
+      expect(apiHandlers.updateWebsite.getCall(0).args[0].params).to.eql({
+        appId: program.website.appId
+      });
+      expect(apiHandlers.updateWebsite.getCall(0).args[0].body).to.eql({
+        domainName: program.name,
+        subDomain: program.subdomain,
+        customerId
+      });
+    });
   });
 
   it('resends validation email', () => {
@@ -139,13 +139,12 @@ describe('domain command', () => {
       res.status(204).end();
     });
 
-    return domainCommand(program)
-      .then(() => {
-        expect(apiHandlers.resendValidationEmail).to.have.been.called;
-        expect(apiHandlers.resendValidationEmail.lastCall.args[0].body).to.eql({
-          domainName
-        });
+    return domainCommand(program).then(() => {
+      expect(apiHandlers.resendValidationEmail).to.have.been.called;
+      expect(apiHandlers.resendValidationEmail.lastCall.args[0].body).to.eql({
+        domainName
       });
+    });
   });
 
   // it('invokes api post endpoint', () => {
