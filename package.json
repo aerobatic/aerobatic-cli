@@ -8,13 +8,11 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "format":
-      "prettier --write --print-width 80 --single-quote \"{lib,commands,bin,test}/**/*.js\"",
+    "format": "prettier --write --print-width 80 --single-quote \"{lib,commands,bin,test}/**/*.js\"",
     "lint": "eslint --ext .js \"**/*.js\"",
     "check": "npm run lint && npm run test",
     "test": "UNIT_TEST=1 mocha test --recursive",
-    "test-travis":
-      "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
+    "test-travis": "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
   },
   "license": "ISC",
   "repository": "aerobatic/aerobatic-cli",
@@ -64,7 +62,6 @@
     "eslint-plugin-import": "^2.0.1",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-prettier": "^2.5.0",
-    "eslint-plugin-react": "^6.4.1",
     "express": "^4.14.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.1.2",
