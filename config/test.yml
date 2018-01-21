@@ -1,3 +1,2 @@
-# apiUrl: https://staticnow.net/api/test
-apiUrl: https://sgadymwhle.execute-api.us-west-2.amazonaws.com/test
+apiUrl: https://api-test.aerobatic.com
 deployBucket: aerobatic-deploy-staging-test
