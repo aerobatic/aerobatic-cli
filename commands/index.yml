@@ -79,15 +79,11 @@ domain:
     - name: subdomain
       short: N
       summary: The subdomain you want your website to be accessible at. For apex domain use the value '@'.
-    - name: reset
-      short: R
-      summary: Resend the validation email
-
+    
   examples:
     - 'aero domain --name mydomain.com --subdomain www   # Register domain for website with sub-domain'
     - 'aero domain --name mydomain.com --subdomain @     # Register apex domain for website'
     - 'aero domain                                       # Get information about the current domain'
-    - 'aero domain -R                                    # Resend the validation email'
 
 env:
   summary: Set or retrieve environment variables

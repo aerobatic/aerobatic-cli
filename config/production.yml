@@ -1,4 +1,3 @@
-# apiUrl: https://aerobatic.com/api
 apiUrl: https://api.aerobatic.com
 deployBucket: aerobatic-deploy-staging
 userConfigFile: .aerorc.yml

@@ -132,24 +132,61 @@ function domainStatus(program) {
       switch (domain.status.toUpperCase()) {
         case 'CERTIFICATE_PENDING':
           output(chalk.dim('Domain status:'));
-          output(
-            wordwrap(4, 80)(
-              'Certificate is still pending. A validation email was ' +
-                'sent to the email on the WHOIS record for the domain as well as ' +
-                'admin@' +
-                domain.domainName +
-                ' and webmaster@' +
-                domain.domainName +
-                ". If it's been more than 5 minutes since you registered the domain with Aerobatic, see " +
-                'these troubleshooting tips: ' +
-                chalk.yellow(TROUBLESHOOTING_URL)
-            )
-          );
-          output.blankLine();
-          output(
-            '    You can trigger the validation email to be resent by running:'
-          );
-          output('    ' + output.command('aero domain --reset'));
+
+          if (_.isObject(domain.dnsValidationRecord)) {
+            output(
+              wordwrap(4, 80)(
+                'In order to begin the provisioning of this domain, you first need to ' +
+                  'validate that you are the rightful owner. This is done by creating the ' +
+                  'following CNAME with your DNS provider:'
+              )
+            );
+
+            output.blankLine();
+            output('     Name: ' + chalk.bold(domain.dnsValidationRecord.name));
+            output(
+              '    Value: ' + chalk.bold(domain.dnsValidationRecord.value)
+            );
+            output.blankLine();
+
+            output(
+              wordwrap(4, 80)(
+                "If you've already created the record, it can take up to an hour " +
+                  '(occasionally longer) for the record to be recoginized. An email will ' +
+                  'be sent to ' +
+                  chalk.underline(domain.contactEmail) +
+                  ' once validation is complete. You can always ' +
+                  'check on the current status of your domain by re-running this same CLI command.'
+              )
+            );
+
+            output.blankLine();
+            output(
+              wordwrap(4, 80)(
+                chalk.bold('IMPORTANT:') +
+                  ' do not delete this CNAME after validation. It will be re-checked every time the certificate renews itself.'
+              )
+            );
+          } else {
+            output(
+              wordwrap(4, 80)(
+                'Certificate is still pending. A validation email was ' +
+                  'sent to the email on the WHOIS record for the domain as well as ' +
+                  'admin@' +
+                  domain.domainName +
+                  ' and webmaster@' +
+                  domain.domainName +
+                  ". If it's been more than 5 minutes since you registered the domain with Aerobatic, see " +
+                  'these troubleshooting tips: ' +
+                  chalk.yellow(TROUBLESHOOTING_URL)
+              )
+            );
+            output.blankLine();
+            output(
+              '    You can trigger the validation email to be resent by running:'
+            );
+            output('    ' + output.command('aero domain --reset'));
+          }
           output.blankLine();
           output(
             wordwrap(4, 80)(
@@ -165,7 +202,7 @@ function domainStatus(program) {
               'Your certificate has been approved and your CDN distribution ' +
                 'is being provisioned. An email with instructions on setting up your DNS records will ' +
                 'be sent to ' +
-                domain.contactEmail +
+                chalk.underline(domain.contactEmail) +
                 ' as soon as that completes. The process take anywhere ' +
                 'from 30-60 minutes from the time the link in the validation email was clicked.'
             )
@@ -181,7 +218,7 @@ function domainStatus(program) {
             wordwrap(4, 80)(
               'Your SSL certificate and CDN distribution are fully provisioned. An email with ' +
                 'DNS instructions should have been sent to ' +
-                domain.contactEmail +
+                chalk.underline(domain.contactEmail) +
                 '. Full details on configuring ' +
                 'DNS at: ' +
                 chalk.yellow(DNS_SETUP_URL)
