@@ -105,6 +105,12 @@ function checkNameAvailability(program) {
         return throwNameTakenError(program.name);
       }
       return null;
+    })
+    .catch(err => {
+      if (err.code === 'invalidAppName') {
+        throw Error.create(INVALID_NAME_ERROR, {formatted: true});
+      }
+      throw err;
     });
 }
 

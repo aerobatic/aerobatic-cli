@@ -1,6 +1,6 @@
 {
   "name": "aerobatic-cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Command line interface for Aerobatic static hosting platform",
   "main": "bin/aero",
   "bin": {
@@ -8,13 +8,11 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "format":
-      "prettier --write --print-width 80 --single-quote \"{lib,commands,bin,test}/**/*.js\"",
+    "format": "prettier --write --print-width 80 --single-quote \"{lib,commands,bin,test}/**/*.js\"",
     "lint": "eslint --ext .js \"**/*.js\"",
     "check": "npm run lint && npm run test",
     "test": "UNIT_TEST=1 mocha test --recursive",
-    "test-travis":
-      "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
+    "test-travis": "UNIT_TEST=1 istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
   },
   "license": "ISC",
   "repository": "aerobatic/aerobatic-cli",

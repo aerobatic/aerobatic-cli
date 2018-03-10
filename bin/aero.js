@@ -209,7 +209,7 @@ function commandAction(command, commandOptions) {
               chalk.green.underline('aero login')
           );
         } else if (err.formatted === true) {
-          output(chalk.dim('Error:'));
+          output(chalk.yellow('Error:'));
           output(wordwrap(4, 70)(err.message));
         } else if (err.doNothing !== true) {
           log.error(Error.toJson(err));
