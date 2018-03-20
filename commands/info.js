@@ -43,7 +43,7 @@ module.exports = program => {
         output('   ' + chalk.yellow(urls.upgradeWebsite(program.website)));
       } else {
         const daysTillTrialEnds = Math.floor(
-          (Date.now() - program.website.trialEnd) / 86400000
+          (program.website.trialEnd - Date.now()) / 86400000
         );
         if (daysTillTrialEnds === 0) {
           output('   Trial ends ' + chalk.bold('today!'));

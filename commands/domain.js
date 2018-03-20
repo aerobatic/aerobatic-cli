@@ -1,7 +1,6 @@
 // Register a custom domain for a website
 const chalk = require('chalk');
 const _ = require('lodash');
-const config = require('config');
 const log = require('winston');
 const wordwrap = require('wordwrap');
 const urlJoin = require('url-join');
@@ -130,6 +129,7 @@ function domainStatus(program) {
       output.blankLine();
 
       switch (domain.status.toUpperCase()) {
+        case 'REQUESTED':
         case 'CERTIFICATE_PENDING':
           output(chalk.dim('Domain status:'));
 
@@ -156,7 +156,9 @@ function domainStatus(program) {
                   'be sent to ' +
                   chalk.underline(domain.contactEmail) +
                   ' once validation is complete. You can always ' +
-                  'check on the current status of your domain by re-running this same CLI command.'
+                  'check on the current status of your domain by re-running ' +
+                  output.command('aero domain') +
+                  '.'
               )
             );
 
@@ -200,28 +202,48 @@ function domainStatus(program) {
           output(
             wordwrap(4, 80)(
               'Your certificate has been approved and your CDN distribution ' +
-                'is being provisioned. An email with instructions on setting up your DNS records will ' +
-                'be sent to ' +
-                chalk.underline(domain.contactEmail) +
-                ' as soon as that completes. The process take anywhere ' +
-                'from 30-60 minutes from the time the link in the validation email was clicked.'
+                'is being provisioned. Once your distribution is ready, running this ' +
+                ' same CLI command again will output the DNS value ' +
+                " for your website's CNAME or ANAME. The process takes " +
+                'anywhere from 30-60 minutes to complete from the time you initiated the domain.'
             )
           );
+
+          output.blankLine();
+          output(
+            wordwrap(4, 80)(
+              'Please run ' +
+                output.command('aero domain') +
+                ' again in a little while to ' +
+                'get your DNS settings.'
+            )
+          );
+
           break;
         case 'DEPLOYED':
-          output(chalk.dim('DNS Value:'));
-          output('    ' + domain.dnsValue);
-          output.blankLine();
+          // output(chalk.dim('DNS Value:'));
+          // output('    ' + domain.dnsValue);
+          // output.blankLine();
 
           output(chalk.dim('Domain status:'));
           output(
             wordwrap(4, 80)(
-              'Your SSL certificate and CDN distribution are fully provisioned. An email with ' +
-                'DNS instructions should have been sent to ' +
-                chalk.underline(domain.contactEmail) +
-                '. Full details on configuring ' +
-                'DNS at: ' +
-                chalk.yellow(DNS_SETUP_URL)
+              'Your SSL certificate and CDN distribution are fully provisioned. Here is the DNS value to ' +
+                'use for your CNAME or ANAME so that your website URL resolves to your Aerobatic CDN distribution:'
+            )
+          );
+
+          output.blankLine();
+          output('    ' + chalk.bold(domain.dnsValue));
+          output.blankLine();
+
+          output(
+            wordwrap(4, 80)(
+              'Full details on configuring DNS available at ' +
+                chalk.yellow(DNS_SETUP_URL) +
+                '. Contact ' +
+                chalk.underline(SUPPORT_EMAIL) +
+                ' if you need any assistance.'
             )
           );
           break;
@@ -289,54 +311,19 @@ function displayNextSteps() {
   // Display next steps to the user.
   output(
     wordwrap(4, 80)(
-      'A validation email should arrive shortly from ' +
-        chalk.underline(config.awsCertificatesEmail) +
-        ' containing a link to ' +
-        'approve the provisioning of your SSL certificate. Click the link and ' +
-        'also the approve button in the launched webpage.'
+      'Please run ' +
+        output.command('aero deploy') +
+        ' (with no arguments) in about 30 seconds. You will be presented with ' +
+        'the CNAME you need to create to validate domain ownership. Once this CNAME is detected the ' +
+        'provisioning of your SSL certificate and CDN distribution will start.'
     )
   );
 
   output.blankLine();
-  output(
-    wordwrap(4, 80)(
-      "Once you've approved the certificate, the domain " +
-        'provisioning process will begin. This takes anywhere from 20-40 minutes to ' +
-        "fully propagate across our global CDN. Once complete, you'll get a second " +
-        'email from ' +
-        chalk.underline(SUPPORT_EMAIL) +
-        ' with next steps for configuring the ' +
-        'necessary records with your DNS provider.'
-    )
-  );
-
-  output.blankLine();
-  output(
-    wordwrap(4, 80)(
-      "If you don't receive the verification email within " +
-        'a few minutes, read through these troubleshooting tips:'
-    )
-  );
-  output('    ' + chalk.yellow(TROUBLESHOOTING_URL));
-  output.blankLine();
-  output(
-    'You can trigger the validation email to be resent by running: ' +
-      output.command('aero domain -R --name yourdomain.com')
-  );
-
-  output.blankLine();
-  output(
-    wordwrap(4, 80)(
-      'You can run the command ' +
-        chalk.green.underline('aero domain --name yourdomain.com') +
-        ' in this same directory to get a status update on the domain provisioning process.'
-    )
-  );
-  output.blankLine();
 
   output(
     wordwrap(4, 80)(
-      "If you still need assistance, don't hesitate to contact us at " +
+      "If you need any assistance, don't hesitate to contact us at " +
         chalk.underline(SUPPORT_EMAIL)
     )
   );
