@@ -125,11 +125,21 @@ function domainStatus(program) {
     })
     .then(domain => {
       output(chalk.dim('Domain name:'));
-      output('    ' + domain.domainName);
+      output('    ' + chalk.bold(domain.domainName));
       output.blankLine();
 
       switch (domain.status.toUpperCase()) {
         case 'REQUESTED':
+          output(chalk.dim('Domain status:'));
+          output(
+            wordwrap(4, 80)(
+              'Your domain has been requested. Try running ' +
+                output.command('aero domain') +
+                ' again in just a few moments. You will then be presented with your validation CNAME record.'
+            )
+          );
+          break;
+
         case 'CERTIFICATE_PENDING':
           output(chalk.dim('Domain status:'));
 
@@ -212,10 +222,34 @@ function domainStatus(program) {
           output.blankLine();
           output(
             wordwrap(4, 80)(
-              'Please run ' +
+              'Here is the DNS value you will use for your CNAME or ANAME record:'
+            )
+          );
+          output.blankLine();
+          output('    ' + chalk.bold(domain.dnsValue) + '.');
+          output.blankLine();
+
+          output(
+            wordwrap(4, 80)(
+              chalk.bold('IMPORTANT: ') +
+                'If your DNS resolves to an existing live website hosted elsewhere, you should ' +
+                chalk.bold('NOT') +
+                ' update your DNS records yet. You can run ' +
                 output.command('aero domain') +
-                ' again in a little while to ' +
-                'get your DNS settings.'
+                ' again and it will tell you when it is fully ready to go. An email will also be sent to ' +
+                chalk.underline(domain.contactEmail) +
+                '.'
+            )
+          );
+
+          output.blankLine();
+          output(
+            wordwrap(4, 80)(
+              'If this is a brand new domain, you can safely go ahead and setup DNS now and your URL will start to resolve as soon as provisioning is complete. Full documentation can be found at ' +
+                chalk.yellow(DNS_SETUP_URL) +
+                '. Contact ' +
+                chalk.underline(SUPPORT_EMAIL) +
+                ' if you need any assistance.'
             )
           );
 
@@ -234,7 +268,7 @@ function domainStatus(program) {
           );
 
           output.blankLine();
-          output('    ' + chalk.bold(domain.dnsValue));
+          output('    ' + chalk.bold(domain.dnsValue) + '.');
           output.blankLine();
 
           output(
@@ -312,7 +346,7 @@ function displayNextSteps() {
   output(
     wordwrap(4, 80)(
       'Please run ' +
-        output.command('aero deploy') +
+        output.command('aero domain') +
         ' (with no arguments) in about 30 seconds. You will be presented with ' +
         'the CNAME you need to create to validate domain ownership. Once this CNAME is detected the ' +
         'provisioning of your SSL certificate and CDN distribution will start.'
