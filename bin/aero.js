@@ -6,13 +6,14 @@ const path = require('path');
 const program = require('commander');
 const _ = require('lodash');
 const updateNotifier = require('update-notifier');
-const pkg = require('../package.json');
 const winston = require('winston');
 const chalk = require('chalk');
 const fs = require('fs');
 const dotenv = require('dotenv');
-const output = require('../lib/output');
 const wordwrap = require('wordwrap');
+
+const pkg = require('../package.json');
+const output = require('../lib/output');
 
 require('simple-errors');
 
@@ -47,9 +48,11 @@ if (!process.env.CI && process.env.AEROBATIC_API_KEY) {
 // If this is not a CI build then log to a file rather than stdout
 if (!process.env.CI) {
   winston.remove(winston.transports.Console);
-  winston.add(winston.transports.File, {
-    filename: path.join(process.cwd(), 'aero-debug.log')
-  });
+  winston.add(
+    new winston.transports.File({
+      filename: path.join(process.cwd(), 'aero-debug.log')
+    })
+  );
 }
 
 const log = winston;

@@ -2,3 +2,4 @@ node_modules
 **/aero-deploy.tar.gz
 *.log
 coverage
+.vscode

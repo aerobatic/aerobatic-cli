@@ -1,10 +1,11 @@
 const chalk = require('chalk');
 const _ = require('lodash');
-const output = require('../lib/output');
 const yaml = require('js-yaml');
 const fs = require('fs-promise');
 const path = require('path');
 const wordwrap = require('wordwrap');
+
+const output = require('../lib/output');
 
 module.exports = program => {
   output.intro();

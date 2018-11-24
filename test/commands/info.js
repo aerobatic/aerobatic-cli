@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const express = require('express');
 const chai = require('chai');
 chai.use(require('sinon-chai'));
-const expect = chai.expect;
+const {expect} = chai;
 
 const API_PORT = 1797;
 
@@ -81,10 +81,8 @@ describe('info command', () => {
     });
 
     return infoCommand(program).then(() => {
-      const args = apiGetUsage.lastCall.args;
+      const {args} = apiGetUsage.lastCall;
       expect(args[0].params.appId).to.equal(appId);
-
-      return;
     });
   });
 });

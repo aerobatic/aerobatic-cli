@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const chai = require('chai');
 chai.use(require('sinon-chai'));
-const expect = chai.expect;
+const {expect} = chai;
 
 const API_PORT = 1797;
 
@@ -47,11 +47,9 @@ describe('rename command', () => {
 
     program.name = 'new-website-name';
     return renameCommand(program).then(() => {
-      const args = apiPutHandler.lastCall.args;
+      const {args} = apiPutHandler.lastCall;
       expect(args[0].params.appId).to.equal(appId);
       expect(args[0].body).to.eql({customerId, name: program.name});
-
-      return;
     });
   });
 });

@@ -2,7 +2,7 @@ const uuid = require('uuid');
 const log = require('winston');
 const sinon = require('sinon');
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 chai.use(require('sinon-chai'));
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -47,7 +47,7 @@ describe('domain command', () => {
       customerId,
       apiUrl: `http://localhost:${API_PORT}`,
       authToken: '23434',
-      website: {appId: uuid.v4(), customerId}
+      website: {appId: uuid.v4(), customerId, name: 'app-name'}
     };
 
     apiHandlers.createDomain = sinon.spy((req, res) => {

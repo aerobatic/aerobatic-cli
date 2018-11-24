@@ -44,10 +44,12 @@ function setEnvironmentVariable(program) {
     .then(() => {
       return api.put({
         url: urlJoin(
-          program.apiUrl,
-          `/apps/${program.website.appId}/env/`,
-          program.stage,
-          program.name
+          _.compact([
+            program.apiUrl,
+            `/apps/${program.website.appId}/env/`,
+            program.stage,
+            program.name
+          ])
         ),
         authToken: program.authToken,
         body: {
@@ -66,10 +68,12 @@ function deleteEnvironmentVariable(program) {
     .then(() => {
       return api.delete({
         url: urlJoin(
-          program.apiUrl,
-          `/apps/${program.website.appId}/env/`,
-          program.stage,
-          program.name
+          _.compact([
+            program.apiUrl,
+            `/apps/${program.website.appId}/env/`,
+            program.stage,
+            program.name
+          ])
         ),
         authToken: program.authToken
       });

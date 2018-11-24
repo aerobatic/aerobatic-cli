@@ -6,7 +6,7 @@ const log = require('winston');
 const rimraf = require('rimraf');
 const sinon = require('sinon');
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 chai.use(require('sinon-chai'));
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -138,7 +138,6 @@ describe('create command', () => {
       expect(createAppHandlerReq.params).to.eql({
         customerId: program.customerId
       });
-      return;
     });
   });
 

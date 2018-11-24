@@ -32,6 +32,7 @@ module.exports = program => {
         authToken: program.authToken
       })
       .then(results => {
+        // eslint-disable-next-line
         lastTimestamp = results.lastTimestamp;
 
         results.entries.forEach(entry => {

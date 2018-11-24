@@ -1,7 +1,7 @@
 const config = require('config');
 const chai = require('chai');
 const sinon = require('sinon');
-const expect = chai.expect;
+const {expect} = chai;
 chai.use(require('sinon-chai'));
 
 const api = require('../lib/api');

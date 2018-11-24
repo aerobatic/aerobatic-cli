@@ -5,10 +5,11 @@ const _ = require('lodash');
 const config = require('config');
 const uuid = require('uuid');
 const sinon = require('sinon');
-const manifest = require('../../lib/manifest');
 const express = require('express');
 const fs = require('fs-promise');
 const bodyParser = require('body-parser');
+
+const manifest = require('../../lib/manifest');
 
 const API_PORT = 1797;
 
@@ -110,7 +111,7 @@ describe('deploy command', () => {
     deployCommand = require('../../commands/deploy');
   });
 
-  it('deploys', () => {
+  it('deploys successfully', () => {
     const sampleAppDir = path.join(__dirname, '../fixtures/sample-app');
     Object.assign(program, {cwd: sampleAppDir});
 
@@ -132,7 +133,7 @@ describe('deploy command', () => {
             bucket: config.deployBucket,
             metadata: {
               stage: program.stage,
-              fileCount: '3'
+              fileCount: '2'
             }
           })
         );
@@ -210,7 +211,6 @@ describe('deploy command', () => {
       .catch(err => {
         errorThrown = true;
         assert.equal(err.code, 'deploymentTimedOut');
-        return;
       })
       .then(() => {
         assert.isTrue(errorThrown);

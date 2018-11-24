@@ -10,7 +10,7 @@ const manifest = require('../lib/manifest');
 config.userConfigFile = '.aerorc-test.yml';
 
 const userConfig = require('../lib/user-config');
-const expect = chai.expect;
+const {expect} = chai;
 const MockApi = require('./mock-api');
 const cliInit = require('../lib/cli-init');
 
@@ -36,7 +36,6 @@ describe('cliInit', () => {
       .then(() => {
         expect(program.userValue1).to.equal(1);
         expect(program.userValue2).to.equal(2);
-        return;
       });
   });
 

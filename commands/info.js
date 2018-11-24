@@ -2,10 +2,11 @@ const chalk = require('chalk');
 const _ = require('lodash');
 const urlJoin = require('url-join');
 const fileSize = require('filesize');
+const commaNumber = require('comma-number');
+
 const output = require('../lib/output');
 const api = require('../lib/api');
 const urls = require('../lib/urls');
-const commaNumber = require('comma-number');
 
 module.exports = program => {
   output.blankLine();

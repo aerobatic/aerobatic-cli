@@ -49,7 +49,6 @@ module.exports = program => {
         return promptForCustomer(program, customers).then(customerId => {
           program.customerId = customerId;
           output.blankLine();
-          return;
         });
       })
       .then(() => {
@@ -195,10 +194,8 @@ function createSourceDirectory(program) {
         return getRandomSiteName(program).then(siteName => {
           log.debug('Generated random site name %s', siteName);
           program.name = siteName;
-          return;
         });
       }
-      return;
     })
     .then(() => {
       program.cwd = path.join(program.cwd, program.name);

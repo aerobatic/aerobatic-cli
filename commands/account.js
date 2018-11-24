@@ -1,9 +1,10 @@
 const log = require('winston');
 const _ = require('lodash');
 const urlJoin = require('url-join');
+const chalk = require('chalk');
+
 const api = require('../lib/api');
 const output = require('../lib/output');
-const chalk = require('chalk');
 
 // Command to create a new website
 module.exports = program => {

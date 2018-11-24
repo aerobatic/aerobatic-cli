@@ -5,15 +5,14 @@ const _ = require('lodash');
 const chalk = require('chalk');
 const config = require('config');
 const urlJoin = require('url-join');
-const camelCase = require('camel-case');
-const pack = require('tar-pack').pack;
+const tar = require('tar');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const wordwrap = require('wordwrap');
 const promiseUntil = require('promise-until');
 const minimatch = require('minimatch');
-const exec = require('child_process').exec;
-const Spinner = require('cli-spinner').Spinner;
+const {exec} = require('child_process');
+const ora = require('ora');
 const api = require('../lib/api');
 const manifest = require('../lib/manifest');
 const output = require('../lib/output');
@@ -133,7 +132,6 @@ module.exports = program => {
       output(message);
       output('View now at ' + chalk.underline.yellow(version.deployedUrl));
       output.blankLine();
-      return;
     })
     .catch(err => {
       if (err.code === 'invalidManifest') {
@@ -189,7 +187,6 @@ function verifyDeployAssets(deployDirectory, program) {
               {formatted: true}
             );
           }
-          return;
         });
     });
 }
@@ -251,21 +248,20 @@ function createTarball(deployDirectory, program) {
     ignorePatterns = ignorePatterns.concat(deployManifest.ignore);
   }
 
-  const filter = entry => {
-    log.debug('test filter for entry %s', entry.path);
-    const filePath = path.relative(deployDirectory, entry.path);
+  const filter = (pathname, stat) => {
+    log.debug('test filter for entry %s', pathname);
 
     // Attempt to fix issue with Windows needing the execute bit
     // set on directories.
     // https://github.com/npm/node-tar/issues/7#issuecomment-17572926
     // https://github.com/sindresorhus/gulp-zip/issues/64#issuecomment-205324031
-    if (entry.props.type === 'Directory') {
+    if (stat.isDirectory()) {
       log.debug('Set mode of directory to 777');
-      entry.props.mode = parseInt('40777', 8); // eslint-disable-line
+      stat.mode = parseInt('40777', 8); // eslint-disable-line
     }
 
     const include = !_.some(ignorePatterns, pattern =>
-      minimatch(filePath, pattern)
+      minimatch(pathname, pattern)
     );
     if (include) {
       program.bundleFileCount += 1;
@@ -276,20 +272,26 @@ function createTarball(deployDirectory, program) {
   const tarballFile = path.join(program.cwd, 'aero-deploy.tar.gz');
   fs.removeSync(tarballFile);
 
-  const outStream = fs.createWriteStream(tarballFile);
-
   return new Promise((resolve, reject) => {
     log.debug('Create deployment bundle %s', tarballFile);
 
-    // pack(fstream.Reader({path: deployDirectory, filter}))
-    // Set ignoreFiles to an empty array. The filter command
-    pack(deployDirectory, {filter, ignoreFiles: []})
-      .pipe(outStream)
-      .on('error', reject)
-      .on('close', () => {
-        spinner.stop(true);
+    tar.create(
+      {
+        gzip: true,
+        filter,
+        file: tarballFile,
+        prefix: program.website.name,
+        cwd: deployDirectory
+      },
+      fs.readdirSync(deployDirectory),
+      err => {
+        spinner.succeed();
+        if (err) {
+          return reject(err);
+        }
         resolve(tarballFile);
-      });
+      }
+    );
   });
 }
 
@@ -320,7 +322,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
     .then(creds => {
       // Use the temporary IAM creds to create the S3 connection
       return program.uploader({
-        creds: _.mapKeys(creds, (value, key) => camelCase(key)),
+        creds: _.mapKeys(creds, (value, key) => _.camelCase(key)),
         tarballFile,
         key: program.website.appId + '/' + program.versionId + '.tar.gz',
         bucket: program.deployBucket,
@@ -332,10 +334,10 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
       });
     })
     .then(() => {
-      spinner.stop(true);
-      return;
+      spinner.succeed();
     })
     .catch(err => {
+      spinner.fail();
       throw Error.create('Error uploading to S3: ' + err.message, {}, err);
     });
 }
@@ -357,9 +359,8 @@ function waitForDeployComplete(program, deployStage, version) {
   );
 
   const stopSpinners = () => {
-    if (queueSpinner.isSpinning()) queueSpinner.stop(true);
-    if (runningSpinner && runningSpinner.isSpinning())
-      runningSpinner.stop(true);
+    if (queueSpinner.isSpinning) queueSpinner.succeed();
+    if (runningSpinner && runningSpinner.isSpinning) runningSpinner.succeed();
   };
 
   const startTime = Date.now();
@@ -375,7 +376,7 @@ function waitForDeployComplete(program, deployStage, version) {
       switch (latestVersionState.status) {
         case 'queued':
         case 'running':
-          if (queueSpinner.isSpinning()) queueSpinner.stop(true);
+          if (queueSpinner.isSpinning) queueSpinner.succeed();
           if (!runningSpinner) {
             runningSpinner = startSpinner(
               program,
@@ -406,7 +407,6 @@ function waitForDeployComplete(program, deployStage, version) {
         })
         .then(updatedVersion => {
           latestVersionState = updatedVersion;
-          return;
         });
     }
   )
@@ -437,7 +437,6 @@ function runBuildSteps(program, steps) {
     });
   }).then(() => {
     spinner.stop(true);
-    return;
   });
 }
 
@@ -456,13 +455,8 @@ function startSpinner(program, message) {
   // Don't show spinners, it just messes up the CI log output.
   if (program.unitTest || process.env.CI) {
     log.info(message);
-    return {isSpinning: () => false, stop: () => {}};
+    return {isSpinning: false, succeed: () => {}, fail: () => {}};
   }
 
-  process.stdout.write('     ' + chalk.dim(message));
-  var spinner = new Spinner('     %s');
-  spinner.setSpinnerString('|/-\\');
-  spinner.start();
-  process.stdout.write('\n');
-  return spinner;
+  return ora({text: message, color: 'white'}).start();
 }

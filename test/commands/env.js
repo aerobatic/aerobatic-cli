@@ -2,7 +2,7 @@ const uuid = require('uuid');
 const log = require('winston');
 const sinon = require('sinon');
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 chai.use(require('sinon-chai'));
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -88,6 +88,7 @@ describe('env command', () => {
   it('set global environment variable', () => {
     program.name = 'FOO';
     program.value = '10';
+
     return envCommand(program).then(() => {
       expect(apiHandlers.putEnvVar).to.have.been.called;
       const putReq = apiHandlers.putEnvVar.getCall(0).args[0];

@@ -120,7 +120,7 @@ function displayVersions(program) {
   output.blankLine();
 
   return listVersions(program).then(versions => {
-    const deployedVersions = program.website.deployedVersions;
+    const {deployedVersions} = program.website;
     const deployedStages = Object.keys(deployedVersions);
 
     if (versions.length === 0) {

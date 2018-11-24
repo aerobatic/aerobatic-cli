@@ -2,10 +2,11 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs-promise');
 const os = require('os');
-const download = require('../lib/download');
 const chai = require('chai');
 const log = require('winston');
-const expect = chai.expect;
+const {expect} = chai;
+
+const download = require('../lib/download');
 
 log.level = 'debug';
 const PORT = 1797;
@@ -52,7 +53,6 @@ describe('download', () => {
       expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
       expect(fs.existsSync(path.join(destDir, 'assets/css/main.css'))).to.be
         .true;
-      return;
     });
   });
 
@@ -65,7 +65,6 @@ describe('download', () => {
     ).then(() => {
       expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
       expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be.true;
-      return;
     });
   });
 
@@ -83,7 +82,6 @@ describe('download', () => {
         expect(fs.existsSync(path.join(destDir, 'index.html'))).to.be.true;
         expect(fs.existsSync(path.join(destDir, 'css/bootstrap.css'))).to.be
           .true;
-        return;
       });
   });
 

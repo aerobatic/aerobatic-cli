@@ -1,9 +1,10 @@
 const assert = require('assert');
 const fs = require('fs-promise');
-const manifest = require('../lib/manifest');
 const uuid = require('uuid');
 const path = require('path');
 const os = require('os');
+
+const manifest = require('../lib/manifest');
 
 require('dash-assert');
 const tmpdir = os.tmpdir();
@@ -20,7 +21,6 @@ describe('manifest', () => {
         assert.equal(appManifest.id, appId);
         assert.equal(appManifest.plugins.length, 1);
         assert.deepEqual(appManifest.plugins[0], {name: 'webpage'});
-        return;
       });
   });
 
@@ -34,7 +34,6 @@ describe('manifest', () => {
       .then(() => manifest.load(program))
       .catch(err => {
         assert.isTrue(/not valid yaml/.test(err.message));
-        return;
       });
   });
 
@@ -45,7 +44,6 @@ describe('manifest', () => {
       .then(() => manifest.load(program))
       .catch(err => {
         assert.equal(err.code, 'missingManifest');
-        return;
       });
   });
 
@@ -56,7 +54,6 @@ describe('manifest', () => {
       .then(() => manifest.load(program))
       .catch(err => {
         assert.equal(err.code, 'noManifestAppId');
-        return;
       });
   });
 
@@ -67,7 +64,6 @@ describe('manifest', () => {
       .then(() => manifest.load(program))
       .catch(err => {
         assert.equal(err.code, 'invalidAppId');
-        return;
       });
   });
 
@@ -78,7 +74,6 @@ describe('manifest', () => {
       .then(() => manifest.ensureNotExists(program))
       .catch(err => {
         assert.equal(err.code, 'manifestAlreadyExists');
-        return;
       });
   });
 

@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const express = require('express');
 const chai = require('chai');
 chai.use(require('sinon-chai'));
-const expect = chai.expect;
+const {expect} = chai;
 
 const API_PORT = 1797;
 
@@ -66,7 +66,6 @@ describe('versions command', () => {
     return versionCommand(program).then(() => {
       const listVersionsReq = apiHandlers.listVersions.lastCall.args[0];
       expect(listVersionsReq.params.appId).to.equal(appId);
-      return;
     });
   });
 
@@ -91,8 +90,6 @@ describe('versions command', () => {
         const deleteVersionReq = apiHandlers.deleteVersion.lastCall.args[0];
         expect(apiHandlers.deleteVersion).to.have.been.called;
         expect(deleteVersionReq.params.versionId).to.equal(versionId);
-
-        return;
       });
     });
 
