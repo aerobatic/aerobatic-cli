@@ -6,7 +6,7 @@ const config = require('config');
 const uuid = require('uuid');
 const sinon = require('sinon');
 const express = require('express');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 
 const manifest = require('../../lib/manifest');

@@ -1,6 +1,6 @@
 const path = require('path');
 const os = require('os');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const chai = require('chai');
 const sinon = require('sinon');
 chai.use(require('sinon-chai'));

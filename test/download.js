@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const os = require('os');
 const chai = require('chai');
 const log = require('winston');

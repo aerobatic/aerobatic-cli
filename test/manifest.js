@@ -1,5 +1,5 @@
 const assert = require('assert');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const uuid = require('uuid');
 const path = require('path');
 const os = require('os');

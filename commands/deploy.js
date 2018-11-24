@@ -1,5 +1,5 @@
 const log = require('winston');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const chalk = require('chalk');

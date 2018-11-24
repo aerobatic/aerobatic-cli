@@ -31,7 +31,7 @@
     "extract-zip": "^1.6.7",
     "file-type": "^10.5.0",
     "filesize": "^3.6.1",
-    "fs-promise": "^2.0.3",
+    "fs-extra": "^7.0.1",
     "inquirer": "^6.2.0",
     "isemail": "^3.2.0",
     "js-yaml": "^3.12.0",

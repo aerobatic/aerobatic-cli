@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const _ = require('lodash');
 const yaml = require('js-yaml');
-const fs = require('fs-promise');
+const fs = require('fs-extra');
 const path = require('path');
 const wordwrap = require('wordwrap');
 
