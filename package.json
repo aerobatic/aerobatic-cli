@@ -15,7 +15,7 @@
     "test-travis": "UNIT_TEST=1 npm run lint && istanbul cover mocha --report lcovonly -- --reporter spec --check-leaks test/ --recursive"
   },
   "license": "ISC",
-  "repository": "aerobatic/aerobatic-cli",
+  "repository": "https://github.com/aerobatic/aerobatic-cli",
   "homepage": "https://www.aerobatic.com",
   "dependencies": {
     "any-promise": "^1.3.0",
