@@ -23,15 +23,17 @@ const IGNORE_PATTERNS = [
   '.*',
   '.*/**',
   '*.tar.gz',
-  'README.*',
+  '**/README.*',
   'LICENSE',
   '**/*.less',
   '**/*.scss',
   '**/*.php',
   '**/*.asp',
+  '**/*.DS_STORE',
   'package.json',
   '*.log',
   'aero-deploy.tar.gz',
+  '**/.git/**',
   manifest.fileName
 ];
 
@@ -82,7 +84,7 @@ module.exports = program => {
     .then(() => {
       // If there is a directory specified in the deploy manifest, ensure that the
       // sub-directory exists.
-      if (deployDirectory) {
+      if (deployDirectory && deployDirectory !== '.') {
         deployPath = path.join(program.cwd, deployDirectory);
 
         log.debug('Ensure deployPath %s exists', deployPath);
@@ -249,6 +251,7 @@ function createTarball(deployDirectory, program) {
   }
 
   const filter = (pathname, stat) => {
+    pathname = _.trimStart(pathname, `${program.website.name}/`);
     log.debug('test filter for entry %s', pathname);
 
     // Attempt to fix issue with Windows needing the execute bit
