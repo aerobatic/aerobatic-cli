@@ -10,20 +10,20 @@ const urls = require('../lib/urls');
 
 module.exports = program => {
   output.blankLine();
-  output(chalk.dim('Name:'));
+  output(chalk.underline('Name:'));
   output('    ' + program.website.name);
 
   output.blankLine();
-  output(chalk.dim('Website ID:'));
+  output(chalk.underline('Website ID:'));
   output('    ' + program.website.appId);
 
   output.blankLine();
-  output(chalk.dim('Account ID:'));
+  output(chalk.underline('Account ID:'));
   output('    ' + program.website.customerId);
 
   // Display the URLs of all deployed stages
   output.blankLine();
-  output(chalk.dim('URLs:'));
+  output(chalk.underline('URLs:'));
   const stages = Object.keys(program.website.urls);
   stages.forEach(stage => {
     output(
@@ -34,8 +34,14 @@ module.exports = program => {
     );
   });
 
+  if (_.isArray(program.website.clientIpRange)) {
+    output.blankLine();
+    output(chalk.underline('Client IP Range:'));
+    output('   ' + program.website.clientIpRange.join(', '));
+  }
+
   output.blankLine();
-  output(chalk.dim('Plan:'));
+  output(chalk.underline('Plan:'));
   if (!program.website.subscriptionPlan) {
     if (_.isNumber(program.website.trialEnd)) {
       if (program.website.trialEnd < Date.now()) {
@@ -82,7 +88,7 @@ function displayUsage(program) {
     })
     .then(usage => {
       output.blankLine();
-      output(chalk.dim('Usage:'));
+      output(chalk.underline('Usage:'));
       output(
         '      Day: ' +
           fileSize(usage.day.bytesOut) +

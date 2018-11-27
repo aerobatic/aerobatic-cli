@@ -10,6 +10,20 @@ apikey:
 
   details: The api-key is typically configured as an enviroment variable named AEROBATIC_API_KEY on a CI server where there isn't an interactive logged in user. If you need to reset the key, run the command with the --reset option. This will of course require any AEROBATIC_API_KEY environment variables be updated.
 
+clientip:
+  summary: Set ranges for which client IPs are allowed access to the website.
+  details: IP ranges can be set as exact IP or CIDR ranges. Both IPv4 and IPv6 addresses are supported. Multiple values can be entered as a comma delimited list.
+  options:
+    - name: value
+      short: v
+      summary: The comma delimited list of IP or CIDR values.
+    - name: delete
+      short: D
+      summary: Clear the client IP range making the website accessible to all.
+  examples:
+    - 'aero clientip --value "125.19.23.0/24, 62.230.58.1, ::2"      # Set the allowed IP ranges'
+    - 'aero clientip -D                                              # Clear the IP ranges'
+
 create:
   summary: Create a new Aerobatic website in the current directory
   details: If no aerobatic.yml file exists in the current directory, a new one will created. If there is already an aerobatic.yml file, then the "id" property will overriden with the new website's id. You can optionally specify a --name option. If no name is provided then a random name will be generated for you.
@@ -79,7 +93,7 @@ domain:
     - name: subdomain
       short: N
       summary: The subdomain you want your website to be accessible at. For apex domain use the value '@'.
-    
+
   examples:
     - 'aero domain --name mydomain.com --subdomain www   # Register domain for website with sub-domain'
     - 'aero domain --name mydomain.com --subdomain @     # Register apex domain for website'
@@ -137,7 +151,7 @@ logs:
       short: f
       summary: The output format of the log entries.
   details: |
-     By default log entries are display in a format similiar to the Apache combined log format. Pass the value "json" to the --format option to see the raw log entries in their entirety.
+    By default log entries are display in a format similiar to the Apache combined log format. Pass the value "json" to the --format option to see the raw log entries in their entirety.
   examples:
     - aero logs
     - aero logs --format json

@@ -120,6 +120,13 @@ program.command('env').action(
   })
 );
 
+// Set clientIP range restrictions
+program.command('clientip').action(
+  commandAction(require('../commands/clientip'), {
+    loadWebsite: true
+  })
+);
+
 // Deploy app version
 program.command('deploy').action(
   commandAction(require('../commands/deploy'), {
