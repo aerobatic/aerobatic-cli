@@ -251,7 +251,9 @@ function createTarball(deployDirectory, program) {
   }
 
   const filter = (pathname, stat) => {
-    pathname = _.trimStart(pathname, `${program.website.name}/`);
+    if (pathname.startsWith(`${program.website.name}/`)) {
+      pathname = pathname.substr(program.website.name.length + 1);
+    }
     log.debug('test filter for entry %s', pathname);
 
     // Attempt to fix issue with Windows needing the execute bit
