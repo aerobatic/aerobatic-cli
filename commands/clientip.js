@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const _ = require('lodash');
 const urlJoin = require('url-join');
+const publicIp = require('public-ip');
 const output = require('../lib/output');
 const api = require('../lib/api');
 
@@ -14,27 +15,15 @@ module.exports = program => {
   }
 };
 
-function setClientIpRange(program) {
-  output.blankLine();
-  output('Setting allowed client IP ranges to "' + program.value + '"');
-  output.blankLine();
-
-  if (!_.isString(program.value)) {
-    return Promise.reject(
-      Error.create(
-        'Must provide comma delimited list of IPs in the --value option',
-        {
-          formatted: true
-        }
-      )
-    );
-  }
-
+function putValueWithApi(program) {
   return api
     .put({
       url: urlJoin(
-        program.apiUrl,
-        `/apps/${program.website.appId}/clientip-range`
+        _.compact([
+          program.apiUrl,
+          `/apps/${program.website.appId}/clientip-range`,
+          program.stage
+        ])
       ),
       authToken: program.authToken,
       body: {
@@ -44,11 +33,39 @@ function setClientIpRange(program) {
     .then(() => {
       output(
         chalk.green(
-          'Client IP range updated. Only end users whose IP address falls in the range can now access the website.'
+          'Client IP range updated to ' +
+            program.value +
+            '. Only end users whose IP address falls in the range can now access the website.'
         )
       );
       output.blankLine();
     });
+}
+
+function setClientIpRange(program) {
+  output.blankLine();
+  output('Setting allowed client IP ranges to "' + program.value + '"');
+  output.blankLine();
+
+  if (!_.isString(program.value)) {
+    return Promise.reject(
+      Error.create(
+        'Must provide comma delimited list of IPs or the value "myip" in the --value option',
+        {
+          formatted: true
+        }
+      )
+    );
+  }
+
+  if (program.value === 'myip') {
+    publicIp.v4().then(ip => {
+      program.value = ip;
+      return putValueWithApi(program);
+    });
+  } else {
+    return putValueWithApi(program);
+  }
 }
 
 function deleteClientIpRange(program) {

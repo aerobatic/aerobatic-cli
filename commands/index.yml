@@ -17,12 +17,18 @@ clientip:
     - name: value
       short: v
       summary: The comma delimited list of IP or CIDR values.
+    - name: stage
+      short: s
+      summary: The deploy stage to set the allowed IP ranges for. Omitting this parameter sets the default for all stages.
     - name: delete
       short: D
       summary: Clear the client IP range making the website accessible to all.
   examples:
     - 'aero clientip --value "125.19.23.0/24, 62.230.58.1, ::2"      # Set the allowed IP ranges'
+    - 'aero clientip --value "::1" --stage test                      # Sets the IP ranges for test stage'
     - 'aero clientip -D                                              # Clear the IP ranges'
+    - 'aero clientip --value myip                                    # Restrict site to your current IP'
+    - 'aero clientip -D --stage test                                 # Clear IP ranges for the test stage'
 
 create:
   summary: Create a new Aerobatic website in the current directory

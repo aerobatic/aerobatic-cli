@@ -1,6 +1,6 @@
 {
   "name": "aerobatic-cli",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Command line interface for Aerobatic static hosting platform",
   "main": "bin/aero",
   "bin": {
@@ -40,6 +40,7 @@
     "ora": "^3.0.0",
     "osenv": "^0.1.5",
     "promise-until": "^1.0.0",
+    "public-ip": "^2.4.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "s3-upload-stream": "^1.0.7",
