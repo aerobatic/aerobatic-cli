@@ -39,7 +39,7 @@ const IGNORE_PATTERNS = [
 
 // Command to create a new website version
 module.exports = program => {
-  const deployStage = program.stage || 'production';
+  const deployStage = program.stage || 'production'.replace(/^[a-z0-9-]/g, '-');
 
   output.blankLine();
   output(
@@ -57,7 +57,7 @@ module.exports = program => {
     deployStage: 'production'
   });
 
-  if (!/^[a-z0-9-]{3,50}$/.test(program.deployStage)) {
+  if (!/^[a-z0-9-]{3,50}$/.test(deployStage)) {
     return Promise.reject(
       Error.create(
         'Invalid deploy stage arg. Must consist ' +
@@ -325,6 +325,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
         });
     })
     .then(creds => {
+      console.log(creds);
       // Use the temporary IAM creds to create the S3 connection
       return program.uploader({
         creds: _.mapKeys(creds, (value, key) => _.camelCase(key)),
@@ -343,6 +344,7 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
     })
     .catch(err => {
       spinner.fail();
+      console.log(err);
       throw Error.create('Error uploading to S3: ' + err.message, {}, err);
     });
 }
