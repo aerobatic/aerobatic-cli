@@ -325,7 +325,6 @@ function uploadTarballToS3(program, deployStage, tarballFile) {
         });
     })
     .then(creds => {
-      console.log(creds);
       // Use the temporary IAM creds to create the S3 connection
       return program.uploader({
         creds: _.mapKeys(creds, (value, key) => _.camelCase(key)),
