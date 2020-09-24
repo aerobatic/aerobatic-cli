@@ -39,7 +39,7 @@ const IGNORE_PATTERNS = [
 
 // Command to create a new website version
 module.exports = program => {
-  const deployStage = program.stage || 'production'.replace(/^[a-z0-9-]/g, '-');
+  const deployStage = program.stage || 'production'.replace(/[^a-z0-9-]/g, '-');
 
   output.blankLine();
   output(
